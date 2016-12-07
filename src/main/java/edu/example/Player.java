@@ -1,4 +1,4 @@
-package edu.example
+package edu.example;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,7 +15,7 @@ import javax.persistence.Id;
             private String email;
 
 
-            public Player (String usr, String eml{
+            public Player (String usr, String eml){
 
                 username = usr;
                 email = eml;

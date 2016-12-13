@@ -6,7 +6,7 @@ package edu.example;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 /**
- * Making it a REST Repository import ....RepositoryRestResource + @RepositoryRestResource
+ * Making it a REST Repository "import ....RepositoryRestResource" + the annotation: "@RepositoryRestResource"
  * */
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 

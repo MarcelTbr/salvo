@@ -14,7 +14,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
-bootRun { addResources = true }
+
 
 jar {
 	baseName = 'salvo'
@@ -27,6 +27,9 @@ repositories {
 	mavenCentral()
 }
 
+bootRun {
+	addResources = true
+}
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')

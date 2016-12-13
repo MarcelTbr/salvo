@@ -4,6 +4,7 @@ package edu.example;
  * SpringBoot Library link for using CommandLineRunner
  * */
 
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,6 +12,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Springboot Library link for using BEANS
  * */
 import org.springframework.context.annotation.Bean;
+
+import java.util.Calendar;
+import java.util.Date;
+
 
 @SpringBootApplication
 public class SalvoApplication {
@@ -20,13 +25,18 @@ public class SalvoApplication {
 	}
 
 
+	public Date date = new Date();
+
 
 	@Bean
-	public CommandLineRunner initData(PlayerRepository repository) {
+	public CommandLineRunner initData(PlayerRepository players, GameRepository games) {
 		return (args) -> {
 			// save a couple of newly registered players
-			repository.save(new Player("Jack", "jack@daniels.com"));
-			repository.save(new Player("Jane", "jane@daniels.com"));
+			players.save(new Player("Jack", "jack@daniels.com"));
+			players.save(new Player("Jane", "jane@daniels.com"));
+			games.save(new Game(new Date()));
+			games.save(new Game( Date.from( date.toInstant().plusSeconds(3600) ) ) );
+			games.save(new Game( Date.from( date.toInstant().plusSeconds(7200) ) ) );
 
 		};
 	}

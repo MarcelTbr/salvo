@@ -1,13 +1,11 @@
 package edu.example;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Set;
 
 
-    /**
+/**
      * Tells Spring to create the table Players
      * */
         @Entity
@@ -40,6 +38,9 @@ import javax.persistence.Id;
                 email = eml;
 
             }
+
+        @OneToMany(mappedBy="player", fetch=FetchType.EAGER)
+        Set<GamePlayer> gamePlayers;
 
             public String getUsername() {
                 return username;

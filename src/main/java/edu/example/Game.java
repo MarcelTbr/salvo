@@ -5,12 +5,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
-
+import java.util.Set;
+import javax.persistence.*;
 
 
 /**
@@ -22,17 +18,12 @@ public class Game {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    /** long extends the number limit of int */
     private long id;
-
-
 
     private String creationDate;
 
-
-
-
-
+    @OneToMany(mappedBy="game", fetch=FetchType.EAGER)
+    Set<GamePlayer> gamePlayers;
 
     public Game()  { }
 

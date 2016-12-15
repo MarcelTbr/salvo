@@ -4,6 +4,10 @@ import javax.persistence.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Created by marceltauber on 13/12/16.
@@ -36,6 +40,13 @@ public class GamePlayer {
 
     }
 
+
+    /*public Set<GamePlayer> getGamePlayer(List<GamePlayer> gamePlayers){
+
+        return gamePlayers.stream()
+                .map(gp -> gp.player + gp.playerJoinDate + gp.game )
+                .collect(Collectors.toSet());
+    }*/
 
 
 }

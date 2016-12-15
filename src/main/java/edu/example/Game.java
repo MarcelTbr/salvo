@@ -3,10 +3,8 @@ package edu.example;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.persistence.*;
 
@@ -40,8 +38,23 @@ public class Game {
         return creationDate;
     }
 
+    public Set<GamePlayer> getPlayersList() {
+
+        return gamePlayers;
+    }
+
+    public long getId() {
+        return id;
+    }
 
     //testing
+   /* public Set<Game> getGame(List<Game> games){
+
+        return games.stream()
+                .collect(Collectors.toSet());
+    }*/
+
+
     //public ArrayList GameArray = new ArrayList<String>();
 
     //public Stream GameStream = new Stream<String>(Stream.of(Game.getCreationDate()));

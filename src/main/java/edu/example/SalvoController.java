@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -32,32 +34,47 @@ public class SalvoController {
     @RequestMapping("/games")
     public List<Object> getGames() {
 
+        /**
+         * first we get a list of Game instances through the GameRepository
+         * */
         List<Game> gamesList = GameRepo.findAll();
-        //Map<long, Game> gameObject = Map<long id, List gamesList>;
 
+        /**
+         * Then we create an empty List of Objects to store the games we will get later.
+         * */
         List<Object> games = new ArrayList<Object>();
 
-       /* for (Game g : gamesList) {
+        /**
+         * next we loop through that list of [Game Instances]
+         * creating a new [HashMap] with Key: String(a meaningful name)
+         * Value: Object (different each time)
+         * and we fill it with the Game.id, Game.creationDate
+         * and also the Players Instance we get by calling the method
+         * Game.getPlayersList()
+         * */
+       for (Game g : gamesList) {
 
-            games.add(xxx);  //xxx map of id Map<long id, Game game>
+           HashMap<String, Object> newGame = new HashMap<String, Object>();
+           newGame.put("id", g.getId());  //xxx map of id Map<long id, Game game>
+           newGame.put("date", g.getCreationDate());
+           newGame.put("game_players", g.getPlayersList());
 
-        }*/
+           games.add(newGame);
+        }
 
         //crear variable lista de objetos
-        games = gamesList //list of Game objects w/ id & creationDate
+       /** games = gamesList //list of Game objects w/ id & creationDate
                 .stream()  // convert to stream
                 .map(g -> g.getId())   //maps the requested method to a List long
                 .collect(Collectors.toList());  // closes the stream returning a List of Objects
 
-        /**
-         * Streams are declared in the Game and Player Classes
-         * **/
+
 
 
         return games;
+        */
 
-
-
+        return games;
                 /*.stream()
                 .map(b -> b.getClass()) *//* games -> makeGamesDTO(games)*//*
                 .collect(Collectors.toList());*/

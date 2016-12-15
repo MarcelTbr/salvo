@@ -38,6 +38,13 @@ public class Game {
         return creationDate;
     }
 
+    /**
+     * This method points to the GamePlayer of type Set
+     * there we get a list of unique [gamePlayers]
+     * independently of how many games a player has joined
+     * he/she will only show once on the list
+     * */
+
     public Set<GamePlayer> getPlayersList() {
 
         return gamePlayers;

@@ -3,9 +3,11 @@ package edu.example;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.persistence.*;
 
 
@@ -37,6 +39,16 @@ public class Game {
     public String getCreationDate() {
         return creationDate;
     }
+
+
+    //testing
+    //public ArrayList GameArray = new ArrayList<String>();
+
+    //public Stream GameStream = new Stream<String>(Stream.of(Game.getCreationDate()));
+
+
+
+
 
 
 

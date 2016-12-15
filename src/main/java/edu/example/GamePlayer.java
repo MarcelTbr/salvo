@@ -3,9 +3,7 @@ package edu.example;
 import javax.persistence.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -39,6 +37,45 @@ public class GamePlayer {
         this.game = game;
 
     }
+
+    public Player getPlayer(){
+
+        return player;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public List<HashMap> getPlayerInfo(GamePlayer gp_in_game){
+
+
+        /**
+         * It has to be an ArrayList in order to be instantiated correctly
+         *  */
+        List<HashMap> game_players = new ArrayList<HashMap>();
+
+
+
+
+        HashMap<String, Object> PlayerInfoMap = new HashMap<String, Object>() {
+           // PlayerInfo.put("player_id", game.getPlayer().getId())
+                    //return "fdhsklfa";
+        };
+
+        PlayerInfoMap.put("player_id", gp_in_game.getPlayer().getId());
+        PlayerInfoMap.put("player_username", gp_in_game.getPlayer().getUsername());
+        PlayerInfoMap.put("player_email", gp_in_game.getPlayer().getEmail());
+
+
+        game_players.add(PlayerInfoMap);
+
+
+
+        return game_players;
+    };
+
+
 
 
     /*public Set<GamePlayer> getGamePlayer(List<GamePlayer> gamePlayers){

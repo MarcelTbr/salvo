@@ -39,6 +39,7 @@ public class SalvoController {
          * */
         List<Game> gamesList = GameRepo.findAll();
 
+
         /**
          * Then we create an empty List of Objects to store the games we will get later.
          * */
@@ -57,10 +58,14 @@ public class SalvoController {
            HashMap<String, Object> newGame = new HashMap<String, Object>();
            newGame.put("id", g.getId());  //xxx map of id Map<long id, Game game>
            newGame.put("date", g.getCreationDate());
-           newGame.put("game_players", g.getPlayersList());
+           newGame.put("game_players", g.getPlayersList().stream()
+                   .map(gp_in_g -> gp_in_g.getPlayerInfo(gp_in_g))
+                   .collect(Collectors.toList()));
 
            games.add(newGame);
         }
+
+
 
         //crear variable lista de objetos
        /** games = gamesList //list of Game objects w/ id & creationDate

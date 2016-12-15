@@ -5,15 +5,16 @@ import javax.persistence.*;
 import java.util.Set;
 
 
-/**
-     * Tells Spring to create the table Players
-     * */
+        /**
+        * Tells Spring to create the table Players
+        * */
         @Entity
         public class Player {
 
+
+            /** long extends the number limit of int */
             @Id
             @GeneratedValue(strategy=GenerationType.AUTO)
-            /** long extends the number limit of int */
             private long id;
             private String username;
             private String email;
@@ -32,6 +33,8 @@ import java.util.Set;
 
                 /**
                  * "this."property is assumed
+                 * because parameter and property names
+                 * are different
                  * */
 
                 username = usr;
@@ -39,32 +42,37 @@ import java.util.Set;
 
             }
 
-        @OneToMany(mappedBy="player", fetch=FetchType.EAGER)
-        Set<GamePlayer> gamePlayers;
+            @OneToMany(mappedBy="player", fetch=FetchType.EAGER)
+            Set<GamePlayer> gamePlayers;
 
             public String getUsername() {
-                return username;
-            }
+                    return username;
+                }
 
             public void setUsername (String usr) {
-                this.username = usr;
-            }
+                    this.username = usr;
+                }
 
             public String getEmail() {
-                return email;
-            }
+                    return email;
+                }
 
             public void setEmail(String eml) {
-                this.email = eml;
-            }
+                    this.email = eml;
+                }
 
             /**
              * Tell Java Library to use this method instead of the standard one
              * */
             @Override
             public String toString() {
-                return username + " " + email;
-            }
+                    return username + " " + email;
+                }
 
+
+            public long getId() {
+                return id;
+
+            }
 
         }

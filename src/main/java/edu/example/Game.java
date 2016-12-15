@@ -40,7 +40,7 @@ public class Game {
 
     /**
      * This method points to the GamePlayer of type Set
-     * there we get a list of unique [gamePlayers]
+     * there we get a list of unique [gamePlayers] instances
      * independently of how many games a player has joined
      * he/she will only show once on the list
      * */

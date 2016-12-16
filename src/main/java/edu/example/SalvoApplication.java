@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * */
 import org.springframework.context.annotation.Bean;
 
-import java.util.Calendar;
 import java.util.Date;
 
 
@@ -42,6 +41,13 @@ public class SalvoApplication {
 			Date.from( date.toInstant().plusSeconds(7200) )
 						);
 
+
+	public Date date2 = Date.from( date.toInstant().plusSeconds(1800));
+	public Date date3 = Date.from( date.toInstant().plusSeconds(3600));
+	public Date date4 = Date.from( date.toInstant().plusSeconds(5400));
+	public Date date5 = Date.from( date.toInstant().plusSeconds(7200));
+	public Date date6 = Date.from( date.toInstant().plusSeconds(9000));
+
 	@Bean
 	public CommandLineRunner initData(PlayerRepository players, GameRepository games, GamePlayerRepository gamePlayers) {
 		return (args) -> {
@@ -63,11 +69,11 @@ public class SalvoApplication {
 			 * Create some initial games with some of the created players
 			 * */
 			gamePlayers.save( new GamePlayer(date, player1, game1) );
-			gamePlayers.save( new GamePlayer(date, player2, game1) );
-			gamePlayers.save( new GamePlayer(date, player3, game2) );
-			gamePlayers.save( new GamePlayer(date, player4, game2) );
-			gamePlayers.save( new GamePlayer(date, player5, game3) );
-			gamePlayers.save( new GamePlayer(date, player6, game3) );
+			gamePlayers.save( new GamePlayer(date2, player2, game1) );
+			gamePlayers.save( new GamePlayer(date3, player3, game2) );
+			gamePlayers.save( new GamePlayer(date4, player4, game2) );
+			gamePlayers.save( new GamePlayer(date5, player5, game3) );
+			gamePlayers.save( new GamePlayer(date6, player6, game3) );
 
 
 

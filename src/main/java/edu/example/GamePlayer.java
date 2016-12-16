@@ -3,9 +3,8 @@ package edu.example;
 import javax.persistence.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
+import java.util.Date;
 
 /**
  * Created by marceltauber on 13/12/16.
@@ -47,43 +46,22 @@ public class GamePlayer {
         return game;
     }
 
-    public List<HashMap> getPlayerInfo(GamePlayer gp_in_game){
+    public Object getPlayerInfo(GamePlayer gp_in_game){
 
 
-        /**
-         * It has to be an ArrayList in order to be instantiated correctly
-         *  */
-        List<HashMap> game_players = new ArrayList<HashMap>();
-
-
-
-
-        HashMap<String, Object> PlayerInfoMap = new HashMap<String, Object>() {
-           // PlayerInfo.put("player_id", game.getPlayer().getId())
-                    //return "fdhsklfa";
-        };
+        LinkedHashMap<String, Object> PlayerInfoMap = new LinkedHashMap<String, Object>();
 
         PlayerInfoMap.put("player_id", gp_in_game.getPlayer().getId());
         PlayerInfoMap.put("player_username", gp_in_game.getPlayer().getUsername());
         PlayerInfoMap.put("player_email", gp_in_game.getPlayer().getEmail());
+        PlayerInfoMap.put("player_join_date", gp_in_game.getPlayerJoinDate());
 
 
-        game_players.add(PlayerInfoMap);
+        return PlayerInfoMap;
+    }
 
-
-
-        return game_players;
-    };
-
-
-
-
-    /*public Set<GamePlayer> getGamePlayer(List<GamePlayer> gamePlayers){
-
-        return gamePlayers.stream()
-                .map(gp -> gp.player + gp.playerJoinDate + gp.game )
-                .collect(Collectors.toSet());
-    }*/
-
+    public String getPlayerJoinDate() {
+        return playerJoinDate;
+    }
 
 }

@@ -7,7 +7,7 @@
             src="https://code.jquery.com/jquery-3.1.1.js"
             integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
             crossorigin="anonymous"></script>
-    <script src="games.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 
     <style>
         #games_list li {
@@ -19,16 +19,29 @@
 
     </style>
 </head>
-<body>
+<body ng-app="GamesApp" ng-controller="GamesController" >
 
 <h2>Active Salvo Games</h2>
 <ul id="games_list">
-  <!--  <li>First Game</li>
-    <li>Second Game</li>
-    <li>Third Game</li>
--->
+    <li ng-repeat="game in games"><u>
 
+        <b>Game {{game.game_id}}</b></u><br />
+        <b>Creation Date:</b></b> {{game.game_date}}<br />
+        <span ng-repeat="player in game.game_players">
+            <b>Player {{player.player_id}}:</b> {{player.player_username}}
+            <b>Joined:</b> {{player.player_join_date }} <br />
+        </span>
+
+        <br /><br />
+
+
+
+
+    </li>
 </ul>
 
+
+<script type="text/javascript" src="games.js"></script>
+<script type="text/javascript" src="angular_app.js"></script>
 </body>
 </html>

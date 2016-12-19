@@ -48,8 +48,34 @@ public class SalvoApplication {
 	public Date date5 = Date.from( date.toInstant().plusSeconds(7200));
 	public Date date6 = Date.from( date.toInstant().plusSeconds(9000));
 
+	/**
+	 *  Create GamePlayers and assign them to variables
+	 * */
+	public GamePlayer gp1 = new GamePlayer(date, player1, game1);
+	public GamePlayer gp2 = new GamePlayer(date2, player2, game1);
+	public GamePlayer gp3 = new GamePlayer(date3, player3, game2);
+	public GamePlayer gp4 = new GamePlayer(date4, player4, game2);
+	public GamePlayer gp5 = new GamePlayer(date5, player5, game3);
+	public GamePlayer gp6 = new GamePlayer(date6, player6, game3);
+
+	/**
+	 * Create some ships for Game1 --> GamePlayer1/Player1
+	 * **/
+
+	public Ship ship1_1 = new Ship(gp1);
+	public Ship ship1_2 = new Ship(gp1);
+	public Ship ship1_3 = new Ship(gp1);
+	public Ship ship1_4 = new Ship(gp1);
+
+
+	/**
+	 * Create new ShipLocations for each ship
+	 * */
+
+	public ShipLocation ship1_1_loc = new ShipLocation();
+
 	@Bean
-	public CommandLineRunner initData(PlayerRepository players, GameRepository games, GamePlayerRepository gamePlayers) {
+	public CommandLineRunner initData(PlayerRepository players, GameRepository games, ShipRepository ships, GamePlayerRepository gamePlayers) {
 		return (args) -> {
 			// save a couple of newly registered players
 			players.save(player1); // 1
@@ -68,15 +94,25 @@ public class SalvoApplication {
 			/**
 			 * Create some initial games with some of the created players
 			 * */
-			gamePlayers.save( new GamePlayer(date, player1, game1) );
-			gamePlayers.save( new GamePlayer(date2, player2, game1) );
-			gamePlayers.save( new GamePlayer(date3, player3, game2) );
-			gamePlayers.save( new GamePlayer(date4, player4, game2) );
-			gamePlayers.save( new GamePlayer(date5, player5, game3) );
-			gamePlayers.save( new GamePlayer(date6, player6, game3) );
+			gamePlayers.save( gp1 );
+			gamePlayers.save( gp2 );
+			gamePlayers.save( gp3 );
+			gamePlayers.save( gp4 );
+			gamePlayers.save( gp5 );
+			gamePlayers.save( gp6 );
+
+			/** create some ships for a player */
 
 
 
+			ships.save(ship1_1);
+			ships.save(ship1_2);
+			ships.save(ship1_3);
+			ships.save(ship1_4);
+
+
+			//gp1.addShip(ship1_1,  "A1", "A2", "A3", "A4");
+			gp1.addShip(ship1_1, "A1-A2-A3");
 
 		};
 	}

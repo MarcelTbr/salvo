@@ -16,8 +16,12 @@ import java.util.stream.Collectors;
 @RestController
 public class SalvoController {
 
+
+    //Calendar now = new GregorianCalendar(TimeZone.getTimeZone("ES"));
+
     @Autowired
     private GameRepository GameRepo;
+
 
 
     /**

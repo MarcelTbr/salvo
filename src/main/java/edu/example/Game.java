@@ -4,8 +4,6 @@ package edu.example;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.persistence.*;
 
 
@@ -54,17 +52,7 @@ public class Game {
         return id;
     }
 
-    //testing
-   /* public Set<Game> getGame(List<Game> games){
 
-        return games.stream()
-                .collect(Collectors.toSet());
-    }*/
-
-
-    //public ArrayList GameArray = new ArrayList<String>();
-
-    //public Stream GameStream = new Stream<String>(Stream.of(Game.getCreationDate()));
 
 
 

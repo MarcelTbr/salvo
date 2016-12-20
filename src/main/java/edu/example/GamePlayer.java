@@ -1,9 +1,15 @@
 package edu.example;
 
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import javax.persistence.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpMethod.POST;
 
 /**
  * Created by marceltauber on 13/12/16.
@@ -27,8 +33,8 @@ public class GamePlayer {
     private Game game;
 
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name="game_player")
-    Set<GamePlayer> gamePlayer;
+    @JoinColumn(name="ships") //Before name="game_player" Set<GamePlayer> gamePlayer
+    Set<Ship> ships = new HashSet<>();
 
 
     public GamePlayer () {}
@@ -39,10 +45,13 @@ public class GamePlayer {
         this.playerJoinDate = df.format(date);
         this.player = player;
         this.game = game;
-//        this.gamePlayerId = this.id;
 
     }
 
+
+
+
+    //TODO change to getId?
     public long getGamePlayerId() {
 
         return id;
@@ -58,6 +67,8 @@ public class GamePlayer {
         return game;
     }
 
+
+    //TODO move to controller
     public Object getPlayerInfo(GamePlayer gp_in_game){
 
 
@@ -76,16 +87,20 @@ public class GamePlayer {
         return playerJoinDate;
     }
 
-    public void addShip(Ship ship, String shipCells){//String cell1, String cell2, String cell3, String cell4 ){
+    public void addShip(Ship ship){//String cell1, String cell2, String cell3, String cell4 ){
 
-//        ArrayList<String> shipCells = new ArrayList<>();
-//
-//       shipCells.set(1, cell1);
-//       shipCells.set(2, cell2);
-//       shipCells.set(3, cell3);
-//       shipCells.set(4, cell4);
+        ship.setGamePlayer(ship); //necessary for the Ship (N) - (1) GamePlayer relationship
+        //ship.setShipCells(shipCells);
+        this.ships.add(ship);
 
-        new ShipLocation(shipCells, ship.getShipId());
+
+        //new ShipLocation(shipCells, ship.getShipId());
+
     }
 
+    public Set<Ship> getShips(){
+
+        return  ships;
+
+    }
 }

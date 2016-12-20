@@ -21,7 +21,7 @@ public class Game {
     private String creationDate;
 
     @OneToMany(mappedBy="game", fetch=FetchType.EAGER)
-    Set<GamePlayer> gamePlayers;
+     Set<GamePlayer> gamePlayers; //TODO: find out if has to be private-public-any_of_the_latter
 
     public Game()  { }
 
@@ -36,6 +36,7 @@ public class Game {
         return creationDate;
     }
 
+
     /**
      * This method points to the GamePlayer of type Set
      * there we get a list of unique [gamePlayers] instances
@@ -43,7 +44,7 @@ public class Game {
      * he/she will only show once on the list
      * */
 
-    public Set<GamePlayer> getPlayersList() {
+    public Set<GamePlayer> getPlayersList() { //TODO: change to getGamePlayers()
 
         return gamePlayers;
     }

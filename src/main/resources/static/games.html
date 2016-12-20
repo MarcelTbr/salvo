@@ -3,40 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Salvo Games</title>
+    <link rel="stylesheet" type="text/css" href="games.css">
+    <!--JQuery & Angular 1.5.7 CDNS -->
     <script
             src="https://code.jquery.com/jquery-3.1.1.js"
             integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
             crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 
-    <style>
-        #games_list li {
-
-        list-style: none;
-
-        }
-
-
-    </style>
 </head>
 <body ng-app="GamesApp" ng-controller="GamesController" >
 
 <h2>Active Salvo Games</h2>
 <ul id="games_list">
     <li ng-repeat="game in games"><u>
-
         <b>Game {{game.game_id}}</b></u><br />
         <b>Creation Date:</b></b> {{game.game_date}}<br />
         <span ng-repeat="player in game.game_players">
             <b>Player {{player.player_id}}:</b> {{player.player_username}}
             <b>Joined:</b> {{player.player_join_date }} <br />
         </span>
-
         <br /><br />
-
-
-
-
     </li>
 </ul>
 

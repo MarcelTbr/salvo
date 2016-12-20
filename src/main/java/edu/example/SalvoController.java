@@ -1,6 +1,7 @@
 package edu.example;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,7 +41,7 @@ public class SalvoController {
         /**
          * Then we create an empty List of Objects to store the games we will get later.
          * */
-        LinkedList<Object> games = new LinkedList<Object>();
+        LinkedList<Object> gamesDTO = new LinkedList<Object>(); //DTO
 
         /**
          * next we loop through that list of [Game Instances]
@@ -59,13 +60,26 @@ public class SalvoController {
                    .map(gp_in_g -> gp_in_g.getPlayerInfo(gp_in_g)) // Game/gamePlayers.PlayerInfo(Game/GamePlayers)
                    .collect(Collectors.toList())); //close the stream
 
-           games.add(newGame);
+           gamesDTO.add(newGame);
        }
 
 
-        return games;
+        return gamesDTO;
 
 
     }
+
+//    @RequestMapping("gamePlayers/{gamePlayerId}")
+//    public Set<Ship> findShips(
+//
+//            @PathVariable long gamePlayerId, Set<Ship> ships){ //TODO: this gamePlayerId must have value
+                                                                 //TODO: & return statement must be fixed
+
+//
+//
+//
+//        return ships;
+//    }
+
 
     }

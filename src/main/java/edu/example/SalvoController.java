@@ -18,10 +18,13 @@ import java.util.stream.Collectors;
 public class SalvoController {
 
 
-    //Calendar now = new GregorianCalendar(TimeZone.getTimeZone("ES"));
+    //Calendar now = new GregorianCalendar(TimeZone.getTimeZone("ES")); //TODO: Refactor Date (format at endpoint)
 
     @Autowired
-    private GameRepository GameRepo;
+    private GameRepository gameRepo;
+
+    @Autowired
+    private GamePlayerRepository gamePlayerRepo;
 
 
 
@@ -35,7 +38,7 @@ public class SalvoController {
         /**
          * first we get a list of Game instances through the GameRepository
          * */
-        List<Game> gamesList = GameRepo.findAll();
+        List<Game> gamesList = gameRepo.findAll();
 
 
         /**
@@ -49,14 +52,14 @@ public class SalvoController {
          * Value: Object (different each time)
          * and we fill it with the Game.id, Game.creationDate
          * and also the Players Instance we get by calling the method
-         * Game.getPlayersList()
+         * Game.getGamePlayers()
          * */
        for (Game g : gamesList) {
 
         Map<String, Object> newGame = new LinkedHashMap<String, Object>();
            newGame.put("game_id", g.getId());
            newGame.put("game_date", g.getCreationDate());
-           newGame.put("game_players", g.getPlayersList().stream() // convert to stream
+           newGame.put("game_players", g.getGamePlayers().stream() // convert to stream
                    .map(gp_in_g -> gp_in_g.getPlayerInfo(gp_in_g)) // Game/gamePlayers.PlayerInfo(Game/GamePlayers)
                    .collect(Collectors.toList())); //close the stream
 
@@ -69,17 +72,42 @@ public class SalvoController {
 
     }
 
-//    @RequestMapping("gamePlayers/{gamePlayerId}")
-//    public Set<Ship> findShips(
-//
-//            @PathVariable long gamePlayerId, Set<Ship> ships){ //TODO: this gamePlayerId must have value
-                                                                 //TODO: & return statement must be fixed
+    /** Here we're mapping the endpoint for
+     *  each GamePlayer instance
+     *  with a PathVariable called gamePlayerId
+     *  this is routed by Ship's getGamePlayerId
+     *  getter method
+     * */
 
-//
-//
-//
-//        return ships;
-//    }
+    @RequestMapping("gamePlayers/{gamePlayerId}")
+    public Set<Ship> findShips(
+
+            @PathVariable long gamePlayerId){
+
+        /** First, we create a new instance of a GamePlayer*/
+
+        GamePlayer gamePlayer = new GamePlayer();
+
+        /** Then, we create a new empty set of type Ship instances*/
+         Set<Ship> ships =  new HashSet<>() ;
+
+        /** our gamePlayer instance gets filled
+         *  with a concrete instance of GamePlayer
+         *  defined by the concrete Player.id instance property
+         *  stored in gamePlayerId */
+
+        /** That is routed with the @-Auto-wired annotation earlier
+         *  on the GamePlayerRepository instance: gamePlayerRepo */
+        gamePlayer = gamePlayerRepo.findByPlayerId(gamePlayerId);
+
+        /** Now all we have to do is fill our List<Ship> instance
+         *  with the Ship instances collected through our
+         *  concrete GamePlayer's instance method getShips()
+         *  and return it to the routed endpoint*/
+        ships= gamePlayer.getShips();
+
+        return ships;
+    }
 
 
     }

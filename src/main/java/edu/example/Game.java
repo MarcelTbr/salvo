@@ -44,7 +44,7 @@ public class Game {
      * he/she will only show once on the list
      * */
 
-    public Set<GamePlayer> getPlayersList() { //TODO: change to getGamePlayers()
+    public Set<GamePlayer> getGamePlayers() {
 
         return gamePlayers;
     }

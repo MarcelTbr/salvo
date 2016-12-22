@@ -1,15 +1,9 @@
 package edu.example;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import javax.persistence.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpMethod.POST;
 
 /**
  * Created by marceltauber on 13/12/16.
@@ -32,8 +26,9 @@ public class GamePlayer {
     @JoinColumn(name="game_id")
     private Game game;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name="ships") //Before name="game_player" Set<GamePlayer> gamePlayer
+    /** this annotation is for the ids*/
+    @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER)
+    //@JoinColumn(name="ships") //Before name="game_player" Set<GamePlayer> gamePlayer
     Set<Ship> ships = new HashSet<>();
 
 
@@ -89,12 +84,22 @@ public class GamePlayer {
 
     public void addShip(Ship ship){//String cell1, String cell2, String cell3, String cell4 ){
 
-        ship.setGamePlayer(ship); //necessary for the Ship (N) - (1) GamePlayer relationship
-        //ship.setShipCells(shipCells);
+        /** this can bind many ships to the GamePlayer
+         *  this GamePlayer contains just one Game and one Player
+         *  its' necessary for the Ship (N) - (1) GamePlayer relationship */
+        ship.setGamePlayer(this); //(ship)
+
+        /** this adds the actual ship to the GamePlayer Set<Ship> in Java*/
         this.ships.add(ship);
 
 
         //new ShipLocation(shipCells, ship.getShipId());
+
+    }
+
+    public void setShips(Set<Ship> ships){
+
+        this.ships = ships;
 
     }
 

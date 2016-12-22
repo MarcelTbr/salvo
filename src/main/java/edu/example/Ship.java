@@ -1,6 +1,7 @@
 package edu.example;
 
 import javax.persistence.*;
+import java.util.List;
 
 
 /**
@@ -15,73 +16,45 @@ public class Ship {
     private long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="game_player_id")
+    @JoinColumn(name="game_player")
     private GamePlayer gamePlayer;
 
-//    @ElementCollection
-//    @Column(name="ship_id")
-//    private long shipId;
+    @ElementCollection
+    @Column(name="ship_location")
+    private List<String> shipLocations;
 
-    //public Map<String, Object> shipId;
-
-
-//    @ElementCollection
-//    @Column(name="ship_cells")
     private String shipCells;
+
+    /** Ship Constructor **/
 
     public Ship() {}
 
-    public Ship(GamePlayer gamePlayer, String shipCells){
+    public Ship(GamePlayer gamePlayer, List<String> shipLocations){
         this.gamePlayer = gamePlayer;
-        this.gamePlayer.ships = gamePlayer.getShips();
-
-//        System.out.println("ShipCells: ");
-        //System.out.println(shipCells);
-
-//        this.shipCells = shipCells;
-
-        //this.setShipLocation(shipCells);
-//        this.shipId = this.setShipId(this);
+        this.shipLocations = shipLocations;
     }
 
-    public void setGamePlayer(Ship ship){
-        ship.gamePlayer = gamePlayer;
-       // POST gamePlayers/ship.gamePlayer.getGamePlayerId();
+    public void setGamePlayer(GamePlayer gamePlayer){
+        this.gamePlayer = gamePlayer;
     }
-
-//    public long setShipId(Ship ship){
-//
-//        ship.shipId = ship.id;
-//        return ship.id;
-//    }
-
-//    public void setShipLocation( String shCells){
-//
-//
-//        this.shipCells = shCells;
-//
-//    }
 
     public long getGamePlayerId () {
         return gamePlayer.getGamePlayerId();
 
     }
 
-//   public Map getShipId(){
-//        Map<String, Object>  idMap = new HashMap<>();
-//
-//        idMap.put("shipId", this );
-//
-//
-//        return idMap;
-//    }
-
     public long getId(){
 
-        return id;
+        return this.id;
     }
 
-    public String getShipCells() {
-        return this.shipCells;
+    public List<String> getShipLocations() {
+        return this.shipLocations;
+    }
+
+    public void setShipLocation(List<String> location) {
+
+        this.shipLocations = location;
+
     }
 }

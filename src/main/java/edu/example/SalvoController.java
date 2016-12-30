@@ -97,7 +97,10 @@ public class SalvoController {
          *  stored in gamePlayerId */
 
         /** That is routed with the @-Auto-wired annotation earlier
-         *  on the GamePlayerRepository instance: gamePlayerRepo */
+         *  on the GamePlayerRepository instance: gamePlayerRepo
+         *  All we're doing is calling the data from gamePlayerRepo
+         *  and storing it into the instance. In this case just the
+         *  gamePlayer's Id, according to the id given through url*/
         gamePlayer = gamePlayerRepo.findByPlayerId(gamePlayerId);
 
         /** Now all we have to do is fill our List<Ship> instance
@@ -108,6 +111,64 @@ public class SalvoController {
 
         return ships;
     }
+
+
+    @RequestMapping("game_view/{gamePlayerId}")
+    public Map<String, Object> gameView (
+
+            @PathVariable long gamePlayerId ){
+
+        GamePlayer gamePlayer = new GamePlayer();
+        gamePlayer = gamePlayerRepo.findByPlayerId(gamePlayerId);
+        Set<GamePlayer> gamePlayersSet = new HashSet<>();
+        gamePlayersSet = gamePlayer.getGame().getGamePlayers();
+
+        /** prepping the game players info for the DTO **/
+        LinkedList<Object> gamePlayersList = new LinkedList<Object>();
+        for (GamePlayer gp : gamePlayersSet) {
+
+            Map<String, Object> newGamePlayer = new HashMap<>();
+            Map<String, Object> playerInfo = new HashMap<>();
+
+
+            newGamePlayer.put("gp_id", gp.getGamePlayerId());
+
+            playerInfo.put("id", gp.getPlayer().getId());
+            playerInfo.put("joining_date", gp.getPlayerJoinDate());
+            playerInfo.put("username", gp.getPlayer().getUsername());
+            playerInfo.put("email", gp.getPlayer().getEmail());
+
+            newGamePlayer.put("player", playerInfo);
+
+            gamePlayersList.add(newGamePlayer);
+
+
+        }
+
+        /** Creating and filling the endpoint's DTO*/
+        Map<String, Object> game_viewDTO = new LinkedHashMap<String, Object>() {
+        };
+
+        game_viewDTO.put("id", gamePlayer.getGamePlayerId());
+        game_viewDTO.put("created", gamePlayer.getGame().getCreationDate());
+        game_viewDTO.put("gamePlayers", gamePlayersList);
+        /** Getting an instance of the game player's ships  */
+        Set<Ship> playerShips = new HashSet<>();
+        playerShips = gamePlayer.getShips();
+        /** Creating and filling a List with the desired ship instance data*/
+        List<Object> playerShipsList = new LinkedList<>();
+//        for(Ship ship : playerShips ){ playerShipsList.add(ship.getShipType());}
+//        game_viewDTO.put("ships", playerShipsList );
+
+        for(Ship ship : playerShips){
+            Map<String, Object> playerShipsMap = new LinkedHashMap<>();
+            playerShipsMap.put("type", ship.getShipType());
+            playerShipsMap.put("locations", ship.getShipLocations());
+            playerShipsList.add(playerShipsMap);
+        }
+        game_viewDTO.put("ships", playerShipsList);
+                return game_viewDTO;
+    };
 
 
     }

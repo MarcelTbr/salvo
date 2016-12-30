@@ -21,7 +21,7 @@ public class Game {
     private String creationDate;
 
     @OneToMany(mappedBy="game", fetch=FetchType.EAGER)
-     Set<GamePlayer> gamePlayers; //TODO: find out if has to be private-public-any_of_the_latter
+     Set<GamePlayer> gamePlayers;
 
     public Game()  { }
 
@@ -52,15 +52,5 @@ public class Game {
     public long getId() {
         return id;
     }
-
-
-
-
-
-
-
-
-
-
 
 }

@@ -28,7 +28,6 @@ public class GamePlayer {
 
     /** this annotation is for the ids*/
     @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER)
-    //@JoinColumn(name="ships") //Before name="game_player" Set<GamePlayer> gamePlayer
     Set<Ship> ships = new HashSet<>();
 
 
@@ -82,7 +81,7 @@ public class GamePlayer {
         return playerJoinDate;
     }
 
-    public void addShip(Ship ship){//String cell1, String cell2, String cell3, String cell4 ){
+    public void addShip(Ship ship){
 
         /** this can bind many ships to the GamePlayer
          *  this GamePlayer contains just one Game and one Player
@@ -91,9 +90,6 @@ public class GamePlayer {
 
         /** this adds the actual ship to the GamePlayer Set<Ship> in Java*/
         this.ships.add(ship);
-
-
-        //new ShipLocation(shipCells, ship.getShipId());
 
     }
 

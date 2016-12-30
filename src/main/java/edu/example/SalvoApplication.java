@@ -83,6 +83,12 @@ public class SalvoApplication {
 
 
             gamePlayers.save(gp1);
+            gamePlayers.save(gp2);
+            gamePlayers.save(gp3);
+            gamePlayers.save(gp4);
+            gamePlayers.save(gp5);
+            gamePlayers.save(gp6);
+
 
             /**
              * Create & Save some ships for Game1 --> GamePlayer1/Player1
@@ -98,7 +104,7 @@ public class SalvoApplication {
 
             /** later we pass it as an argument to make a new Ship instance */
 
-            Ship ship1_1 = new Ship(gp1, ship1_1_loc1);
+            Ship ship1_1 = new Ship(gp1, ship1_1_loc1, "Destroyer");
 
             /**
              * Create more locations to later create a more Ship instances.
@@ -113,8 +119,8 @@ public class SalvoApplication {
             /** We create all the other Ship instances
              *  with a common GamePlayer instance as an argument */
 
-            Ship ship1_2 = new Ship(gp1, ship1_2_loc2);
-            Ship ship1_3 = new Ship(gp1, ship1_3_loc3);
+            Ship ship1_2 = new Ship(gp1, ship1_2_loc2, "Submarine");
+            Ship ship1_3 = new Ship(gp1, ship1_3_loc3, "Patrol Boat");
 
             /** This adds an instance of a Ship to it's GamePlayer instance */
             gp1.addShip(ship1_1);

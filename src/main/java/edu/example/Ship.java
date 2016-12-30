@@ -23,15 +23,18 @@ public class Ship {
     @Column(name="ship_location")
     private List<String> shipLocations;
 
-    private String shipCells;
+//    @ElementCollection
+//    @Column (name="ship_type")  // This does not need to have an extra table, It's just one value
+    private String shipType;
 
     /** Ship Constructor **/
 
     public Ship() {}
 
-    public Ship(GamePlayer gamePlayer, List<String> shipLocations){
+    public Ship(GamePlayer gamePlayer, List<String> shipLocations, String shipType){
         this.gamePlayer = gamePlayer;
         this.shipLocations = shipLocations;
+        this.shipType = shipType;
     }
 
     public void setGamePlayer(GamePlayer gamePlayer){
@@ -56,5 +59,12 @@ public class Ship {
 
         this.shipLocations = location;
 
+    }
+
+    public String getShipType(){ return this.shipType;
+    };
+    public void setShipType(String shipType){
+
+        this.shipType = shipType;
     }
 }

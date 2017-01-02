@@ -63,19 +63,19 @@ public class GamePlayer {
 
 
     //TODO move to controller
-    public Object getPlayerInfo(GamePlayer gp_in_game){
-
-
-        LinkedHashMap<String, Object> PlayerInfoMap = new LinkedHashMap<String, Object>();
-
-        PlayerInfoMap.put("player_id", gp_in_game.getPlayer().getId());
-        PlayerInfoMap.put("player_username", gp_in_game.getPlayer().getUsername());
-        PlayerInfoMap.put("player_email", gp_in_game.getPlayer().getEmail());
-        PlayerInfoMap.put("player_join_date", gp_in_game.getPlayerJoinDate());
-
-
-        return PlayerInfoMap;
-    }
+//    public Object getPlayerInfo(GamePlayer gp_in_game){
+//
+//
+//        LinkedHashMap<String, Object> PlayerInfoMap = new LinkedHashMap<String, Object>();
+//
+//        PlayerInfoMap.put("player_id", gp_in_game.getPlayer().getId());
+//        PlayerInfoMap.put("player_username", gp_in_game.getPlayer().getUsername());
+//        PlayerInfoMap.put("player_email", gp_in_game.getPlayer().getEmail());
+//        PlayerInfoMap.put("player_join_date", gp_in_game.getPlayerJoinDate());
+//
+//
+//        return PlayerInfoMap;
+//    }
 
     public String getPlayerJoinDate() {
         return playerJoinDate;

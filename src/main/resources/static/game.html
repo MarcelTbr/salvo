@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Player's Salvo Game</title>
+    <link rel="stylesheet" type="text/css" href="game_view.css">
+    <!--JQuery & Angular 1.5.7 CDNS -->
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.js"
+            integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
+            crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+
+</head>
+<body ng-app="PlayerViewModule" ng-controller="PlayerViewController" >
+
+<h2 id="test" >{{game_view_obj.gamePlayers[0].player.username}}'s Game View</h2>
+<div>
+    <span><b>E-mail:</b>{{player1.email}}</span>
+    <span><b>Joining Date:</b>{{player1.joining_date}}</span><br />
+    <span><b>Ship Locations: </b></span><span ng-repeat="loc in all_ship_locations" >{{loc}} / </span>
+
+</div>
+<br />
+<table>
+    <thead>
+    <tr>
+        <td></td>
+        <td ng-repeat="number in nums">{{number}}</td>
+
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="letter in abc" >
+        <th>{{letter}}</th>
+        <td ng-repeat="number in nums" data-cell="{{letter}}{{number}}" ng-class="default"></td>
+        <td class="empty"></td>
+
+    </tr>
+    <tr>
+        <td class="empty" ng-repeat="number in nums"></td>
+    </tr>
+    </tbody>
+</table>
+<h3>Game View JSON</h3>
+<div>{{game_view_obj}}</div>
+<h3>Game View Obj</h3>
+<h4>Game #{{game_view_obj.id}} | Created: {{game_view_obj.created}}</h4>
+<h4>Ships</h4>
+<p ng-repeat="ship in ships">{{ship}}</p>
+<script type="text/javascript" src="angular_app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+/* ================= game_view.css ============ */
+
+
+table {
+    margin: 0 auto;
+    color: white;
+    background-color: darkblue;
+    border-collapse: collapse;
+}
+
+td {
+    text-align: center;
+    height: 45px;
+    width: 45px;
+}
+
+thead td {border: none;}
+tbody td {border: 2px dotted lightgreen;}
+.empty {border: none;}

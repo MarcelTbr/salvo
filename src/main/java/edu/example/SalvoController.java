@@ -26,6 +26,9 @@ public class SalvoController {
     @Autowired
     private GamePlayerRepository gamePlayerRepo;
 
+    @Autowired
+    private PlayerRepository playerRepo;
+
 
 
     /**
@@ -33,12 +36,13 @@ public class SalvoController {
      * because it can have many properties and methods
      * */
     @RequestMapping("/games")
-    public List<Object> getGames() {
+    public LinkedList<Object> getGames() {
 
         /**
          * first we get a list of Game instances through the GameRepository
          * */
         List<Game> gamesList = gameRepo.findAll();
+
 
 
         /**
@@ -55,14 +59,37 @@ public class SalvoController {
          * Game.getGamePlayers()
          * */
        for (Game g : gamesList) {
-
+           /** While looping through the complete list of games
+            *  we get a set of unique players for each game*/
+           Set<GamePlayer> gamePlayerSet = new LinkedHashSet<>();
+           gamePlayerSet = g.getGamePlayers();
+           /** Then we create the [gamePlayersDTO]
+            *  we will loop through both Salvo Game players of the [gamePlayersSet]
+            *  and collect info (id, username, joining_date,...) in a [playerInfoMap]*/
+           Set<Object> gamePlayersDTO = new LinkedHashSet<>();
+           for (GamePlayer gp: gamePlayerSet) {
+               Player playerInGame = playerRepo.findById(gp.getGamePlayerId());
+               Map<String, Object> playerInfoMap = new LinkedHashMap<>();
+               playerInfoMap.put("id", playerInGame.getId());
+               playerInfoMap.put("username", playerInGame.getUsername());
+               playerInfoMap.put("email", playerInGame.getEmail());
+               playerInfoMap.put("joining_date", gp.getPlayerJoinDate());
+               /** Each of the two iterations collected player info gets stored
+                *  in a unique set of Objects: [gamePlayersDTO]*/
+               gamePlayersDTO.add(playerInfoMap);
+           }
+        /** Here we create a Map called newGame, an object that will contain
+         * all the info we want to see for each game (id, date, players...)
+         * it has to be an object in order to add it to the gamesDTO list */
         Map<String, Object> newGame = new LinkedHashMap<String, Object>();
            newGame.put("game_id", g.getId());
            newGame.put("game_date", g.getCreationDate());
-           newGame.put("game_players", g.getGamePlayers().stream() // convert to stream
-                   .map(gp_in_g -> gp_in_g.getPlayerInfo(gp_in_g)) // Game/gamePlayers.PlayerInfo(Game/GamePlayers)
-                   .collect(Collectors.toList())); //close the stream
-
+//           newGame.put("game_players", g.getGamePlayers().stream() // convert to stream
+//                   .map(gp_in_g -> gp_in_g.getPlayerInfo(gp_in_g)) // Game/gamePlayers.PlayerInfo(Game/GamePlayers)
+//                   .collect(Collectors.toList())); //close the stream
+           /** Here we're nesting a set of objects: [gamePlayersDTO]
+            *  into a map: [newGame]*/
+            newGame.put("game_players", gamePlayersDTO);
            gamesDTO.add(newGame);
        }
 

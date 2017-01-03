@@ -17,3 +17,18 @@ td {
 thead td {border: none;}
 tbody td {border: 2px dotted lightgreen;}
 .empty {border: none;}
+
+#gpls {
+
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+#gpls div {padding: 15px;}
+
+#gpls div span b {color:darkblue;}
+
+.red { color: red;}

@@ -29,7 +29,8 @@ public class SalvoController {
     @Autowired
     private PlayerRepository playerRepo;
 
-
+    @Autowired
+    private SalvoRepository salvoRepo;
 
     /**
      * it has to return an object (we want the ids)
@@ -40,63 +41,53 @@ public class SalvoController {
 
         /**
          * first we get a list of Game instances through the GameRepository
+         * Then we create an empty List of Objects to store the newGames (a gameDTO)
+         * to show at the endpoint
          * */
-        List<Game> gamesList = gameRepo.findAll();
-
-
-
-        /**
-         * Then we create an empty List of Objects to store the games we will get later.
-         * */
-        LinkedList<Object> gamesDTO = new LinkedList<Object>(); //DTO
-
-        /**
-         * next we loop through that list of [Game Instances]
-         * creating a new [HashMap] with Key: String(a meaningful name)
-         * Value: Object (different each time)
-         * and we fill it with the Game.id, Game.creationDate
-         * and also the Players Instance we get by calling the method
-         * Game.getGamePlayers()
-         * */
-       for (Game g : gamesList) {
-           /** While looping through the complete list of games
-            *  we get a set of unique players for each game*/
-           Set<GamePlayer> gamePlayerSet = new LinkedHashSet<>();
-           gamePlayerSet = g.getGamePlayers();
-           /** Then we create the [gamePlayersDTO]
-            *  we will loop through both Salvo Game players of the [gamePlayersSet]
-            *  and collect info (id, username, joining_date,...) in a [playerInfoMap]*/
-           Set<Object> gamePlayersDTO = new LinkedHashSet<>();
-           for (GamePlayer gp: gamePlayerSet) {
-               Player playerInGame = playerRepo.findById(gp.getGamePlayerId());
-               Map<String, Object> playerInfoMap = new LinkedHashMap<>();
-               playerInfoMap.put("id", playerInGame.getId());
-               playerInfoMap.put("username", playerInGame.getUsername());
-               playerInfoMap.put("email", playerInGame.getEmail());
-               playerInfoMap.put("joining_date", gp.getPlayerJoinDate());
-               /** Each of the two iterations collected player info gets stored
-                *  in a unique set of Objects: [gamePlayersDTO]*/
-               gamePlayersDTO.add(playerInfoMap);
-           }
-        /** Here we create a Map called newGame, an object that will contain
-         * all the info we want to see for each game (id, date, players...)
-         * it has to be an object in order to add it to the gamesDTO list */
-        Map<String, Object> newGame = new LinkedHashMap<String, Object>();
-           newGame.put("game_id", g.getId());
-           newGame.put("game_date", g.getCreationDate());
-//           newGame.put("game_players", g.getGamePlayers().stream() // convert to stream
-//                   .map(gp_in_g -> gp_in_g.getPlayerInfo(gp_in_g)) // Game/gamePlayers.PlayerInfo(Game/GamePlayers)
-//                   .collect(Collectors.toList())); //close the stream
-           /** Here we're nesting a set of objects: [gamePlayersDTO]
-            *  into a map: [newGame]*/
-            newGame.put("game_players", gamePlayersDTO);
-           gamesDTO.add(newGame);
-       }
-
-
+        LinkedList<Object> gamesDTO = getGamesDTO();
         return gamesDTO;
+    }
 
+    private LinkedList<Object> getGamesDTO() {
+        List<Game> gamesList = gameRepo.findAll();
+        LinkedList<Object> gamesDTO = new LinkedList<Object>();
+        gamesList.stream()
+               .map(g -> gamesDTO.add(getNewGame(g)))
+               .collect(Collectors.toList());
+        return gamesDTO;
+    }
 
+    private Set<Object> getGamePlayersDTO(Game g) {
+        Set<GamePlayer> gamePlayerSet = new LinkedHashSet<>();
+        gamePlayerSet = g.getGamePlayers();
+        Set<Object> gamePlayersDTO = new LinkedHashSet<>();
+        /** iterate gpSet, make & add playerDTO to gamePlayersDTO*/
+        gamePlayerSet.stream()
+                .map(gpl -> gamePlayersDTO.add(makePlayerDTO(gpl)))
+                .collect(Collectors.toList());
+        return gamePlayersDTO;
+    }
+
+    private Map<String, Object> getNewGame(Game g) {
+        Set<Object> gamePlayersDTO = getGamePlayersDTO(g);
+        Map<String, Object> newGame = new LinkedHashMap<String, Object>();
+        newGame.put("game_id", g.getId());
+        newGame.put("game_date", g.getCreationDate());
+        /** Here we're nesting a set of objects: [gamePlayersDTO]
+         *  into a map: [newGame]*/
+        newGame.put("game_players", gamePlayersDTO);
+        return newGame;
+    }
+
+    private Map<String, Object> makePlayerDTO(GamePlayer gp) {
+
+        Player playerInGame = playerRepo.findById(gp.getGamePlayerId());
+        Map<String, Object> playerDTO = new LinkedHashMap<>();
+        playerDTO.put("id", playerInGame.getId());
+        playerDTO.put("username", playerInGame.getUsername());
+        playerDTO.put("email", playerInGame.getEmail());
+        playerDTO.put("joining_date", gp.getPlayerJoinDate());
+        return playerDTO;
     }
 
     /** Here we're mapping the endpoint for
@@ -107,7 +98,7 @@ public class SalvoController {
      * */
 
     @RequestMapping("gamePlayers/{gamePlayerId}")
-    public Set<Ship> findShips(
+    public Map<String, Object> gamePlayerData( //Set<Ship> findShips
 
             @PathVariable long gamePlayerId){
 
@@ -136,7 +127,26 @@ public class SalvoController {
          *  and return it to the routed endpoint*/
         ships= gamePlayer.getShips();
 
-        return ships;
+        /** Get salvoes */
+        Set<Salvo> salvoes = new LinkedHashSet<Salvo>() {};
+        salvoes = gamePlayer.getSalvos();
+
+        /** Get player DTO*/
+        Map<String,Object> player = makePlayerDTO(gamePlayer);
+
+        /** Creating and filling the DTO to be displayed at this endpoint */
+        Map<String, Object> gamePlayerDTO = getGamePlayerDTO(gamePlayerId, ships, salvoes, player);
+        return gamePlayerDTO;
+    }
+
+    private Map<String, Object> getGamePlayerDTO(@PathVariable long gamePlayerId, Set<Ship> ships, Set<Salvo> salvoes, Map<String, Object> player) {
+        Map<String, Object> gamePlayerDTO = new LinkedHashMap<>();
+
+        gamePlayerDTO.put("gp_id", gamePlayerId);
+        gamePlayerDTO.put("player", player);
+        gamePlayerDTO.put("ships", ships);
+        gamePlayerDTO.put("salvoes", salvoes);
+        return gamePlayerDTO;
     }
 
 
@@ -145,57 +155,87 @@ public class SalvoController {
 
             @PathVariable long gamePlayerId ){
 
-        GamePlayer gamePlayer = new GamePlayer();
-        gamePlayer = gamePlayerRepo.findByPlayerId(gamePlayerId);
-        Set<GamePlayer> gamePlayersSet = new HashSet<>();
-        gamePlayersSet = gamePlayer.getGame().getGamePlayers();
+        GamePlayer gamePlayer = gamePlayerRepo.findByPlayerId(gamePlayerId);
 
         /** prepping the game players info for the DTO **/
-        LinkedList<Object> gamePlayersList = new LinkedList<Object>();
+        Set<GamePlayer> gamePlayersSet = gamePlayer.getGame().getGamePlayers();
+//Note: this is a List of Maps. It must be defined this way List<Object> won't do the trick
+        LinkedList<Map<String, Object>> gamePlayersList = new LinkedList<Map<String, Object>>();
         for (GamePlayer gp : gamePlayersSet) {
-
-            Map<String, Object> newGamePlayer = new HashMap<>();
-            Map<String, Object> playerInfo = new HashMap<>();
-
-
-            newGamePlayer.put("gp_id", gp.getGamePlayerId());
-
-            playerInfo.put("id", gp.getPlayer().getId());
-            playerInfo.put("joining_date", gp.getPlayerJoinDate());
-            playerInfo.put("username", gp.getPlayer().getUsername());
-            playerInfo.put("email", gp.getPlayer().getEmail());
-
-            newGamePlayer.put("player", playerInfo);
-
-            gamePlayersList.add(newGamePlayer);
-
-
+            Map<String, Object> GamePlayerDTO = getGamePlayerDTO(gp);
+            gamePlayersList.add(GamePlayerDTO);
         }
+        /** Creating and filling the endpoint's game_viewDTO*/
+        Map<String, Object> game_viewDTO = getGameViewDTO(gamePlayer, gamePlayersList);
+        return game_viewDTO;
+    }
 
-        /** Creating and filling the endpoint's DTO*/
-        Map<String, Object> game_viewDTO = new LinkedHashMap<String, Object>() {
-        };
+    private Map<String, Object> getGamePlayerDTO(GamePlayer gp) {
+        Map<String, Object> GamePlayerDTO = new HashMap<>();
+        GamePlayerDTO.put("gp_id", gp.getGamePlayerId());
+        Map<String, Object> playerDTO = getPlayerDTO(gp);
+        GamePlayerDTO.put("player", playerDTO);
+        return GamePlayerDTO;
+    }
 
-        game_viewDTO.put("id", gamePlayer.getGamePlayerId());
+    private Map<String, Object> getPlayerDTO(GamePlayer gp) {
+        Map<String, Object> playerInfo = new HashMap<>();
+        playerInfo.put("id", gp.getPlayer().getId());
+        playerInfo.put("joining_date", gp.getPlayerJoinDate());
+        playerInfo.put("username", gp.getPlayer().getUsername());
+        playerInfo.put("email", gp.getPlayer().getEmail());
+        return playerInfo;
+    }
+
+    private Map<String, Object> getGameViewDTO(GamePlayer gamePlayer, LinkedList<Map<String, Object>> gamePlayersList) {
+        Map<String, Object> game_viewDTO = new LinkedHashMap<String, Object>() {};
+        game_viewDTO.put("game_id", gamePlayer.getGame().getId());
         game_viewDTO.put("created", gamePlayer.getGame().getCreationDate());
         game_viewDTO.put("gamePlayers", gamePlayersList);
         /** Getting an instance of the game player's ships  */
-        Set<Ship> playerShips = new HashSet<>();
-        playerShips = gamePlayer.getShips();
+        Set<Ship> playerShips =  gamePlayer.getShips();
         /** Creating and filling a List with the desired ship instance data*/
-        List<Object> playerShipsList = new LinkedList<>();
-//        for(Ship ship : playerShips ){ playerShipsList.add(ship.getShipType());}
-//        game_viewDTO.put("ships", playerShipsList );
+        List<Object> playerShipsList = getPlayerShipsList(playerShips);
+        game_viewDTO.put("ships", playerShipsList);
 
+        Set<Salvo> playerSalvoes = gamePlayer.getSalvos();
+        List<Object> playerSalvoesList = getPlayerSalvoesList(playerSalvoes);
+        game_viewDTO.put("salvoes", playerSalvoesList);
+
+        return game_viewDTO;
+    }
+
+    private List<Object> getPlayerSalvoesList(Set<Salvo> playerSalvoes) {
+                List<Object> playerSalvoesList = new LinkedList<>();
+                playerSalvoes.stream()
+                        .map(salvo -> playerSalvoesList.add(salvo))
+                        .collect(Collectors.toList());
+
+                return playerSalvoesList;
+    }
+
+    private List<Object> getPlayerShipsList(Set<Ship> playerShips) {
+        List<Object> playerShipsList = new LinkedList<>();
         for(Ship ship : playerShips){
             Map<String, Object> playerShipsMap = new LinkedHashMap<>();
             playerShipsMap.put("type", ship.getShipType());
             playerShipsMap.put("locations", ship.getShipLocations());
             playerShipsList.add(playerShipsMap);
         }
-        game_viewDTO.put("ships", playerShipsList);
-                return game_viewDTO;
-    };
+        return playerShipsList;
+    }
+
+
+    @RequestMapping("/salvos")
+    public List<Salvo> salvos(){
+
+
+//        Salvo salvo = salvoRepo.findBySalvoId(salvoId);
+        List<Salvo> salvoList = salvoRepo.findAll();
+
+        return salvoList;
+
+    }
 
 
     }

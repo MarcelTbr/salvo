@@ -13,7 +13,7 @@ import java.util.List;
 
 @RepositoryRestResource
 public interface ShipRepository extends JpaRepository<Ship, Long> {
-//    List<Ship> findByShipId(long id); //To retrieve a ship of the list by passing
-                                      //It's id as a parameter
+//    List<Ship> findByShipId(long id); // To retrieve a ship of the list by passing
+                                        // it's id as a parameter
 
 }

@@ -34,22 +34,37 @@ var app = angular.module('App', ['PlayerViewModule'], function($locationProvider
 
      $scope.url_obj = paramObj($scope.abs_url);
      console.log($scope.url_obj);
-     $scope.gp = $scope.url_obj["gp"];
-     console.log($scope.gp);
+     $scope.gp = $scope.url_obj["gp"]; //store the url_obj's value for the key "gp"
+     console.log($scope.gp); // that is the gamePlayer's id
+
+     $scope.gv_title = { 'text-align':'center'}; //styling game view's title
 
     $http.get("api/game_view/" + $scope.gp)
     .then(function(response){
 
-        $scope.game_view_obj = response.data;
+        $scope.game_view_obj = response.data;  //store the game_viewDTO into a variable
         console.log($scope.game_view_obj);
         $scope.ships = $scope.game_view_obj.ships;
         $scope.player1 = $scope.game_view_obj.gamePlayers[0].player
-
+        $scope.players = $scope.game_view_obj.gamePlayers
         $scope.all_ship_locations = updateGameView.getShipLocations($scope.ships);
         console.log($scope.all_ship_locations);
-
-        updateGameView.paintShips($scope.all_ship_locations);
-
+        //Painting the Ships
+        $scope.getStyle = function(cell_data){
+                                //apply the style to the ship if it is in the all_ship_locations array
+                                for(var i = 0; i < $scope.all_ship_locations.length; i++){
+                                if(cell_data === $scope.all_ship_locations[i]){ return {'background-color': 'green'}}
+                                }
+                                //later is going to apply another style for 'salvo-hits' or 'sunken-ships'.
+                     }
+        /* Getting User and Enemy Information*/
+        $scope.userGamePlayer = updateGameView.getUserPlayer($scope.gp, $scope.players);
+        $scope.enemyGamePlayer = updateGameView.getEnemyPlayer($scope.gp, $scope.players);
+        console.log($scope.userGamePlayer);
+        console.log("Enemy Game Player");
+        console.log($scope.enemyGamePlayer);
+//        TODO: later implement a method that orders the gamePlayers Array [0]: User [1]: Enemy
+//        updateGameView.orderGamePlayers($scope.gp, $scope.players);
     })
 
   }]);
@@ -75,10 +90,6 @@ pl_view_mod.service('updateGameView', function(){
 
         var ship_locations = [];
 
-//          ship_locations.push("A1");
-//          ship_locations.push("A2");
-//          ship_locations.push("A3");
-
     //looping through all the ships of the game player
         for(var i = 0; i < ships_array.length; i++){
                      var ship = ships_array[i].locations;
@@ -90,24 +101,17 @@ pl_view_mod.service('updateGameView', function(){
         return ship_locations;
     }
 
-    this.paintShips = function(locations){
+    this.getUserPlayer = function (url_gp_id, players_array){
+        var gp_id = players_array[0].gp_id;
+        if(gp_id == url_gp_id){ return players_array[0]}
+        else { return players_array[1]}
+    }
 
-        var grid = document.querySelectorAll('[data-cell]');
-        //control logs
-        console.log(locations);
-//        console.log(grid)
-        console.log(grid[7].attributes[1].nodeValue)
+    this.getEnemyPlayer = function (url_gp_id, players_array){
+     var gp_id = players_array[0].gp_id;
+     if(gp_id != url_gp_id){ return players_array[0]}
+     else { return players_array[1]}
+    }
 
-        var cells_to_paint = [];
-        //storing the elements to paint as ships into an array
-        for(var i = 0; i < locations.length; i++){
-            var ship_el = document.querySelectorAll('[data-cell='+locations[i]+']');
-            cells_to_paint.push(ship_el);
-        }
-        console.log(cells_to_paint);
-        //changing the elements style to represent a ship
-        for(var i=0; i < cells_to_paint.length; i++){
-            cells_to_paint[i][0].style.backgroundColor = "green";
-        }
-    } //end paintShips()
+
   });

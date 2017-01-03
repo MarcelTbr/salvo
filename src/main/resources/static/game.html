@@ -14,13 +14,23 @@
 </head>
 <body ng-app="PlayerViewModule" ng-controller="PlayerViewController" >
 
-<h2 id="test" >{{game_view_obj.gamePlayers[0].player.username}}'s Game View</h2>
+<h2 ng-style="gv_title">{{userGamePlayer.player.username}}'s Game View</h2>
+<h4 ng-style="gv_title">Game #{{game_view_obj.game_id}} | Created: {{game_view_obj.created}}</h4>
+<section id="gpls">
 <div>
-    <span><b>E-mail:</b>{{player1.email}}</span>
-    <span><b>Joining Date:</b>{{player1.joining_date}}</span><br />
+    <span><b>E-mail: </b>{{userGamePlayer.player.email}}</span><br />
+    <span><b>Joining Date: </b>{{userGamePlayer.player.joining_date}}</span><br />
     <span><b>Ship Locations: </b></span><span ng-repeat="loc in all_ship_locations" >{{loc}} / </span>
-
 </div>
+
+<div><span>VS</span></div>
+
+<div>
+    <span><b>Enemy Player: </b>{{enemyGamePlayer.player.username}}</span><br />
+    <span><b>E-mail: </b>{{enemyGamePlayer.player.email}}</span><br />
+    <span><b>Joining Date: </b>{{enemyGamePlayer.player.joining_date}}</span>
+</div>
+</section>
 <br />
 <table>
     <thead>
@@ -33,7 +43,8 @@
     <tbody>
     <tr ng-repeat="letter in abc" >
         <th>{{letter}}</th>
-        <td ng-repeat="number in nums" data-cell="{{letter}}{{number}}" ng-class="default"></td>
+        <!-- TODO Use angular way, so avoid modify the DOM from your controller ng-class="getClass({{letter}}{{number}}" -->
+        <td ng-repeat="number in nums" data-cell="{{letter}}{{number}}" ng-style="getStyle(letter+number)" ></td>
         <td class="empty"></td>
 
     </tr>
@@ -42,12 +53,10 @@
     </tr>
     </tbody>
 </table>
-<h3>Game View JSON</h3>
-<div>{{game_view_obj}}</div>
-<h3>Game View Obj</h3>
-<h4>Game #{{game_view_obj.id}} | Created: {{game_view_obj.created}}</h4>
+<div ng-style="gv_title">
 <h4>Ships</h4>
-<p ng-repeat="ship in ships">{{ship}}</p>
+<p ng-repeat="ship in ships"><b>Type: </b>{{ship.type}}  &nbsp; <b>Locations: </b><span ng-repeat="loc in ship.locations">{{loc}} &nbsp; </span></p>
+</div>
 <script type="text/javascript" src="angular_app.js"></script>
 </body>
 </html>

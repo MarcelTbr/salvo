@@ -30,6 +30,9 @@ public class GamePlayer {
     @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER)
     Set<Ship> ships = new HashSet<>();
 
+    @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER)
+    Set<Salvo> salvos = new HashSet<>();
+
 
     public GamePlayer () {}
 
@@ -41,9 +44,6 @@ public class GamePlayer {
         this.game = game;
 
     }
-
-
-
 
     //TODO change to getId?
     public long getGamePlayerId() {
@@ -62,21 +62,6 @@ public class GamePlayer {
     }
 
 
-    //TODO move to controller
-//    public Object getPlayerInfo(GamePlayer gp_in_game){
-//
-//
-//        LinkedHashMap<String, Object> PlayerInfoMap = new LinkedHashMap<String, Object>();
-//
-//        PlayerInfoMap.put("player_id", gp_in_game.getPlayer().getId());
-//        PlayerInfoMap.put("player_username", gp_in_game.getPlayer().getUsername());
-//        PlayerInfoMap.put("player_email", gp_in_game.getPlayer().getEmail());
-//        PlayerInfoMap.put("player_join_date", gp_in_game.getPlayerJoinDate());
-//
-//
-//        return PlayerInfoMap;
-//    }
-
     public String getPlayerJoinDate() {
         return playerJoinDate;
     }
@@ -86,7 +71,8 @@ public class GamePlayer {
         /** this can bind many ships to the GamePlayer
          *  this GamePlayer contains just one Game and one Player
          *  its' necessary for the Ship (N) - (1) GamePlayer relationship */
-        ship.setGamePlayer(this); //(ship)
+        ship.setGamePlayer(this); // basically takes the ship parameter and sets/stores
+                                  // the gamePlayer that is adding the ship into the ship itself
 
         /** this adds the actual ship to the GamePlayer Set<Ship> in Java*/
         this.ships.add(ship);
@@ -104,4 +90,15 @@ public class GamePlayer {
         return  ships;
 
     }
+
+    public Set<Salvo> getSalvos() { return salvos; }
+
+    public void addSalvo(Salvo salvo) {
+
+        salvo.setGamePlayer(this); // stores this gamePlayer into salvo instance
+
+        this.salvos.add(salvo); // adds a salvo to this gamePlayer's Set<Salvo> salvos
+
+    }
+
 }

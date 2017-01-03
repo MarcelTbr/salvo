@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -27,7 +28,8 @@ public class SalvoApplication {
 
 
     @Bean
-    public CommandLineRunner initData(PlayerRepository players, GameRepository games, ShipRepository ships, GamePlayerRepository gamePlayers) {
+    public CommandLineRunner initData(PlayerRepository players, GameRepository games, ShipRepository ships, GamePlayerRepository gamePlayers,
+                                      SalvoRepository salvos) {
         return (args) -> {
 
             Date date = new Date();
@@ -131,7 +133,47 @@ public class SalvoApplication {
             ships.save(ship1_2);
             ships.save(ship1_3);
 
+            /** Ships for other game players */
+            List<String> ship2_1_loc1 = new ArrayList<>();
+            ship2_1_loc1.add("C7"); ship2_1_loc1.add("D7"); ship2_1_loc1.add("E7");
+            List<String> ship2_2_loc2 = new ArrayList<>();
+            ship2_2_loc2.add("B5"); ship2_2_loc2.add("C5"); ship2_2_loc2.add("D5");
+            List<String> ship2_3_loc3 = new ArrayList<>();
+            ship2_3_loc3.add("I5"); ship2_3_loc3.add("I6");
 
+            Ship ship2_1 = new Ship(gp2, ship2_1_loc1, "Destroyer");
+            Ship ship2_2 = new Ship(gp2, ship2_2_loc2, "Submarine");
+            Ship ship2_3 = new Ship(gp2, ship2_3_loc3, "Patrol Boat");
+
+            gp2.addShip(ship2_1); gp2.addShip(ship2_2); gp2.addShip(ship2_3);
+            ships.save(ship2_1); ships.save(ship2_2); ships.save(ship2_3);
+
+            /** Create and Save some Salvos for a couple of turns*/
+            List<String> salvo1_locs = new LinkedList<String>() {};
+            salvo1_locs.add("B4"); salvo1_locs.add("A3");
+            Salvo salvo_1 = new Salvo(gp1, 1, salvo1_locs);
+
+            List<String> salvo2_locs = new LinkedList<String>() {};
+            salvo2_locs.add("C8"); salvo2_locs.add("A2");
+            Salvo salvo_2 = new Salvo(gp1, 2, salvo2_locs);
+
+            /** Linking each salvo to its gamePlayer and vice-versa*/
+            gp1.addSalvo(salvo_1);
+            gp1.addSalvo(salvo_2);
+
+            /** saving salvos to their repository */
+            salvos.save(salvo_1);
+            salvos.save(salvo_2);
+
+            /** Create and Save Salvos for gp2 */
+            List<String> salvo2_1_locs = new LinkedList<String>() {};
+            salvo2_1_locs.add("A2"); salvo2_1_locs.add("A3");
+            Salvo salvo2_1 = new Salvo(gp2, 1, salvo2_1_locs);
+            gp2.addSalvo(salvo2_1); salvos.save(salvo2_1);
+            List<String> salvo2_2_locs = new LinkedList<String>() {};
+            salvo2_2_locs.add("D4"); salvo2_2_locs.add("E6");
+            Salvo salvo2_2 = new Salvo(gp2, 2, salvo2_2_locs);
+            gp2.addSalvo(salvo2_2); salvos.save(salvo2_2);
 
         };
     }

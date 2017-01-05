@@ -17,10 +17,7 @@ public class Salvo {
     @JoinColumn(name="game_player")
     private GamePlayer gamePlayer;
 
-//    @ElementCollection
-//    @Column(name="player_turn")
     private long turn;
-//    private List<String> turn; //TODO: decide wether it has to be a list or a single long number
 
     @ElementCollection
     @Column(name="salvo_location")
@@ -44,4 +41,6 @@ public class Salvo {
     public long getGamePlayerId(GamePlayer gamePlayer) { return gamePlayer.getGamePlayerId(); }
 
     public List<String> getSalvoLocations() { return this.salvoLocations; }
+
+    public long getTurn() { return this.turn;}
 }

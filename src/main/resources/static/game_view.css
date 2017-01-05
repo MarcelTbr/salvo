@@ -31,4 +31,13 @@ tbody td {border: 2px dotted lightgreen;}
 
 #gpls div span b {color:darkblue;}
 
-.red { color: red;}
+#grids {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.player-info {
+    padding: 15px 5px;
+}

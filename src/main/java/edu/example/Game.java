@@ -4,6 +4,7 @@ package edu.example;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.persistence.*;
 
 
@@ -51,6 +52,15 @@ public class Game {
 
     public long getId() {
         return id;
+    }
+
+    public List<Player> getPlayers(){
+        List<Player> playerList = new LinkedList<>() ;
+        gamePlayers.stream()
+                .map(gp -> playerList.add(gp.getPlayer()) )
+                .collect(Collectors.toList());
+
+        return playerList;
     }
 
 }

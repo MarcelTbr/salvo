@@ -156,6 +156,7 @@ public class SalvoController {
             @PathVariable long gamePlayerId ){
 
         GamePlayer gamePlayer = gamePlayerRepo.findByPlayerId(gamePlayerId);
+        GamePlayer enemyPlayer = new GamePlayer();
 
         /** prepping the game players info for the DTO **/
         Set<GamePlayer> gamePlayersSet = gamePlayer.getGame().getGamePlayers();
@@ -164,9 +165,10 @@ public class SalvoController {
         for (GamePlayer gp : gamePlayersSet) {
             Map<String, Object> GamePlayerDTO = getGamePlayerDTO(gp);
             gamePlayersList.add(GamePlayerDTO);
+            if(gp.getGamePlayerId() != gamePlayerId){enemyPlayer = gp;}
         }
         /** Creating and filling the endpoint's game_viewDTO*/
-        Map<String, Object> game_viewDTO = getGameViewDTO(gamePlayer, gamePlayersList);
+        Map<String, Object> game_viewDTO = getGameViewDTO(gamePlayer, enemyPlayer, gamePlayersList);
         return game_viewDTO;
     }
 
@@ -187,20 +189,22 @@ public class SalvoController {
         return playerInfo;
     }
 
-    private Map<String, Object> getGameViewDTO(GamePlayer gamePlayer, LinkedList<Map<String, Object>> gamePlayersList) {
+    private Map<String, Object> getGameViewDTO(GamePlayer gamePlayer, GamePlayer enemyPlayer, LinkedList<Map<String, Object>> gamePlayersList) {
         Map<String, Object> game_viewDTO = new LinkedHashMap<String, Object>() {};
         game_viewDTO.put("game_id", gamePlayer.getGame().getId());
         game_viewDTO.put("created", gamePlayer.getGame().getCreationDate());
         game_viewDTO.put("gamePlayers", gamePlayersList);
-        /** Getting an instance of the game player's ships  */
+        /** Getting an instance of the players' ships  */
         Set<Ship> playerShips =  gamePlayer.getShips();
         /** Creating and filling a List with the desired ship instance data*/
         List<Object> playerShipsList = getPlayerShipsList(playerShips);
+        List<Object> enemyShipsList = getPlayerShipsList(enemyPlayer.getShips());
         game_viewDTO.put("ships", playerShipsList);
-
-        Set<Salvo> playerSalvoes = gamePlayer.getSalvos();
-        List<Object> playerSalvoesList = getPlayerSalvoesList(playerSalvoes);
-        game_viewDTO.put("salvoes", playerSalvoesList);
+        game_viewDTO.put("enemy_ships", enemyShipsList);
+        /** getting the salvoesDTO {"turn" : "salvoes-array" }*/
+        Object salvoesDTO = getAllPlayerSalvos(gamePlayer);
+        game_viewDTO.put("salvoes", salvoesDTO);
+        game_viewDTO.put("enemy_salvoes", getAllPlayerSalvos(enemyPlayer));
 
         return game_viewDTO;
     }
@@ -227,14 +231,42 @@ public class SalvoController {
 
 
     @RequestMapping("/salvos")
-    public List<Salvo> salvos(){
+    public List<Object> getSalvosDTO() {
 
+                List<Game> gameList = gameRepo.findAll();
+               List<Object> salvosDTO = new LinkedList<>();
 
-//        Salvo salvo = salvoRepo.findBySalvoId(salvoId);
-        List<Salvo> salvoList = salvoRepo.findAll();
+                gameList.stream()
+                        .map(g -> salvosDTO.add(getGameSalvoDTO(g)) )
+                        .collect(Collectors.toList());
 
-        return salvoList;
+                return salvosDTO;
+    }
 
+    private Map<String, Object> getGameSalvoDTO(Game g) {
+                Map<String, Object> gameSalvoDTO = new LinkedHashMap<>();
+                long game_id = g.getId();
+                gameSalvoDTO.put("game", game_id);
+                Set<GamePlayer> gamePlayerSet = g.getGamePlayers();
+                List<Object> plyrSalvosList = new LinkedList<>();
+                List<Player> playerList = g.getPlayers();
+                gamePlayerSet.stream()
+                        .map(gp -> plyrSalvosList.add(getAllPlayerSalvos(gp)) )
+                        .collect(Collectors.toList());
+
+                gameSalvoDTO.put(playerList.get(0).getUsername(),  plyrSalvosList.get(0));
+                gameSalvoDTO.put(playerList.get(1).getUsername(), plyrSalvosList.get(1) );
+                return gameSalvoDTO;
+    }
+
+    private Object getAllPlayerSalvos(GamePlayer gp) {
+                Map<String, Object> allPlayerSalvos = new HashMap<>();
+                Set<Salvo> salvoSet = gp.getSalvos();
+                salvoSet.stream()
+                        .map (salvo -> allPlayerSalvos.put(String.valueOf(salvo.getTurn()), salvo.getSalvoLocations() ) )
+                        .collect(Collectors.toList());
+
+                return allPlayerSalvos;
     }
 
 

@@ -42,21 +42,53 @@ var app = angular.module('App', ['PlayerViewModule'], function($locationProvider
     $http.get("api/game_view/" + $scope.gp)
     .then(function(response){
 
-        $scope.game_view_obj = response.data;  //store the game_viewDTO into a variable
+        $scope.game_view_obj = response.data;  // store the game_viewDTO into a variable
         console.log($scope.game_view_obj);
+        // storing ships, players & salvoes objects into variables
         $scope.ships = $scope.game_view_obj.ships;
-        $scope.player1 = $scope.game_view_obj.gamePlayers[0].player
+        $scope.enemy_ships =  $scope.game_view_obj.enemy_ships;
+        // $scope.player1 = $scope.game_view_obj.gamePlayers[0].player
         $scope.players = $scope.game_view_obj.gamePlayers
+        $scope.salvoes = $scope.game_view_obj.salvoes;
+        $scope.enemy_salvoes = response.data.enemy_salvoes;
+        console.log("salvoes"); console.log($scope.salvoes); console.log("enemy salvoes"); console.log($scope.enemy_salvoes);
+        // getting ship locations array
         $scope.all_ship_locations = updateGameView.getShipLocations($scope.ships);
         console.log($scope.all_ship_locations);
+
         //Painting the Ships
         $scope.getStyle = function(cell_data){
                                 //apply the style to the ship if it is in the all_ship_locations array
                                 for(var i = 0; i < $scope.all_ship_locations.length; i++){
                                 if(cell_data === $scope.all_ship_locations[i]){ return {'background-color': 'green'}}
                                 }
-                                //later is going to apply another style for 'salvo-hits' or 'sunken-ships'.
-                     }
+        }
+        // Painting the Turns and Hits
+        $scope.getTurn = function(cell_data){
+        for(turn in $scope.salvoes){
+            var salvo_array = $scope.salvoes[turn];
+            for(var i = 0; i < salvo_array.length; i++){
+                            if(cell_data == salvo_array[i]){return turn;}
+                            }
+
+            }
+        }
+        $scope.enemies = updateGameView.getEnemies($scope.enemy_ships);
+        $scope.all_salvoes = updateGameView.allUserSalvoes($scope.salvoes);
+
+        $scope.getEnemyStyle = function (cell_data){
+            var all_salvoes = $scope.all_salvoes;
+            var enemies = $scope.enemies;
+            var hits = [];
+
+          hits = updateGameView.getHitsArray(all_salvoes, enemies);
+
+          for(var i = 0; i < hits.length; i++) {
+          if (cell_data == hits[i]) {return {'background-color': 'red'} }
+          }
+
+        }
+
         /* Getting User and Enemy Information*/
         $scope.userGamePlayer = updateGameView.getUserPlayer($scope.gp, $scope.players);
         $scope.enemyGamePlayer = updateGameView.getEnemyPlayer($scope.gp, $scope.players);
@@ -99,6 +131,45 @@ pl_view_mod.service('updateGameView', function(){
                      }
         }
         return ship_locations;
+    }
+
+  this.getEnemies = function (enemies){
+            var all_enemies = [];
+            for (var j= 0; j < enemies.length ; j++){
+                    var enemy_ship = enemies[j].locations;
+                    console.log("enemy_ship"); console.log(enemy_ship)
+                    for(var i = 0; i < enemy_ship.length; i++ ){
+                    all_enemies.push(enemy_ship[i])
+                    }
+
+            }
+            return all_enemies;
+        }
+
+    this.allUserSalvoes = function(salvoes_obj) {
+        var all_salvoes = [];
+         for(turn in salvoes_obj){
+                          var salvo_array = salvoes_obj[turn];
+                          for(var i = 0; i < salvo_array.length; i++){
+                            all_salvoes.push(salvo_array[i]);
+                          }
+         }
+         return all_salvoes;
+    }
+
+    this.getHitsArray = function (all_salvoes, enemies) {
+            var hits = [];
+          //looping through all_salvoes array
+              for(var i = 0; i < all_salvoes.length; i++) {
+    //                console.log("salvo");
+    //                console.log(all_salvoes[i]);
+                for(var j = 0; j < enemies.length; j++){
+    //                console.log("enemy")
+    //                console.log(enemies[j]);
+                    if(all_salvoes[i] == enemies[j]){ console.log("hit!"); hits.push(all_salvoes[i]) }
+                }
+              }
+        return hits;
     }
 
     this.getUserPlayer = function (url_gp_id, players_array){

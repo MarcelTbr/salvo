@@ -45,7 +45,6 @@ public class GamePlayer {
 
     }
 
-    //TODO change to getId?
     public long getGamePlayerId() {
 
         return id;

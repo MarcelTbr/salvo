@@ -149,21 +149,27 @@ public class SalvoApplication {
             ships.save(ship2_1); ships.save(ship2_2); ships.save(ship2_3);
 
             /** Create and Save some Salvos for a couple of turns*/
-            List<String> salvo1_locs = new LinkedList<String>() {};
-            salvo1_locs.add("B4"); salvo1_locs.add("A3");
-            Salvo salvo_1 = new Salvo(gp1, 1, salvo1_locs);
+            List<String> salvo1_1_locs = new LinkedList<String>() {};
+            salvo1_1_locs.add("B5"); salvo1_1_locs.add("I5");
+            Salvo salvo1_1 = new Salvo(gp1, 1, salvo1_1_locs);
 
-            List<String> salvo2_locs = new LinkedList<String>() {};
-            salvo2_locs.add("C8"); salvo2_locs.add("A2");
-            Salvo salvo_2 = new Salvo(gp1, 2, salvo2_locs);
+            List<String> salvo1_2_locs = new LinkedList<String>() {};
+            salvo1_2_locs.add("C7"); salvo1_2_locs.add("I6");
+            Salvo salvo1_2 = new Salvo(gp1, 2, salvo1_2_locs);
+
+            List<String> salvo1_3_locs = new LinkedList<>();
+            salvo1_3_locs.add("E2"); salvo1_3_locs.add("G8");
+            Salvo salvo1_3 = new Salvo(gp1, 3, salvo1_3_locs);
 
             /** Linking each salvo to its gamePlayer and vice-versa*/
-            gp1.addSalvo(salvo_1);
-            gp1.addSalvo(salvo_2);
+            gp1.addSalvo(salvo1_1);
+            gp1.addSalvo(salvo1_2);
+            gp1.addSalvo(salvo1_3);
 
             /** saving salvos to their repository */
-            salvos.save(salvo_1);
-            salvos.save(salvo_2);
+            salvos.save(salvo1_1);
+            salvos.save(salvo1_2);
+            salvos.save(salvo1_3);
 
             /** Create and Save Salvos for gp2 */
             List<String> salvo2_1_locs = new LinkedList<String>() {};
@@ -174,6 +180,10 @@ public class SalvoApplication {
             salvo2_2_locs.add("D4"); salvo2_2_locs.add("E6");
             Salvo salvo2_2 = new Salvo(gp2, 2, salvo2_2_locs);
             gp2.addSalvo(salvo2_2); salvos.save(salvo2_2);
+            List<String> salvo2_3_locs = new LinkedList<>();
+            salvo2_3_locs.add("G1"); salvo2_3_locs.add("A9");
+            Salvo salvo2_3 = new Salvo(gp2, 3, salvo2_3_locs);
+            gp2.addSalvo(salvo2_3); salvos.save(salvo2_3);
 
         };
     }

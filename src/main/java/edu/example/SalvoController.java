@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,7 +46,7 @@ public class SalvoController {
 
     private List<Double>  getTotalScoresList(Player p, Set<GameScore> gameScoreSet){
        List<Double> totalsArray = new LinkedList<>();
-            totalsArray.add(getTotalScore(p.getGameScoresSet() ));
+            totalsArray.add(getTotalScore(gameScoreSet ));
             totalsArray.add(getTotalWins(gameScoreSet));
             totalsArray.add(getTotalLosses(gameScoreSet));
             totalsArray.add(getTotalTies(gameScoreSet));
@@ -146,13 +145,19 @@ public class SalvoController {
 
     private Map<String, Object> makePlayerDTO(GamePlayer gp) {
 
-        Player playerInGame = playerRepo.findById(gp.getGamePlayerId());
+        long playerId = getPlayerId(gp);
+        Player playerInGame = playerRepo.findById(playerId);
         Map<String, Object> playerDTO = new LinkedHashMap<>();
         playerDTO.put("id", playerInGame.getId());
         playerDTO.put("username", playerInGame.getUsername());
         playerDTO.put("email", playerInGame.getEmail());
         playerDTO.put("joining_date", gp.getPlayerJoinDate());
         return playerDTO;
+    }
+
+    private long getPlayerId(GamePlayer gp) {
+
+        return gp.getPlayer().getId();
     }
 
     /** Here we're mapping the endpoint for
@@ -163,7 +168,7 @@ public class SalvoController {
      * */
 
     @RequestMapping("gamePlayers/{gamePlayerId}")
-    public Map<String, Object> gamePlayerData( //Set<Ship> findShips
+    public Map<String, Object> gamePlayerData(
 
             @PathVariable long gamePlayerId){
 
@@ -184,8 +189,8 @@ public class SalvoController {
          *  All we're doing is calling the data from gamePlayerRepo
          *  and storing it into the instance. In this case just the
          *  gamePlayer's Id, according to the id given through url*/
-        gamePlayer = gamePlayerRepo.findByPlayerId(gamePlayerId);
-
+//         gamePlayer = gamePlayerRepo.findByPlayerId(gamePlayerId);
+        gamePlayer = gamePlayerRepo.findById(gamePlayerId);
         /** Now all we have to do is fill our List<Ship> instance
          *  with the Ship instances collected through our
          *  concrete GamePlayer's instance method getShips()
@@ -220,7 +225,8 @@ public class SalvoController {
 
             @PathVariable long gamePlayerId ){
 
-        GamePlayer gamePlayer = gamePlayerRepo.findByPlayerId(gamePlayerId);
+//        GamePlayer gamePlayer = gamePlayerRepo.findByPlayerId(gameViewPlayerId);
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gamePlayerId);
         GamePlayer enemyPlayer = new GamePlayer();
 
         /** prepping the game players info for the DTO **/

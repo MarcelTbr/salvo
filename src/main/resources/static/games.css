@@ -8,3 +8,16 @@
 
         }
 
+#scores {
+    background-color: darkblue;
+    color: white;
+    width: 600px;
+    height: 400px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+#scores td { padding: 10px;}
+#scores th { text-decoration: underline;}
+
+.center { text-align: center;}

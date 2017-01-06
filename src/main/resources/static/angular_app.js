@@ -112,6 +112,17 @@ var app = angular.module('App', ['PlayerViewModule'], function($locationProvider
 
                 })
 
+              $http.get("/api/scores")
+                             .then(function(response){
+
+                                 $scope.scores_obj = angular.fromJson(response.data);
+                                 $scope.scores_keys = Object.keys($scope.scores_obj);
+                                 console.log($scope.scores_obj);
+                                 console.log("scores_obj_keys_array: ")
+                                 console.log($scope.scores_keys);
+
+                             })
+
     }]);
 
 

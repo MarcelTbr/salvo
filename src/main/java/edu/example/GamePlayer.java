@@ -51,6 +51,8 @@ public class GamePlayer {
 
     }
 
+//    public long getId() {return id;}
+
     public Player getPlayer(){
 
         return player;

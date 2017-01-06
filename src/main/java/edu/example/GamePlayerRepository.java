@@ -12,8 +12,8 @@ import java.util.List;
 
 @RepositoryRestResource
 public interface GamePlayerRepository extends JpaRepository<GamePlayer, Long> {
-    List<Player> findByPlayerJoinDate(String playerJoinDate);
-    GamePlayer findByPlayerId(long id);
-
+//    List<Player> findByPlayerJoinDate(String playerJoinDate);
+//    GamePlayer findByPlayerId(long id);
+      GamePlayer findById(long id);
 }
 

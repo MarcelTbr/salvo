@@ -53,6 +53,8 @@ public class Game {
         return gamePlayers;
     }
 
+    public List<GameScore> getGameScores() {return gameScores;}
+
     public long getId() {
         return id;
     }
@@ -63,11 +65,5 @@ public class Game {
                 .map(gp -> gp.getPlayer())
                 .collect(Collectors.toList());
     }
-
-    public List<GameScore> getGameScores() {
-
-        return gameScores;
-    }
-
 
 }

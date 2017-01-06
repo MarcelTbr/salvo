@@ -22,6 +22,7 @@ public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
     private String username;
     private String email;
 
@@ -84,7 +85,7 @@ public class Player {
         return id;
 
     }
-
+    public Set<GamePlayer> getGamePlayers() { return gamePlayers;}
     public Set<GameScore> getGameScoresSet (){ return gameScores;}
 
 

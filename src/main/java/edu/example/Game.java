@@ -24,6 +24,9 @@ public class Game {
     @OneToMany(mappedBy="game", fetch=FetchType.EAGER)
      Set<GamePlayer> gamePlayers;
 
+    @OneToMany(mappedBy = "game", fetch=FetchType.EAGER)
+    List<GameScore> gameScores;
+
     public Game()  { }
 
 
@@ -55,12 +58,16 @@ public class Game {
     }
 
     public List<Player> getPlayers(){
-        List<Player> playerList = new LinkedList<>() ;
-        gamePlayers.stream()
-                .map(gp -> playerList.add(gp.getPlayer()) )
+        //returns both players of the game
+        return gamePlayers.stream()
+                .map(gp -> gp.getPlayer())
                 .collect(Collectors.toList());
-
-        return playerList;
     }
+
+    public List<GameScore> getGameScores() {
+
+        return gameScores;
+    }
+
 
 }

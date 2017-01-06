@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,70 @@ public class SalvoController {
 
     @Autowired
     private SalvoRepository salvoRepo;
+
+    @RequestMapping("/scores")
+    public Map<String, List<Double>> getScores(){
+
+        Map<String, List<Double>> scoresDTO = new HashMap<>();
+        List<Player> players = playerRepo.findAll();
+
+        players.stream().forEach(p -> scoresDTO.put (p.getId()+": " + p.getUsername(), getTotalScoresList(p, p.getGameScoresSet())));
+
+        return scoresDTO;
+
+    }
+
+    private List<Double>  getTotalScoresList(Player p, Set<GameScore> gameScoreSet){
+       List<Double> totalsArray = new LinkedList<>();
+            totalsArray.add(getTotalScore(p.getGameScoresSet() ));
+            totalsArray.add(getTotalWins(gameScoreSet));
+            totalsArray.add(getTotalLosses(gameScoreSet));
+            totalsArray.add(getTotalTies(gameScoreSet));
+        return totalsArray;
+    }
+
+    private double getTotalWins(Set<GameScore> gameScoreSet){
+
+        double totalWins = 0;
+        List<Double> winsList = gameScoreSet.stream().filter( gs -> gs.getScore() == 1)
+                .map(gs -> gs.getScore()).collect(Collectors.toList());
+
+        for(double i = 0; i < winsList.size();i++){ totalWins++;}
+        return totalWins;
+    }
+
+    private double getTotalLosses(Set<GameScore> gameScoreSet){
+        double totalLosses = 0;
+        List<Double> winsList = gameScoreSet.stream().filter( gs -> gs.getScore() == 0)
+                .map(gs -> gs.getScore()).collect(Collectors.toList());
+        for(double i = 0; i < winsList.size();i++){ totalLosses++;}
+        return totalLosses;
+    }
+    private double getTotalTies(Set<GameScore> gameScoreSet){
+        double totalTies = 0;
+        List<Double> winsList = gameScoreSet.stream().filter( gs -> gs.getScore() == 0.5)
+                .map(gs -> gs.getScore()).collect(Collectors.toList());
+        for(double i = 0; i < winsList.size();i++){ totalTies++;}
+        return totalTies;
+    }
+
+    private double getTotalScore(Set<GameScore> gameScoreList) {
+        ArrayList<Double> scores = new ArrayList<>();
+        gameScoreList.stream().forEach(gs -> scores.add(addScore(gs)) );
+        double totalScore = 0.0;
+        for(double d : scores)
+            totalScore += d;
+        return totalScore;
+    }
+
+    private double addScore(GameScore gs) {
+
+        if ( isNull(gs.getScore()) ){return 0.0; } else {return gs.getScore();}
+    }
+
+    private boolean isNull(Double aDouble) {
+        return aDouble == null;
+    }
 
     /**
      * it has to return an object (we want the ids)

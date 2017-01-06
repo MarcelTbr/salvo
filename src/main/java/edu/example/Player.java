@@ -2,7 +2,11 @@ package edu.example;
 
 
 import javax.persistence.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -46,7 +50,10 @@ public class Player {
     }
 
     @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
-    Set<GamePlayer> gamePlayers; //TODO: find out why it is null & private-public-anything
+    Set<GamePlayer> gamePlayers;
+
+    @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
+    Set<GameScore> gameScores;
 
     public String getUsername() {
         return username;
@@ -78,10 +85,7 @@ public class Player {
 
     }
 
-    public Set<GamePlayer> getGamePlayers() {
+    public Set<GameScore> getGameScoresSet (){ return gameScores;}
 
-        return gamePlayers;
-
-    }
 
 }

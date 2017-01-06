@@ -29,7 +29,7 @@ public class SalvoApplication {
 
     @Bean
     public CommandLineRunner initData(PlayerRepository players, GameRepository games, ShipRepository ships, GamePlayerRepository gamePlayers,
-                                      SalvoRepository salvos) {
+                                      SalvoRepository salvos, GameScoreRepository game_scores) {
         return (args) -> {
 
             Date date = new Date();
@@ -63,6 +63,9 @@ public class SalvoApplication {
             games.save(game1);
             games.save(game2);
             games.save(game3);
+            Game game4 = new Game(Date.from(date.toInstant().plusSeconds(10800))); games.save(game4);
+            Game game5 = new Game(Date.from(date.toInstant().plusSeconds(10800))); games.save(game5);
+            Game game6 = new Game(Date.from(date.toInstant().plusSeconds(10800))); games.save(game6);
 
             /** Create 5 more dates with 30min difference each (1800s) */
 
@@ -71,7 +74,9 @@ public class SalvoApplication {
             Date date4 = Date.from(date.toInstant().plusSeconds(5400));
             Date date5 = Date.from(date.toInstant().plusSeconds(7200));
             Date date6 = Date.from(date.toInstant().plusSeconds(9000));
-
+            Date date7 = Date.from(date.toInstant().plusSeconds(9900));
+            Date date8 = Date.from(date.toInstant().plusSeconds(10800));
+            Date date9 = Date.from(date.toInstant().plusSeconds(11700));
 
             /**
              *  Create GamePlayers and assign them to variables
@@ -82,6 +87,12 @@ public class SalvoApplication {
             GamePlayer gp4 = new GamePlayer(date4, player4, game2);
             GamePlayer gp5 = new GamePlayer(date5, player5, game3);
             GamePlayer gp6 = new GamePlayer(date6, player6, game3);
+            GamePlayer gp7 = new GamePlayer(date7, player1, game4);
+            GamePlayer gp8 = new GamePlayer(date7, player3, game4);
+            GamePlayer gp9 = new GamePlayer(date8, player2, game5);
+            GamePlayer gp10 = new GamePlayer(date8, player5, game5);
+            GamePlayer gp11 = new GamePlayer(date9, player4, game6);
+            GamePlayer gp12 = new GamePlayer(date9, player6, game6);
 
 
             gamePlayers.save(gp1);
@@ -90,6 +101,9 @@ public class SalvoApplication {
             gamePlayers.save(gp4);
             gamePlayers.save(gp5);
             gamePlayers.save(gp6);
+            /** Important Note: this Games will not have any salvos or ships, they're just for the leaderboard */
+            gamePlayers.save(gp7);gamePlayers.save(gp8); gamePlayers.save(gp9); gamePlayers.save(gp10);
+            gamePlayers.save(gp11); gamePlayers.save(gp12);
 
 
             /**
@@ -185,7 +199,30 @@ public class SalvoApplication {
             Salvo salvo2_3 = new Salvo(gp2, 3, salvo2_3_locs);
             gp2.addSalvo(salvo2_3); salvos.save(salvo2_3);
 
+
+            /** Create some fake GameScore Instances */
+
+            GameScore gs1_1 = new GameScore(game1, player1, 0);  game_scores.save(gs1_1);
+            GameScore gs1_2 = new GameScore(game1, player2, 1);  game_scores.save(gs1_2);
+            GameScore gs2_1 = new GameScore(game2, player3, 0.5);game_scores.save(gs2_1);
+            GameScore gs2_2 = new GameScore(game2, player4, 0.5);game_scores.save(gs2_2);
+            GameScore gs3_1 = new GameScore(game3, player5, 0);  game_scores.save(gs3_1);
+            GameScore gs3_2 = new GameScore(game3, player6, 1);  game_scores.save(gs3_2);
+            GameScore gs4_1 = new GameScore(game4, player1, 0.5);game_scores.save(gs4_1);
+            GameScore gs4_2 = new GameScore(game4, player3, 0.5);game_scores.save(gs4_2);
+            GameScore gs5_1 = new GameScore(game5, player2, 1);  game_scores.save(gs5_1);
+            GameScore gs5_2 = new GameScore(game5, player5, 0);  game_scores.save(gs5_2);
+            GameScore gs6_1 = new GameScore(game6, player4, 0.5);game_scores.save(gs6_1);
+            GameScore gs6_2 = new GameScore(game6, player6, 0.5);game_scores.save(gs6_2);
+
+
+
+
         };
+
+
+
+
     }
 
 

@@ -8,11 +8,29 @@
     <script
             src="https://code.jquery.com/jquery-3.1.1.js"
             integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
-            crossorigin="anonymous"></script>
+            crossorigin="anonymous">
+    </script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 
 </head>
 <body ng-app="App" ng-controller="GamesController" >
+<section   id="security">
+<div ng-show="guest" id="guest-info" class="space-around">
+<h4>Player Login</h4>
+<form  id="login-form" onsubmit="return false">
+    <label>Name: <input ng-model="username" type="text" name="username"></label>
+    <label>Password: <input ng-model="password" type="text" name="password"></label>
+    <button ng-click="logMeIn()" id="login-button">Log In</button>
+</form>
+</div>
+<div  ng-show="user" id="user-info" class="space-around">
+    <h4>Welcome {{player.username}}</h4>
+    <h4>{{player.email}}</h4>
+<form id="logout-form" onsubmit="return false">
+    <button ng-click="logMeOut()" id="logout-button">Log out</button>
+</form>
+    </div>
+</section>
 <h2 class="center">Leaderboard</h2>
 
 <table id="scores" >
@@ -26,7 +44,26 @@
 
 </table>
 
-<div class="center">
+<section id="games-list" class="center">
+<div ng-show="user" id="user-games">
+    <h2>Games played by {{player.username}}</h2>
+    <div >
+        <ul id="player_games_list">
+            <li ng-repeat="game in player_games"><u>
+                <b>Game {{game.game_id}}</b></u><br />
+                <b>Creation Date:</b></b> {{game.game_date}}<br />
+                <span ng-repeat="player in game.game_players">
+                    <b> {{player.username}} </b>
+                     {{player.joining_date }} <br />
+                </span>
+                <br /><br />
+            </li>
+        </ul>
+
+    </div>
+</div>
+
+<div id="all-games">
 <h2>Active Salvo Games</h2>
 <ul id="games_list">
     <li ng-repeat="game in games"><u>
@@ -40,6 +77,7 @@
     </li>
 </ul>
 </div>
+</section>
 <script type="text/javascript" src="angular_app.js"></script>
 </body>
 </html>

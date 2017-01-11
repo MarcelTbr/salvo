@@ -2,11 +2,8 @@ package edu.example;
 
 
 import javax.persistence.*;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 
 /**
@@ -25,6 +22,7 @@ public class Player {
 
     private String username;
     private String email;
+    private String password;
 
 
     /**
@@ -37,7 +35,7 @@ public class Player {
     /**
      * JAVA Class user constructor
      */
-    public Player(String usr, String eml) {
+    public Player(String usr, String eml, String password) {
 
         /**
          * "this."property is assumed
@@ -47,6 +45,7 @@ public class Player {
 
         username = usr;
         email = eml;
+        this.password = password;
 
     }
 
@@ -71,6 +70,10 @@ public class Player {
     public void setEmail(String eml) {
         this.email = eml;
     }
+
+    public String getPassword() { return password;}
+
+    public void setPassword (String password) { this.password = password;}
 
     /**
      * Tell Java Library to use this method instead of the standard one

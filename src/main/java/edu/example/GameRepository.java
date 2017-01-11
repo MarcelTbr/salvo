@@ -12,7 +12,8 @@ import java.util.List;
 
 @RepositoryRestResource
 public interface GameRepository extends JpaRepository<Game, Long> {
-//    List<Player> findByCreationDate(String creationDate);
+
+    List<Game> findById(long id);
 
 }
 

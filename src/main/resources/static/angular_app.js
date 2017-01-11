@@ -14,10 +14,10 @@ function paramObj(search) {
 
 
 //Angular Code
-var app = angular.module('App', ['PlayerViewModule'], function($locationProvider){
+var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($locationProvider){
     $locationProvider.html5Mode(true);
 });
-
+ var login_mod = angular.module('LoginModule', [])
  var pl_view_mod = angular.module('PlayerViewModule', [])
   pl_view_mod.controller('PlayerViewController', ['$scope', '$http', '$location','updateGameView',
   function($scope, $http, $location, updateGameView){
@@ -101,13 +101,28 @@ var app = angular.module('App', ['PlayerViewModule'], function($locationProvider
 
   }]);
 
-  app.controller('GamesController', ['$scope', '$http', function($scope, $http) {
+  app.controller('GamesController', ['$scope', '$http', 'loginService', function($scope, $http, loginService) {
+                $scope.guest
+                $scope.user
+                $scope.player;
+                $scope.player_games;
+
 
               $http.get("/api/games")
                 .then(function(response){
 
                     $scope.games_obj = angular.fromJson(response.data);
-                    $scope.games =  $scope.games_obj;
+                    $scope.games = $scope.games_obj.games;
+                    //TODO: change this condition to use Auth obj of a backend endpoint
+                    if($scope.games_obj.length == 1 ){
+                        $scope.guest = true;
+                        $scope.user = false;
+                    }else {
+                        $scope.guest = false;
+                        $scope.user = true;
+                        $scope.player = $scope.games_obj.player;
+                        $scope.player_games = $scope.games_obj.player_games;
+                    }
                     console.log($scope.games_obj);
 
                 })
@@ -123,9 +138,82 @@ var app = angular.module('App', ['PlayerViewModule'], function($locationProvider
 
                              })
 
+                $scope.login_data = {username: 'Jack', password: 'iamjack'};
+
+                $scope.successCallback = function(status){ console.log("Sucess!")}
+
+                $scope.errorCallback = function(status) {console.log("ERROR!")}
+
+
+               $scope.logMeOut = function (){
+                    $.post("/app/logout").done(function() { console.log("logged out");
+                       $http.get("/api/games")
+                         .then(function(response){
+                         $scope.games_obj = angular.fromJson(response.data);
+                         $scope.games = $scope.games_obj.games;
+                                             })
+
+                                          $scope.guest = true;
+                                          $scope.user = false;
+
+
+                     });
+
+                    }
+
+               $scope.logMeIn =  function(){
+                            $.post("app/login", { username: $scope.username, password: $scope.password})
+                            .done(function(){console.log("logged-in!");
+                              $scope.user = true;
+                              $scope.guest = false;
+
+                              $http.get("/api/games")
+                              .then(function(response){
+                              $scope.games_obj = angular.fromJson(response.data);
+                              $scope.games = $scope.games_obj.games;
+                              $scope.player = $scope.games_obj.player;
+                              $scope.player_games = $scope.games_obj.player_games;
+
+                                                                })
+
+                            })
+                            .fail(function(){console.log("Sorry, try again...")});
+
+
+
+
+                }
+
+                $scope.loginTest = function () {
+                        console.log("Testing");
+//                    $http.post('/app/login', {"username": 'Jack', "password": 'iamjack'}, { headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+                $http( {method: 'POST', 
+                url: '/app/login',
+                data: { "username": "Jack", "password": "iamjack"}, 
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'} 
+                } ).success(function(status){ console.log("angular login succeeded!");   })
+                .error(function(status){   console.log("Sorry, angular login failed!")    console.log(status)    })
+
+                }
+
     }]);
 
+//TODO: FINISH SERVICE
+login_mod.service('loginService', function(){
 
+    /*this.login = function(name){
+        console.log("i am logging in... "+ name);
+    }*/
+
+    this.post = function(){
+            console.log("loginService.post")
+            $http.post('/app/login', {"username": 'Jimi Hendrix', "password": 'littlewing'}, { headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).then($scope.successCallback, $scope.errorCallback); 
+
+    }
+
+
+
+})
 
 pl_view_mod.service('updateGameView', function(){
 

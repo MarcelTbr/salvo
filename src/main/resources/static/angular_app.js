@@ -101,11 +101,14 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
 
   }]);
 
-  app.controller('GamesController', ['$scope', '$http', 'loginService', function($scope, $http, loginService) {
+  app.controller('GamesController', ['$scope', '$http', '$window','loginService', function($scope, $http, $window, loginService) {
                 $scope.guest
                 $scope.user
                 $scope.player;
                 $scope.player_games;
+                $scope.response;
+                $scope.feedback_style;
+                $scope.feedback_message;
 
 
               $http.get("/api/games")
@@ -113,8 +116,8 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
 
                     $scope.games_obj = angular.fromJson(response.data);
                     $scope.games = $scope.games_obj.games;
-                    //TODO: change this condition to use Auth obj of a backend endpoint
-                    if($scope.games_obj.length == 1 ){
+
+                    if($scope.games_obj.auth == null){
                         $scope.guest = true;
                         $scope.user = false;
                     }else {
@@ -138,8 +141,6 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
 
                              })
 
-                $scope.login_data = {username: 'Jack', password: 'iamjack'};
-
                 $scope.successCallback = function(status){ console.log("Sucess!")}
 
                 $scope.errorCallback = function(status) {console.log("ERROR!")}
@@ -161,6 +162,47 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
 
                     }
 
+               $scope.checkEmail = function(email){
+                     var pat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+               if(email.match(pat) == email){ return true; } else {  return false; }
+               }
+
+               $scope.postNewUser = function(){
+                 $.post("api/players", { 'username': $scope.new_username,
+                                             'email': $scope.new_email, 'password': $scope.new_password})
+                                             .done(function(response){
+                                                 console.log(response);
+                                                 alert(response.success);
+                                                /* $('#feedback').show();
+                                                 $scope.response = response;
+                                                 $scope.feedback_style= {textAlign: "center", backgroundColor: "green", color: "white"};
+                                                 $scope.feedback_message = response.success;*/
+                                             })
+                                              .fail(function(response){
+                                              console.log(response);
+                                              alert(response.responseJSON.error)
+                                              /*$('#feedback').show();
+                                               $scope.response = response;
+                                               $scope.feedback_style= {textAlign: "center", backgroundColor: "red", color: "white"};
+                                               $scope.feedback_message = response.responseJSON.error;*/
+
+                                              });
+
+               }
+
+               $scope.signMeUp = function(){
+
+                            if($scope.checkEmail($scope.new_email)){
+                                    console.log("email is good!");
+                                    $scope.postNewUser()
+                            }else {
+                                    console.log("give in a correct email adress.");
+                                    alert("Please give in a correct e-mail adress.");
+                                     $window.location.reload();
+                            }
+
+
+               }
                $scope.logMeIn =  function(){
                             $.post("app/login", { username: $scope.username, password: $scope.password})
                             .done(function(){console.log("logged-in!");
@@ -177,7 +219,7 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
                                                                 })
 
                             })
-                            .fail(function(){console.log("Sorry, try again...")});
+                            .fail(function(){console.log("Sorry login failed, try again...")});
 
 
 
@@ -210,8 +252,6 @@ login_mod.service('loginService', function(){
             $http.post('/app/login', {"username": 'Jimi Hendrix', "password": 'littlewing'}, { headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).then($scope.successCallback, $scope.errorCallback); 
 
     }
-
-
 
 })
 

@@ -18,11 +18,20 @@
 <div ng-show="guest" id="guest-info" class="space-around">
 <h4>Player Login</h4>
 <form  id="login-form" onsubmit="return false">
-    <label>Name: <input ng-model="username" type="text" name="username"></label>
+    <label>Username: <input ng-model="username" type="text" name="username"></label>
     <label>Password: <input ng-model="password" type="text" name="password"></label>
     <button ng-click="logMeIn()" id="login-button">Log In</button>
 </form>
 </div>
+    <div ng-show="guest" id="signup" class="space-around">
+        <h4>Player Signup</h4>
+        <form  id="signup-form" onsubmit="return false">
+            <label>U: <input ng-model="new_username" type="text" name="new_username" placeholder="new username"></label>
+            <label>E: <input ng-model="new_email" type="text" name="new_email" placeholder="new email"></label>
+            <label>P: <input ng-model="new_password" type="text" name="new_password" placeholder="new password"></label>
+            <button ng-click="signMeUp()" id="signup-button">Sign Up</button>
+        </form>
+    </div>
 <div  ng-show="user" id="user-info" class="space-around">
     <h4>Welcome {{player.username}}</h4>
     <h4>{{player.email}}</h4>
@@ -30,7 +39,13 @@
     <button ng-click="logMeOut()" id="logout-button">Log out</button>
 </form>
     </div>
+    <div  ng-style="feedback_style"id="feedback">
+        <!--ng-show="response != null"-->
+        <span  >{{feedback_message}}</span>
+    </div>
 </section>
+
+<!-- ======== Leaderboard ======= -->
 <h2 class="center">Leaderboard</h2>
 
 <table id="scores" >

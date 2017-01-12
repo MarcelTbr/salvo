@@ -2,10 +2,10 @@ package edu.example;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,20 +34,29 @@ public class SalvoController {
     @Autowired
     private SalvoRepository salvoRepo;
 
+    /** ======== ENDPOINTS ======== */
+
     @RequestMapping("/tests")
-    public String getOutput(Authentication auth){
-        List<Player> playerList =  playerRepo.findByUsername(auth.getName());
-                //playerRepo.findByEmail("jimi@hendrix.org");//playerRepo.findByUsername("Jack");
+    public List<Map<String, Object>> getOutput(Authentication auth){
 
-       /* final long[] count = {0};
-        playerList.stream()
-                .forEach(pl -> count[0] += pl.getId());*/
+        List<Player> playerList = playerRepo.findAll();
+        List<Map<String, Object>> playerDTO =
+                playerList.stream().map(pl -> getUserDTO(pl)).collect(Collectors.toList());
 
 
-        String outputDto = playerList.get(0).getUsername();
-
-        return outputDto;
+        return playerDTO;
     }
+
+    @RequestMapping(value="/players", method= RequestMethod.POST)
+        public ResponseEntity<Map<String,Object>> getResponse(@RequestParam("username") String username,
+                                                  @RequestParam("email")String email,
+                                                  @RequestParam("password") String password
+                                                 ){
+
+            return makePlayer(username, email, password);
+        }
+
+
 
     @RequestMapping("/games")
     public  Map<String, Object> getGames(Authentication auth) {
@@ -61,34 +70,16 @@ public class SalvoController {
             gamesAuthDTO.put("player", userDTO);
             gamesAuthDTO.put("player_games", userGamesDTO);
             gamesAuthDTO.put("games",  getGamesDTO());
+            gamesAuthDTO.put("auth", auth);
             return gamesAuthDTO;
-        }else {gamesAuthDTO.put("games",  getGamesDTO());
-                 return gamesAuthDTO;}
+        }else {
+            gamesAuthDTO.put("games",  getGamesDTO());
+            gamesAuthDTO.put("auth", auth);
+                 return gamesAuthDTO;
+        }
 
 
 
-    }
-
-    private LinkedList<Object> getUserGamesDTO(Player user) {
-        LinkedList<Object> userGamesDTO = new LinkedList<>();
-        List<Game> userGames =  user.getGamePlayers().stream()
-        .map( gp ->   getGame(gp) ).collect(Collectors.toList());
-        /** Getting a DTO of only the active user's games */
-        userGames.stream()
-                .forEach(g -> userGamesDTO.add(getNewGame(g)));
-        return  userGamesDTO;
-    }
-
-    private Game getGame(GamePlayer gp) {
-        return gameRepo.findById( gp.getGame().getId() ).get(0);
-    }
-
-    private Map<String,Object> getUserDTO(Player user) {
-        Map<String, Object> userDTO = new HashMap<>();
-        userDTO.put("id",user.getId());
-        userDTO.put("username", user.getUsername());
-        userDTO.put("email", user.getEmail());
-        return  userDTO;
     }
 
     @RequestMapping("/scores")
@@ -177,6 +168,57 @@ public class SalvoController {
                 .collect(Collectors.toList());
 
         return salvosDTO;
+    }
+
+    /** ======== METHODS ======== */
+
+    private ResponseEntity<Map<String,Object>> makePlayer(String username, String email, String password){
+
+        if(existingUsername(username)){
+            return new ResponseEntity<>(makeMap("error",
+                    "Username \"" + username + "\" is being used. Enter a different username."),
+                    HttpStatus.UNAUTHORIZED);
+        }else{
+            playerRepo.save(new Player (username, email, password));
+            return new ResponseEntity<>(makeMap("success",
+                    "Username is available. New user \"" + username + "\" created."),
+                    HttpStatus.ACCEPTED);
+        }
+
+
+    }
+
+    private Map<String, Object> makeMap(String key, Object value) {
+        Map<String, Object> map = new HashMap<>();
+        map.put(key, value);
+        return map;
+    }
+
+    private boolean existingUsername(String username) {
+       List<Player> existingPlayer = playerRepo.findByUsername(username);
+        if (!existingPlayer.isEmpty()){return true;} else {return false; }
+    }
+
+    private LinkedList<Object> getUserGamesDTO(Player user) {
+        LinkedList<Object> userGamesDTO = new LinkedList<>();
+        List<Game> userGames =  user.getGamePlayers().stream()
+                .map( gp ->   getGame(gp) ).collect(Collectors.toList());
+        /** Getting a DTO of only the active user's games */
+        userGames.stream()
+                .forEach(g -> userGamesDTO.add(getNewGame(g)));
+        return  userGamesDTO;
+    }
+
+    private Game getGame(GamePlayer gp) {
+        return gameRepo.findById( gp.getGame().getId() ).get(0);
+    }
+
+    private Map<String,Object> getUserDTO(Player user) {
+        Map<String, Object> userDTO = new HashMap<>();
+        userDTO.put("id",user.getId());
+        userDTO.put("username", user.getUsername());
+        userDTO.put("email", user.getEmail());
+        return  userDTO;
     }
 
     private List<Double>  getTotalScoresList(Player p, Set<GameScore> gameScoreSet){

@@ -285,7 +285,8 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/login.html", "/angular_app.js", "/api/games", "/api/scores", "/games.css", "/games.html").permitAll()
+                .antMatchers("/login.html", "/angular_app.js", "/api/players", "/api/games", "/api/scores",
+                        "/games.css", "/games.html", "/api/tests").permitAll()
                 .antMatchers("/**").hasAuthority("USER")
                 .and().formLogin();
 

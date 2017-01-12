@@ -153,11 +153,8 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
                          $scope.games_obj = angular.fromJson(response.data);
                          $scope.games = $scope.games_obj.games;
                                              })
-
                                           $scope.guest = true;
                                           $scope.user = false;
-
-
                      });
 
                     }

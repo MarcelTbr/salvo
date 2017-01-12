@@ -68,9 +68,18 @@
                 <b>Game {{game.game_id}}</b></u><br />
                 <b>Creation Date:</b></b> {{game.game_date}}<br />
                 <span ng-repeat="player in game.game_players">
+
+                    <!--TODO: remove GP numbers from the front end-->
+
+                    <span>(GP#{{player.gp_id}})</span>
                     <b> {{player.username}} </b>
-                     {{player.joining_date }} <br />
+                     {{player.joining_date }}
+                    <a id="player.gp_id" ng-show="player.pl_id == games_obj.player.id" ng-href="/game.html?gp={{player.gp_id}}">
+                        Join Game#{{game.game_id}} </a>
+                    <br />
                 </span>
+
+                <!--getUrl(game.game_id)-->
                 <br /><br />
             </li>
         </ul>

@@ -136,10 +136,30 @@ public class SalvoController {
     }
 
     @RequestMapping("game_view/{gamePlayerId}")
-    public Map<String, Object> gameView (
+    public ResponseEntity<Map<String, Object>> gameView (
 
-            @PathVariable long gamePlayerId ){
+            @PathVariable long gamePlayerId, Authentication auth ){
 
+                if(gameViewAuthorization(gamePlayerId, auth)){
+
+                    return new ResponseEntity<Map<String, Object>>(getGameViewDTO(gamePlayerId), HttpStatus.ACCEPTED);
+
+                }else {
+                    return new ResponseEntity<Map<String, Object>>(
+                            makeMap("unauthorize", "it's not allowed to see other users data"),
+                            HttpStatus.UNAUTHORIZED);
+                }
+
+
+    }
+
+    private boolean gameViewAuthorization(long gamePlayerId, Authentication auth) {
+
+               if( gamePlayerRepo.findById(gamePlayerId).getPlayer().getUsername() == auth.getName() ) { return true; }
+               else{ return false; }
+    }
+
+    private Map<String, Object> getGameViewDTO(@PathVariable long gamePlayerId) {
         GamePlayer gamePlayer = gamePlayerRepo.findById(gamePlayerId);
         GamePlayer enemyPlayer = new GamePlayer();
 
@@ -292,13 +312,12 @@ public class SalvoController {
     }
 
     private Map<String, Object> getNewGame(Game g) {
-        Set<Object> gamePlayersDTO = getGamePlayersDTO(g);
         Map<String, Object> newGame = new LinkedHashMap<String, Object>();
         newGame.put("game_id", g.getId());
         newGame.put("game_date", g.getCreationDate());
         /** Here we're nesting a set of objects: [gamePlayersDTO]
          *  into a map: [newGame]*/
-        newGame.put("game_players", gamePlayersDTO);
+        newGame.put("game_players", getGamePlayersDTO(g));
         return newGame;
     }
 
@@ -307,7 +326,8 @@ public class SalvoController {
         long playerId = getPlayerId(gp);
         Player playerInGame = playerRepo.findById(playerId);
         Map<String, Object> playerDTO = new LinkedHashMap<>();
-        playerDTO.put("id", playerInGame.getId());
+        playerDTO.put("gp_id", gp.getGamePlayerId());
+        playerDTO.put("pl_id", playerInGame.getId());
         playerDTO.put("username", playerInGame.getUsername());
         playerDTO.put("email", playerInGame.getEmail());
         playerDTO.put("joining_date", gp.getPlayerJoinDate());

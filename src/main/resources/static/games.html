@@ -43,6 +43,14 @@
         <!--ng-show="response != null"-->
         <span  >{{feedback_message}}</span>
     </div>
+    <div id="ui-buttons" class="space-around">
+        <form id="create-game-form">
+            <button ng-click="createGame()">Create Game</button>
+        </form>
+        <form id="join-game-form">
+            <button ng-click="joinGame(7)">Join Game</button>
+        </form>
+    </div>
 </section>
 
 <!-- ======== Leaderboard ======= -->
@@ -59,13 +67,13 @@
 
 </table>
 
-<section id="games-list" class="center">
+<section id="games" class="center">
 <div ng-show="user" id="user-games">
     <h2>Games played by {{player.username}}</h2>
     <div >
         <ul id="player_games_list">
-            <li ng-repeat="game in player_games"><u>
-                <b>Game {{game.game_id}}</b></u><br />
+            <li ng-repeat="game in player_games" >
+                <u><b>Game {{game.game_id}}</b></u><br />
                 <b>Creation Date:</b></b> {{game.game_date}}<br />
                 <span ng-repeat="player in game.game_players">
 
@@ -90,13 +98,14 @@
 <div id="all-games">
 <h2>Active Salvo Games</h2>
 <ul id="games_list">
-    <li ng-repeat="game in games"><u>
-        <b>Game {{game.game_id}}</b></u><br />
+    <li ng-repeat="game in games" game-data="{{game.game_id}}">
+        <u><b>Game {{game.game_id}}</b></u><br />
         <b>Creation Date:</b></b> {{game.game_date}}<br />
         <span ng-repeat="player in game.game_players">
             <b>Player {{player.id}}:</b> {{player.username}}
             <b>Joined:</b> {{player.joining_date }} <br />
         </span>
+        <button ng-show="game.game_players.length < 2" ng-click="joinGame(game.game_id)">Join Game</button>
         <br /><br />
     </li>
 </ul>

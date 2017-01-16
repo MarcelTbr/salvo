@@ -47,6 +47,29 @@ public class SalvoController {
         return playerDTO;
     }
 
+    @RequestMapping(value="games/{gameId}/players", method= RequestMethod.POST)
+    public ResponseEntity <Map<String, Object>> getResponse( @PathVariable long gameId, Authentication auth){
+    Game game = gameRepo.findById(gameId);
+    Player player = playerRepo.findByUsername(auth.getName()).get(0);
+        //check if user is logged in
+        if(auth != null){
+            //check if game exists
+            if( game != null) {
+                if( game.getPlayers().stream().count() < 2) {
+                    //create and save game player
+                    GamePlayer gamePlayer = new GamePlayer(new Date(), player, game);
+                    gamePlayerRepo.save(gamePlayer);
+                    return new ResponseEntity<>(makeMap("gp_id", gamePlayer.getGamePlayerId()), HttpStatus.CREATED);
+                } else {
+                    return new ResponseEntity<>(makeMap( "backend","Sorry, game is full!"), HttpStatus.FORBIDDEN);
+                }
+            }else{
+                return new ResponseEntity<>(makeMap( "backend","Game not found!"), HttpStatus.FORBIDDEN);
+            }
+        } else { return new ResponseEntity<>(makeMap( "backend","User not logged in!"), HttpStatus.UNAUTHORIZED); }
+
+    }
+
     @RequestMapping(value="/players", method= RequestMethod.POST)
         public ResponseEntity<Map<String,Object>> getResponse(@RequestParam("username") String username,
                                                   @RequestParam("email")String email,
@@ -56,7 +79,16 @@ public class SalvoController {
             return makePlayer(username, email, password);
         }
 
+    @RequestMapping(value="/games", method= RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> getResponse(Authentication auth){
+        Player user = playerRepo.findByUsername(auth.getName()).get(0);
+        Game newGame = new Game(new Date());
+        gameRepo.save(newGame);
+        GamePlayer newGamePlayer = new GamePlayer(new Date(), user, newGame);
+        gamePlayerRepo.save(newGamePlayer);
 
+        return new ResponseEntity<Map<String, Object>>(makeMap("gp_id", newGamePlayer.getGamePlayerId()), HttpStatus.CREATED);
+    }
 
     @RequestMapping("/games")
     public  Map<String, Object> getGames(Authentication auth) {
@@ -153,10 +185,25 @@ public class SalvoController {
 
     }
 
+    @RequestMapping("/salvos")
+    public List<Object> getSalvosDTO() {
+
+        List<Game> gameList = gameRepo.findAll();
+        List<Object> salvosDTO = new LinkedList<>();
+
+        gameList.stream()
+                .map(g -> salvosDTO.add(getGameSalvoDTO(g)) )
+                .collect(Collectors.toList());
+
+        return salvosDTO;
+    }
+
+    /** ======== METHODS ======== */
+
     private boolean gameViewAuthorization(long gamePlayerId, Authentication auth) {
 
-               if( gamePlayerRepo.findById(gamePlayerId).getPlayer().getUsername() == auth.getName() ) { return true; }
-               else{ return false; }
+        if( gamePlayerRepo.findById(gamePlayerId).getPlayer().getUsername() == auth.getName() ) { return true; }
+        else{ return false; }
     }
 
     private Map<String, Object> getGameViewDTO(@PathVariable long gamePlayerId) {
@@ -176,21 +223,6 @@ public class SalvoController {
         Map<String, Object> game_viewDTO = getGameViewDTO(gamePlayer, enemyPlayer, gamePlayersList);
         return game_viewDTO;
     }
-
-    @RequestMapping("/salvos")
-    public List<Object> getSalvosDTO() {
-
-        List<Game> gameList = gameRepo.findAll();
-        List<Object> salvosDTO = new LinkedList<>();
-
-        gameList.stream()
-                .map(g -> salvosDTO.add(getGameSalvoDTO(g)) )
-                .collect(Collectors.toList());
-
-        return salvosDTO;
-    }
-
-    /** ======== METHODS ======== */
 
     private ResponseEntity<Map<String,Object>> makePlayer(String username, String email, String password){
 
@@ -230,7 +262,7 @@ public class SalvoController {
     }
 
     private Game getGame(GamePlayer gp) {
-        return gameRepo.findById( gp.getGame().getId() ).get(0);
+        return gameRepo.findById( gp.getGame().getId() );
     }
 
     private Map<String,Object> getUserDTO(Player user) {

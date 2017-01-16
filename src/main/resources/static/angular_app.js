@@ -19,8 +19,8 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
 });
  var login_mod = angular.module('LoginModule', [])
  var pl_view_mod = angular.module('PlayerViewModule', [])
-  pl_view_mod.controller('PlayerViewController', ['$scope', '$http', '$location','updateGameView',
-  function($scope, $http, $location, updateGameView){
+  pl_view_mod.controller('PlayerViewController', ['$scope', '$http', '$location', '$window','updateGameView',
+  function($scope, $http, $location, $window, updateGameView){
 
     $scope.nums = [1,2,3,4,5,6,7,8,9,10];
     $scope.abc = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
@@ -41,6 +41,7 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
 
     $http.get("api/game_view/" + $scope.gp)
     .then(function(response){
+        console.log("Response:"); console.log(response);
 
         $scope.game_view_obj = response.data;  // store the game_viewDTO into a variable
         console.log($scope.game_view_obj);
@@ -97,6 +98,11 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
         console.log($scope.enemyGamePlayer);
 //        TODO: later implement a method that orders the gamePlayers Array [0]: User [1]: Enemy
 //        updateGameView.orderGamePlayers($scope.gp, $scope.players);
+
+    }, function(response){ //user feedback & redirection if he is not authorized
+            console.log("Response:"); console.log(response);
+            alert(response.data.unauthorize);
+            $window.location.href = "http://" + $window.location.host + "/games.html";
     })
 
   }]);
@@ -145,6 +151,30 @@ var app = angular.module('App', ['PlayerViewModule', 'LoginModule'], function($l
 
                 $scope.errorCallback = function(status) {console.log("ERROR!")}
 
+                $scope.joinGame = function(game_id){
+
+                    $.post("/api/games/"+game_id+"/players").done(function(response){
+                        console.log("response:");
+                        console.log(response);
+                        $window.location.href = "http://" + $window.location.host + "/game.html?gp="+response.gp_id;
+                    })
+                    .fail(function(response){
+                        console.log("Fail response:");
+                        console.log(response);
+                        alert(response.responseJSON.backend);
+
+                    })
+
+                }
+
+                $scope.createGame= function(){
+                        $.post("/api/games").done(function(response){
+                        console.log("game created!");
+                        console.log(response)
+                        $window.location.href = "http://" + $window.location.host + "/game.html?gp="+response.gp_id;
+                        })
+                        .fail(function(){console.log("sorry, couldn't create game...")})
+                }
 
                $scope.logMeOut = function (){
                     $.post("/app/logout").done(function() { console.log("logged out");

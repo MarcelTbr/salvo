@@ -32,6 +32,9 @@ public class SalvoController {
     private PlayerRepository playerRepo;
 
     @Autowired
+    private ShipRepository shipRepo;
+
+    @Autowired
     private SalvoRepository salvoRepo;
 
     /** ======== ENDPOINTS ======== */
@@ -47,8 +50,69 @@ public class SalvoController {
         return playerDTO;
     }
 
+    @RequestMapping ("games/players/{gamePlayerId}/ships")
+    public Set<Ship> getShips (@PathVariable long gamePlayerId, Authentication auth){
+    if ( existingUsername(auth.getName()) && !incorrectUser(auth, gamePlayerId)) {
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gamePlayerId);
+        return gamePlayer.getShips();
+    }else { return new HashSet<Ship>();}
+
+    }
+
+    @RequestMapping (value="games/players/{gamePlayerId}/ships", method= RequestMethod.POST )
+    public ResponseEntity<Map<String, Object>> saveShips(@PathVariable long gamePlayerId, @RequestBody List<Ship> ships, Authentication auth) { // @RequestBody Ship ship,
+        String newLine = System.getProperty("line.separator");
+//        Ship aShip = gamePlayerRepo.findById(gamePlayerId).getShips().stream().filter(s -> s.getId() == 1).collect(Collectors.toList()).get(0);
+        System.out.println("Ships found:");
+        System.out.print(ships);
+        System.out.println(newLine);
+//        System.out.println("Ship Type: ");
+//        System.out.print(ship.getShipType());System.out.println(newLine);
+
+        if (auth == null || noSuchGP(gamePlayerId) || incorrectUser(auth, gamePlayerId)) {
+
+            return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, not authorized"), HttpStatus.UNAUTHORIZED);
+        } else if (shipsPlaced(gamePlayerId)){
+            return new ResponseEntity<Map<String, Object>>(makeMap("backend", "Not possible, ships were already placed."), HttpStatus.FORBIDDEN);
+        }else{
+                for(Ship ship: ships) {
+            ship.setGamePlayer(gamePlayerRepo.findById(gamePlayerId)); shipRepo.save(ship);
+                }
+            return new ResponseEntity<Map<String, Object>>(makeMap("backend", "ships created!"), HttpStatus.CREATED);
+        }
+    }
+
+    private boolean shipsPlaced(long gamePlayerId) {
+        long totalShips = gamePlayerRepo.findById(gamePlayerId).getShips().stream().count();
+        if(totalShips < 5) { return false; } else { return true;}
+    }
+
+    private boolean incorrectUser(Authentication auth, long gamePlayerId) {
+        Player player = playerRepo.findByUsername(auth.getName()).get(0);
+        Set<GamePlayer> gamePlayerSet = player.getGamePlayers();
+//        System.out.println(player);
+//        System.out.print(gamePlayerSet);
+        String newLine = System.getProperty("line.separator");
+        long matchingGP = gamePlayerSet.stream().filter(gp -> gp.getGamePlayerId() == gamePlayerId ).count();
+        System.out.println("gamePlayer found! ");
+        System.out.println("gamePlayer is: ");
+        System.out.print(gamePlayerId);
+        System.out.println(newLine);
+
+        if(matchingGP == 1){ return false; } else {
+
+            System.out.println("GamePlayer NOT Found");System.out.println(newLine);
+            return true; }
+    }
+
+    private boolean noSuchGP(long gamePlayerId) {
+
+       if ( gamePlayerRepo.findById(gamePlayerId) == null) {return  true; } else {return false; }
+
+    }
+
     @RequestMapping(value="games/{gameId}/players", method= RequestMethod.POST)
-    public ResponseEntity <Map<String, Object>> getResponse( @PathVariable long gameId, Authentication auth){
+    public ResponseEntity <Map<String, Object>> saveGamePlayer( @PathVariable long gameId, Authentication auth){
     Game game = gameRepo.findById(gameId);
     Player player = playerRepo.findByUsername(auth.getName()).get(0);
         //check if user is logged in
@@ -71,7 +135,7 @@ public class SalvoController {
     }
 
     @RequestMapping(value="/players", method= RequestMethod.POST)
-        public ResponseEntity<Map<String,Object>> getResponse(@RequestParam("username") String username,
+        public ResponseEntity<Map<String,Object>> savePlayer(@RequestParam("username") String username,
                                                   @RequestParam("email")String email,
                                                   @RequestParam("password") String password
                                                  ){
@@ -80,7 +144,7 @@ public class SalvoController {
         }
 
     @RequestMapping(value="/games", method= RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> getResponse(Authentication auth){
+    public ResponseEntity<Map<String, Object>> saveGame(Authentication auth){
         Player user = playerRepo.findByUsername(auth.getName()).get(0);
         Game newGame = new Game(new Date());
         gameRepo.save(newGame);

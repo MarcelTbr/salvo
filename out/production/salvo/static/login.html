@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Player Login</title>
+    <!--JQuery & Angular 1.5.7 CDNS -->
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.js"
+            integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
+            crossorigin="anonymous">
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+</head>
+<body ng-app="App" ng-controller="GamesController">
+<h2>Login</h2>
+<form id="login-form" onsubmit="return false">
+    <label>Name: <input ng-model="username" type="text" name="username"></label>
+    <label>Password: <input ng-model="password" type="text" name="password"></label>
+    <button ng-click="logMeIn()" id="login-button">Log In</button>
+</form>
+
+<form id="logout-form" onsubmit="return false">
+    <button ng-click="logMeOut()" id="logout-button">Log out</button>
+</form>
+
+
+<script type="text/javascript" src="angular_app.js"></script>
+</body>
+</html>

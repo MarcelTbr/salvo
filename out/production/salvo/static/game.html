@@ -14,8 +14,8 @@
 </head>
 <body ng-app="PlayerViewModule" ng-controller="PlayerViewController" >
 
-<h2 class="center" >{{userGamePlayer.player.username}}'s Game View</h2>
-<h4 class="center" >Game #{{game_view_obj.game_id}} | Created: {{game_view_obj.created}}</h4>
+<h2 ng-style="gv_title">{{userGamePlayer.player.username}}'s Game View</h2>
+<h4 ng-style="gv_title">Game #{{game_view_obj.game_id}} | Created: {{game_view_obj.created}}</h4>
 <br />
 <div id="grids">
 <div id="user">
@@ -35,11 +35,7 @@
     <tbody>
     <tr ng-repeat="letter in abc" >
         <th>{{letter}}</th>
-        <td ng-repeat="number in nums" data-cell="{{letter}}{{number}}"
-            ng-mouseover="showShip(letter, number)"
-            ng-click="placeShip(letter, number)"
-            ng-style="getStyle(letter+number)"
-        ></td>
+        <td ng-repeat="number in nums" data-cell="{{letter}}{{number}}" ng-mouseover="showShip(letter, number)" ng-style="getStyle(letter+number)" ></td>
         <td class="empty"></td>
     </tr>
     <tr>
@@ -52,23 +48,21 @@
  <!--placing ships UI     -->
     <div id="shipPlacingUI" ng-show="!ships_placed()">
         <div id="ship-legend">
-            <div ng-repeat="ship in ship_types">
-                <span class="ship space-around" ng-click="selectShip($index)">
+            <div class="ship space-around" ng-repeat="ship in ship_types">
                 <span data-ship-type="{{ship.type}}">{{ship.type}} </span>
                 <span><span class="mock-cell" ng-repeat="ship in ship_types | limitTo:ship.cells">&nbsp;&nbsp;&nbsp;</span></span>
-                </span>
             </div>
         </div>
         <div id="ship-placing-modal" >
             <div id="modal-1">
-                <span>1) Click on a ship from the legend</span>
-                <select ng-model="ship_name" hidden>
+                <span>1) Select a ship to place: </span>
+                <select>
                     <option ng-repeat="ship in ship_types">{{ship.type}}</option>
                 </select>
             </div>
             <div id="modal-2">
                 <span>2) Select an orientation: </span>
-                <select ng-model="ship_align">
+                <select>
                     <option data-orient="V" >Vertical</option>
                     <option data-orient="H" >Horizontal</option>
                 </select>
@@ -77,11 +71,17 @@
                 <span>3) Click on a grid-cell to place the ship</span>
             </div>
             <div id="modal-4">
+                <button ng-click="placeShip()">Place Ship</button>
+            </div>
+            <div id="modal-5">
                 <button ng-click="saveShips()">Save Ships</button>
             </div>
-            <!--<div id="modal-6">-->
-                <!--<button ng-click="testService()">TEST SERVICE</button>-->
-            <!--</div>-->
+            <div id="modal-6">
+                <button ng-click="testService()">TEST SERVICE</button>
+            </div>
+            <div id="modal-7">
+                <button ng-click="testME()">TEST ME!!</button>
+            </div>
         </div>
     </div>
 
@@ -116,19 +116,14 @@
 <!--end #enemy-->
 </div>
 <!--end #grids-->
-<div class="center">
+<div ng-style="gv_title">
 <h4>Ships</h4>
 <p ng-repeat="ship in ships"><b>Type: </b>{{ship.type}}  &nbsp; <b>Locations: </b><span ng-repeat="loc in ship.locations">{{loc}} &nbsp; </span></p>
 </div>
+<script type="text/javascript" src="js/angular_services.js"></script>
 <script type="text/javascript" src="js/angular_app.js"></script>
 
+<script type="text/javascript" src="js/gameViewService.js"></script>
 <script type="text/javascript" src="js/gameView/playerViewController.js"></script>
-<script typer="text/javascript" src="js/gamesPage/gamesController.js"></script>
-
-<script type="text/javascript" src="js/angular_services.js"></script>
-<script type="text/javascript" src="js/gameView/gameViewService.js"></script>
-<script type="text/javascript" src="js/gameView/placingShipsService.js"></script>
-
-
 </body>
 </html>

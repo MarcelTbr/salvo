@@ -79,6 +79,7 @@
             <div id="modal-4">
                 <button ng-click="saveShips()">Save Ships</button>
             </div>
+            <!--TODO: erase TESTS-->
             <!--<div id="modal-6">-->
                 <!--<button ng-click="testService()">TEST SERVICE</button>-->
             <!--</div>-->
@@ -117,6 +118,10 @@
 </div>
 <!--end #grids-->
 <div class="center">
+    <!--TODO ERASE BUTTON-->
+    <div id="submit-salvos">
+        <button ng-click="submitSalvos()">Submit Salvos</button>
+    </div>
 <h4>Ships</h4>
 <p ng-repeat="ship in ships"><b>Type: </b>{{ship.type}}  &nbsp; <b>Locations: </b><span ng-repeat="loc in ship.locations">{{loc}} &nbsp; </span></p>
 </div>

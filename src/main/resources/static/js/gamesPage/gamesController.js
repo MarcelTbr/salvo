@@ -43,6 +43,23 @@ function($scope, $http, $window) {
 
                 $scope.errorCallback = function(status) {console.log("ERROR!")}
 
+                $scope.joinGameById = function(){
+
+                    var game_id = prompt("Please enter the id of the game you would like to join", "Game id");
+
+                    $.post("/api/games/"+game_id+"/players").done(function(response){
+                         console.log("response:");
+                         console.log(response);
+                         $window.location.href = "http://" + $window.location.host + "/game.html?gp="+response.gp_id;
+                    })
+                    .fail(function(response){
+                         console.log("Fail response:");
+                         console.log(response);
+                         alert(response.responseJSON.backend);
+                    })
+
+                }
+
                 $scope.joinGame = function(game_id){
 
                     $.post("/api/games/"+game_id+"/players").done(function(response){

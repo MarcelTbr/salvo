@@ -29,10 +29,7 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 
 @SpringBootApplication
@@ -149,22 +146,20 @@ public class SalvoApplication {
             ship1_2_loc2.add("C4"); ship1_2_loc2.add("D4"); ship1_2_loc2.add("E4");
 
             List<String> ship1_3_loc3 = new ArrayList<>();
-            ship1_3_loc3.add("E5"); ship1_3_loc3.add("E6");
+            ship1_3_loc3.add("E6"); ship1_3_loc3.add("E7");
 
             /** We create all the other Ship instances
              *  with a common GamePlayer instance as an argument */
 
             Ship ship1_2 = new Ship(gp1, ship1_2_loc2, "Submarine");
             Ship ship1_3 = new Ship(gp1, ship1_3_loc3, "Patrol Boat");
+            Ship ship1_4 = new Ship(gp1, Arrays.asList("I2", "I3", "I4", "I5", "I6"), "Aricraft Carrier");
+            Ship ship1_5 = new Ship(gp1, Arrays.asList("E9", "F9", "G9", "H9"), "Battleship");
 
             /** This adds an instance of a Ship to it's GamePlayer instance */
-            gp1.addShip(ship1_1);
-            gp1.addShip(ship1_2);
-            gp1.addShip(ship1_3);
+            gp1.addShip(ship1_1); gp1.addShip(ship1_2); gp1.addShip(ship1_3); gp1.addShip(ship1_4); gp1.addShip(ship1_5);
 
-            ships.save(ship1_1);
-            ships.save(ship1_2);
-            ships.save(ship1_3);
+            ships.save(ship1_1); ships.save(ship1_2); ships.save(ship1_3); ships.save(ship1_4); ships.save(ship1_5);
 
             /** Ships for other game players */
             List<String> ship2_1_loc1 = new ArrayList<>();

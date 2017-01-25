@@ -12,4 +12,5 @@ import java.util.List;
 @RepositoryRestResource
 public interface SalvoRepository extends JpaRepository<Salvo, Long> {
 //    Salvo findBySalvoId(long id);
+    List<Salvo> findByGamePlayer (GamePlayer gamePlayer);
 }

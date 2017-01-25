@@ -49,6 +49,32 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
     // outputs: save a provisional array of ship locations, to paint on the frontend
      $scope.prov_ship_loc = placingShips.getProvShipLoc(row,col, $scope.selected_ship, $scope.ship_align);
      }
+     //TODO finish method
+//    $scope.submitSalvos2 = function(){
+//
+//     $http.post("api/games/players/"+$scope.gp+"/salvos", 4, ["A9", "G9", "F5"] )
+//         .then(function(response){
+//            console.log("salvos submitted!"); console.log(response);
+//         }, function(response){
+//            console.log("something went wrong..."); console.log(response);
+//         });
+//         }
+
+
+
+
+
+     $scope.submitSalvos = function(){
+
+     $http.post("api/games/players/"+$scope.gp+"/salvos", { "4": ["A9", "G9", "F5"]})
+     .then(function(response){
+        console.log("salvos submitted!"); console.log(response);
+     }, function(response){
+        console.log("something went wrong..."); console.log(response);
+     });
+     }
+
+
     //TODO condition to place every ship type ONLY ONCE!
     $scope.placeShip = function (row,col) {
         //  var is_legal = placingShips.insideGridTwo($scope.prov_ship_loc, $scope.ship_align);

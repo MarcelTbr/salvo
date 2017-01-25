@@ -1,6 +1,7 @@
 package edu.example;
 
 
+import jdk.nashorn.internal.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,40 @@ public class SalvoController {
         return playerDTO;
     }
 
+    @RequestMapping ( value="games/players/{gamePlayerId}/salvos", method= RequestMethod.POST )
+    public ResponseEntity<Map<String, Object>> submitSalvos(@PathVariable long gamePlayerId,
+                                                            @RequestBody Object salvos, Authentication auth){
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gamePlayerId);
+
+        if (auth == null || incorrectUser(auth, gamePlayerId)) {
+            return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, not authorized"), HttpStatus.UNAUTHORIZED);
+        } else if (noSuchGP(gamePlayerId)){
+            return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, game player doesn't exist"), HttpStatus.FORBIDDEN);
+        }else {
+            String salvos_str = salvos.toString();
+            String turn = salvos_str.substring(1, salvos_str.indexOf('='));
+            String salvo_locs = salvos_str.substring(salvos_str.indexOf('[')+1, salvos_str.indexOf(']'));
+
+//            JSONParser parser = new JSONParser(); //TODO explore this parser method and JSON library
+
+            String [] locations = salvo_locs.split(", "); //the blank space is important here!
+            Salvo submitted_salvo = new Salvo(gamePlayer, Long.parseLong(turn), Arrays.asList(locations) );
+            salvoRepo.save(submitted_salvo);
+            System.out.println(salvos_str + " ; turn: " + turn + "; salvo_locs: " + salvo_locs);
+
+            return new ResponseEntity<Map<String, Object>>(makeMap("submitted_salvos", salvos ),HttpStatus.CREATED);
+        }
+
+    }
+
+    @RequestMapping ("games/players/{gamePlayerId}/salvos")
+    public Object getPlayersSalvos (@PathVariable long gamePlayerId, Authentication auth){
+
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gamePlayerId);
+        return getAllPlayerSalvos(gamePlayer);
+
+    }
+
     @RequestMapping ("games/players/{gamePlayerId}/ships")
     public Set<Ship> getShips (@PathVariable long gamePlayerId, Authentication auth){
     if ( existingUsername(auth.getName()) && !incorrectUser(auth, gamePlayerId)) {
@@ -62,12 +97,10 @@ public class SalvoController {
     @RequestMapping (value="games/players/{gamePlayerId}/ships", method= RequestMethod.POST )
     public ResponseEntity<Map<String, Object>> saveShips(@PathVariable long gamePlayerId, @RequestBody List<Ship> ships, Authentication auth) { // @RequestBody Ship ship,
         String newLine = System.getProperty("line.separator");
-//        Ship aShip = gamePlayerRepo.findById(gamePlayerId).getShips().stream().filter(s -> s.getId() == 1).collect(Collectors.toList()).get(0);
+
         System.out.println("Ships found:");
         System.out.print(ships);
         System.out.println(newLine);
-//        System.out.println("Ship Type: ");
-//        System.out.print(ship.getShipType());System.out.println(newLine);
 
         if (auth == null || noSuchGP(gamePlayerId) || incorrectUser(auth, gamePlayerId)) {
 
@@ -82,44 +115,25 @@ public class SalvoController {
         }
     }
 
-    private boolean shipsPlaced(long gamePlayerId) {
-        long totalShips = gamePlayerRepo.findById(gamePlayerId).getShips().stream().count();
-        if(totalShips < 5) { return false; } else { return true;}
-    }
 
-    private boolean incorrectUser(Authentication auth, long gamePlayerId) {
-        Player player = playerRepo.findByUsername(auth.getName()).get(0);
-        Set<GamePlayer> gamePlayerSet = player.getGamePlayers();
-//        System.out.println(player);
-//        System.out.print(gamePlayerSet);
-        String newLine = System.getProperty("line.separator");
-        long matchingGP = gamePlayerSet.stream().filter(gp -> gp.getGamePlayerId() == gamePlayerId ).count();
-        System.out.println("gamePlayer found! ");
-        System.out.println("gamePlayer is: ");
-        System.out.print(gamePlayerId);
-        System.out.println(newLine);
-
-        if(matchingGP == 1){ return false; } else {
-
-            System.out.println("GamePlayer NOT Found");System.out.println(newLine);
-            return true; }
-    }
-
-    private boolean noSuchGP(long gamePlayerId) {
-
-       if ( gamePlayerRepo.findById(gamePlayerId) == null) {return  true; } else {return false; }
-
-    }
 
     @RequestMapping(value="games/{gameId}/players", method= RequestMethod.POST)
     public ResponseEntity <Map<String, Object>> saveGamePlayer( @PathVariable long gameId, Authentication auth){
     Game game = gameRepo.findById(gameId);
-    Player player = playerRepo.findByUsername(auth.getName()).get(0);
+    //TODO: check if you can post two games with the same id
+        System.out.print("game with id: " + gameId);
+        System.out.print(game);
+        String username = auth.getName();
+    Player player = playerRepo.findByUsername(username).get(0);
+    List<Player> players = game.getPlayers();
         //check if user is logged in
         if(auth != null){
             //check if game exists
             if( game != null) {
-                if( game.getPlayers().stream().count() < 2) {
+                System.out.print("game exists!");
+                if(playerVersusHimself(username, players)) {
+                    return new ResponseEntity<>(makeMap( "backend","Sorry, playing against yourself is no fun..."), HttpStatus.FORBIDDEN);
+                }else if ( players.stream().count() < 2 ) {
                     //create and save game player
                     GamePlayer gamePlayer = new GamePlayer(new Date(), player, game);
                     gamePlayerRepo.save(gamePlayer);
@@ -131,6 +145,14 @@ public class SalvoController {
                 return new ResponseEntity<>(makeMap( "backend","Game not found!"), HttpStatus.FORBIDDEN);
             }
         } else { return new ResponseEntity<>(makeMap( "backend","User not logged in!"), HttpStatus.UNAUTHORIZED); }
+
+    }
+
+    private boolean playerVersusHimself(String username, List<Player> players) {
+
+       long repeatedPlayers = players.stream().filter( pl -> pl.getUsername() == username).count();
+
+       if(repeatedPlayers > 0){ return true; } else {return false;}
 
     }
 
@@ -236,7 +258,7 @@ public class SalvoController {
 
             @PathVariable long gamePlayerId, Authentication auth ){
 
-                if(gameViewAuthorization(gamePlayerId, auth)){
+                if(gamePlayerAuthorization(gamePlayerId, auth)){
 
                     return new ResponseEntity<Map<String, Object>>(getGameViewDTO(gamePlayerId), HttpStatus.ACCEPTED);
 
@@ -264,7 +286,32 @@ public class SalvoController {
 
     /** ======== METHODS ======== */
 
-    private boolean gameViewAuthorization(long gamePlayerId, Authentication auth) {
+    private boolean shipsPlaced(long gamePlayerId) {
+        long totalShips = gamePlayerRepo.findById(gamePlayerId).getShips().stream().count();
+        if(totalShips < 5) { return false; } else { return true;}
+    }
+
+    private boolean incorrectUser(Authentication auth, long gamePlayerId) {
+        Player player = playerRepo.findByUsername(auth.getName()).get(0);
+        Set<GamePlayer> gamePlayerSet = player.getGamePlayers();
+        String newLine = System.getProperty("line.separator");
+        long matchingGP = gamePlayerSet.stream().filter(gp -> gp.getGamePlayerId() == gamePlayerId ).count();
+        System.out.println("gamePlayer found! "); System.out.println("gamePlayer is: ");
+        System.out.print(gamePlayerId + newLine);
+
+        if(matchingGP == 1){ return false; } else {
+
+            System.out.println("GamePlayer NOT Found");System.out.println(newLine);
+            return true; }
+    }
+
+    private boolean noSuchGP(long gamePlayerId) {
+
+        if ( gamePlayerRepo.findById(gamePlayerId) == null) {return  true; } else {return false; }
+
+    }
+
+    private boolean gamePlayerAuthorization(long gamePlayerId, Authentication auth) {
 
         if( gamePlayerRepo.findById(gamePlayerId).getPlayer().getUsername() == auth.getName() ) { return true; }
         else{ return false; }

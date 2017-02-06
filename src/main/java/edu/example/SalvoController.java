@@ -1,7 +1,6 @@
 package edu.example;
 
 
-import jdk.nashorn.internal.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,6 +70,7 @@ public class SalvoController {
             Salvo submitted_salvo = new Salvo(gamePlayer, Long.parseLong(turn), Arrays.asList(locations) );
             salvoRepo.save(submitted_salvo);
             System.out.println(salvos_str + " ; turn: " + turn + "; salvo_locs: " + salvo_locs);
+            System.out.println("submitted_salvo: " + Arrays.asList(locations) );
 
             return new ResponseEntity<Map<String, Object>>(makeMap("submitted_salvos", salvos ),HttpStatus.CREATED);
         }
@@ -78,11 +78,95 @@ public class SalvoController {
     }
 
     @RequestMapping ("games/players/{gamePlayerId}/salvos")
-    public Object getPlayersSalvos (@PathVariable long gamePlayerId, Authentication auth){
+    public ResponseEntity<Map<String, Object>> getPlayersSalvos (@PathVariable long gamePlayerId, Authentication auth){
 
         GamePlayer gamePlayer = gamePlayerRepo.findById(gamePlayerId);
-        return getAllPlayerSalvos(gamePlayer);
+//        return getAllPlayerSalvos(gamePlayer);
+        //getting all player salvos
+        Object playerSalvos = getAllPlayerSalvos(gamePlayer);
 
+        System.out.println("playerSalvos: " + playerSalvos);
+
+        Set<Salvo> playerSalvosSet = gamePlayer.getSalvos();
+
+        //get a random Salvo
+        Salvo testSalvo = new Salvo();
+        for(Salvo aSalvo : playerSalvosSet){
+            testSalvo = aSalvo;
+            break;
+        }
+        System.out.println("testSalvo_locs: "+ testSalvo.getSalvoLocations());
+
+        //get enemy's Fleet
+        GamePlayer enemyGamePlayer = getEnemyGamePlayer(gamePlayer);
+        Set<Ship> enemyShips = enemyGamePlayer.getShips();
+
+        Map<Long, Object> salvos_dto = new HashMap<>();
+        // stream the player's salvo set
+        playerSalvosSet.stream()
+                .forEach(pl_salvo ->
+                //storing each turns results as a value. Turn's number is the key.
+                salvos_dto.put(pl_salvo.getTurn(), makeSalvoDTO(pl_salvo, enemyShips))
+                );
+
+        System.out.println("salvos_dto: " + salvos_dto);
+            //return the salvos_dto object and an accepted HttpStatus Response
+        return new ResponseEntity<Map<String, Object>>(makeMap("salvosDTO", salvos_dto), HttpStatus.ACCEPTED );
+
+    }
+
+    private Object makeSalvoDTO(Salvo pl_salvo, Set<Ship> enemyShips) {
+        Map<String, List<String>> turn_dto = new LinkedHashMap<>();
+        turn_dto.put("hits", getHits(pl_salvo, enemyShips));
+        turn_dto.put("misses", getMisses(pl_salvo, enemyShips));
+        return turn_dto;
+    }
+
+    private List<String> getMisses(Salvo testSalvo, Set<Ship> enemyShips) {
+        List<String> misses = testSalvo.getSalvoLocations().stream()
+                .filter(s_loc -> !enemyHit(s_loc, enemyShips))
+                .collect(Collectors.toList());
+
+        System.out.println("misses: " + misses);
+        return misses;
+    }
+
+    private List<String> getHits(Salvo testSalvo, Set<Ship> enemyShips) {
+        List<String> hits = testSalvo.getSalvoLocations().stream()
+                .filter(s_loc -> enemyHit(s_loc, enemyShips))
+                .collect(Collectors.toList());
+
+        System.out.println("hits: " + hits);
+        return hits;
+    }
+
+    private boolean enemyHit(String salvo_loc, Set<Ship> enemyShips) {
+
+                //find out if that salvo hits a ship
+                long hit = enemyShips.stream()
+                .map(Ship::getShipLocations)
+                .flatMap(Collection::stream)
+                .filter(e_loc -> e_loc == salvo_loc)
+                .count();
+
+                //TODO could be better? Refactor
+//        Optional<String> any = enemyShips.stream()
+//                .map(Ship::getShipLocations)
+//                .flatMap(Collection::stream)
+//                .filter(e_loc -> e_loc == salvo_loc)
+//                .findAny();
+//
+//        return any.isPresent();
+
+        if(hit > 0) {return true;} else { return false;}
+    }
+
+    private GamePlayer getEnemyGamePlayer(GamePlayer gamePlayer) {
+
+        //TODO use findFirst + Optional
+        return gamePlayer.getGame().getGamePlayers().stream()
+                    .filter(gp -> gp.getGamePlayerId() != gamePlayer.getGamePlayerId())
+                    .collect(Collectors.toList()).get(0);
     }
 
     @RequestMapping ("games/players/{gamePlayerId}/ships")
@@ -95,7 +179,8 @@ public class SalvoController {
     }
 
     @RequestMapping (value="games/players/{gamePlayerId}/ships", method= RequestMethod.POST )
-    public ResponseEntity<Map<String, Object>> saveShips(@PathVariable long gamePlayerId, @RequestBody List<Ship> ships, Authentication auth) { // @RequestBody Ship ship,
+    public ResponseEntity<Map<String, Object>> saveShips(@PathVariable long gamePlayerId, @RequestBody List<Ship> ships,
+                                                         Authentication auth) { // @RequestBody Ship ship,
         String newLine = System.getProperty("line.separator");
 
         System.out.println("Ships found:");

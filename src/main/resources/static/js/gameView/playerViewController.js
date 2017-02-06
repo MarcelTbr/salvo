@@ -12,8 +12,10 @@ function paramObj(search) {
 }
 
 angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope', '$http', '$location',
-'$window','updateGameView', 'placingShips', 'myFactoryTest',
-  function($scope, $http, $location, $window, updateGameView, placingShips, myFactoryTest) {
+'$window','updateGameView', 'placingShips', 'salvosLogic', 'myFactoryTest',   //'salvosLogic',
+  function($scope, $http, $location, $window, updateGameView, placingShips, salvosLogic, myFactoryTest) { //salvosLogic,
+
+//  [1] Initialize variables
 
     $scope.nums = [1,2,3,4,5,6,7,8,9,10];
     $scope.abc = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
@@ -24,6 +26,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
      $scope.url_obj = paramObj($scope.abs_url); //console.log($scope.url_obj);
      $scope.gp = $scope.url_obj["gp"]; //store the url_obj's value for the key "gp" == gamePlayer's id
 
+    $scope.prov_salvo_array = [];
      // ==== important to initialize $scope.ship_placing_obj
      $scope.ship_placing_obj = {};
 
@@ -35,10 +38,22 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                 {type: "Patrol Boat", cells: 2}
                 ];
                         console.log("Ship Types:"); console.log($scope.ship_types);
-            //Default selected ship
-            $scope.selected_ship = $scope.ship_types[1];
-            $scope.ship_align = "Vertical";
-            $scope.ship_name = $scope.selected_ship["shipType"];
+        //Default selected ship
+        $scope.selected_ship = $scope.ship_types[1];
+        $scope.ship_align = "Vertical";
+        $scope.ship_name = $scope.selected_ship["shipType"];
+
+//    [2] Load Back-end Objects
+    salvosLogic.getSalvosObject($scope.gp).then(
+                function(response){
+                // then stores this into a $scope variable for the front-end to work with
+                   $scope.hits_array = salvosLogic.getHitsArray(response);
+                   $scope.salvos_obj = response.data["salvosDTO"];
+                             console.log("[2] $scope.salvos_obj: "); console.log($scope.salvos_obj);
+
+                }
+
+            );
 
     $scope.selectShip = function(ship_index){
         $scope.selected_ship = $scope.ship_types[ship_index]; //alert("ship Selected: "+ ship_index);
@@ -49,29 +64,35 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
     // outputs: save a provisional array of ship locations, to paint on the frontend
      $scope.prov_ship_loc = placingShips.getProvShipLoc(row,col, $scope.selected_ship, $scope.ship_align);
      }
-     //TODO finish method
-//    $scope.submitSalvos2 = function(){
-//
-//     $http.post("api/games/players/"+$scope.gp+"/salvos", 4, ["A9", "G9", "F5"] )
-//         .then(function(response){
-//            console.log("salvos submitted!"); console.log(response);
-//         }, function(response){
-//            console.log("something went wrong..."); console.log(response);
-//         });
-//         }
+
+    //TODO: finish service
+
+    $scope.testing = function(){
 
 
-
-
+    }
 
      $scope.submitSalvos = function(){
 
-     $http.post("api/games/players/"+$scope.gp+"/salvos", { "4": ["A9", "G9", "F5"]})
+    // [A] what turn are we in?
+    var current_turn = Object.keys($scope.salvos_obj).length + 1;
+    // [B] create the obj to submit
+    var submit_salvos_obj = {};
+    submit_salvos_obj[current_turn] = $scope.prov_salvo_array;
+
+    // [C] make sure it's your turn to submit salvos
+
+    // [D] post it to the backend
+     $http.post("api/games/players/"+$scope.gp+"/salvos", submit_salvos_obj)
      .then(function(response){
         console.log("salvos submitted!"); console.log(response);
      }, function(response){
         console.log("something went wrong..."); console.log(response);
      });
+
+     // [E] reload page to show results
+     $window.location.href = "http://" + $window.location.host + "/game.html?gp="+$scope.gp;
+
      }
 
 
@@ -162,9 +183,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             }else { return "";}
         }
 
-
-
-
     } // end of paintPlaced Ships
 
     // get the game_view object of this game player
@@ -218,7 +236,64 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
 
         // ================Painting the Turns and Hits=============
+
+        $scope.targetCell = function(cell_data){
+
+            function findRepeated(cell){
+                    return cell == cell_data;
+            }
+            var repeated_cells = $scope.prov_salvo_array.filter(findRepeated, cell_data);
+            //check if salvo location is already in back-end
+            function repeatedSalvo(cell_data){
+
+             for(turn in $scope.salvos_obj){
+                // paint turn number of the hits array
+                for(var i = 0; i < $scope.salvos_obj[turn]["hits"].length; i++) {
+                    if(cell_data == $scope.salvos_obj[turn]["hits"][i]){return true;}
+
+                }
+                // paint turn number of the misses array
+                for(var i = 0; i < $scope.salvos_obj[turn]["misses"].length; i++) {
+                           if(cell_data == $scope.salvos_obj[turn]["misses"][i]){return true;}
+
+                }
+
+             }
+                return false;
+            }
+
+            if($scope.prov_salvo_array.length < 5 ){
+
+                if (repeated_cells.length > 0 || repeatedSalvo(cell_data)) { alert("Choose another cell.")}
+                else { $scope.prov_salvo_array.push(cell_data);
+                       // alert($scope.prov_salvo_array);
+                       }
+            } else {
+                alert("Salvo limit reached");
+            }
+
+        }
+
         $scope.getTurn = function(cell_data){
+
+            for(turn in $scope.salvos_obj){
+                // paint turn number of the hits array
+                for(var i = 0; i < $scope.salvos_obj[turn]["hits"].length; i++) {
+                    if(cell_data == $scope.salvos_obj[turn]["hits"][i]){return turn;}
+
+                }
+                // paint turn number of the misses array
+                for(var i = 0; i < $scope.salvos_obj[turn]["misses"].length; i++) {
+                           if(cell_data == $scope.salvos_obj[turn]["misses"][i]){return turn;}
+
+                }
+
+            }
+
+        }
+
+        //returns the turn number in order to print it in the corresponding cell
+        $scope.getTurnOld = function(cell_data){
         for(turn in $scope.salvoes){
             var salvo_array = $scope.salvoes[turn];
             for(var i = 0; i < salvo_array.length; i++){
@@ -227,6 +302,8 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
             }
         }
+        //TODO: change this logic in order to get the hits and the turns from the back-end
+        //gets the enemy_ships from the front-end view object
         $scope.enemies = updateGameView.getEnemies($scope.enemy_ships);
         $scope.all_salvoes = updateGameView.allUserSalvoes($scope.salvoes);
 
@@ -235,12 +312,23 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             var enemies = $scope.enemies;
             var hits = [];
 
-          hits = updateGameView.getHitsArray(all_salvoes, enemies);
+            // hits = updateGameView.getHitsArray(all_salvoes, enemies);
+            // use the new Backend object
+            hits = $scope.hits_array;
+            if (hits != null){
+              //paint the ship cell red it it is found in the hits array.,
+              for(var i = 0; i < hits.length; i++) {
+                if (cell_data == hits[i]) {return {'background-color': 'red'} }
+              }
 
-          for(var i = 0; i < hits.length; i++) {
-          if (cell_data == hits[i]) {return {'background-color': 'red'} }
-          }
+              if ($scope.prov_salvo_array.length > 0){
+                 for(var i = 0; i < $scope.prov_salvo_array.length; i++){
 
+                    if ( cell_data == $scope.prov_salvo_array[i]) { return {'background-color': 'yellow'}}
+                 }
+
+              }
+            }
         }
 
         /* Getting User and Enemy Information*/

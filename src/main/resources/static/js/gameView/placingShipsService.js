@@ -1,5 +1,11 @@
 angular.module('PlayerViewModule').service('placingShips', function($http){
 
+  this.onLoadTest = function(){
+
+    console.log("placingShips.onLoadTest() trigerred!");
+  }
+
+
   this.makeShip = function(prov_ship_loc, ship_type){
         ship_obj = {}
         ship_obj["shipType"] = ship_type;

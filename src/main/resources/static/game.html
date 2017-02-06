@@ -20,36 +20,35 @@
 <div id="grids">
 <div id="user">
     <div class="player-info">
-        <span><b>Ship Locations: </b></span><span ng-repeat="loc in all_ship_locations" >{{loc}} / </span><br />
+        <span><b>Player: </b>{{userGamePlayer.player.username}}</span><br/>
         <span><b>E-mail: </b>{{userGamePlayer.player.email}}</span><br />
         <span><b>Joining Date: </b>{{userGamePlayer.player.joining_date}}</span>
     </div>
-<table id="user-grid">
-    <thead>
-    <tr>
-        <td></td>
-        <td ng-repeat="number in nums">{{number}}</td>
-
-    </tr>
-    </thead>
-    <tbody>
-    <tr ng-repeat="letter in abc" >
-        <th>{{letter}}</th>
-        <td ng-repeat="number in nums" data-cell="{{letter}}{{number}}"
-            ng-mouseover="showShip(letter, number)"
-            ng-click="placeShip(letter, number)"
-            ng-style="getStyle(letter+number)"
-        ></td>
-        <td class="empty"></td>
-    </tr>
-    <tr>
-        <td class="empty" ng-repeat="number in nums"></td>
-    </tr>
-    </tbody>
-</table>
+    <table id="user-grid">
+        <thead>
+        <tr>
+            <td></td>
+            <td ng-repeat="number in nums">{{number}}</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="letter in abc" >
+            <th>{{letter}}</th>
+            <td ng-repeat="number in nums" data-cell="{{letter}}{{number}}"
+                ng-mouseover="showShip(letter, number)"
+                ng-click="placeShip(letter, number)"
+                ng-style="getStyle(letter+number)"
+            ></td>
+            <td class="empty"></td>
+        </tr>
+        <tr>
+            <td class="empty" ng-repeat="number in nums"></td>
+        </tr>
+        </tbody>
+    </table>
 </div>
     <!--end #user-->
- <!--placing ships UI     -->
+ <!-- shipPlacingUI     -->
     <div id="shipPlacingUI" ng-show="!ships_placed()">
         <div id="ship-legend">
             <div ng-repeat="ship in ship_types">
@@ -79,40 +78,43 @@
             <div id="modal-4">
                 <button ng-click="saveShips()">Save Ships</button>
             </div>
-            <!--TODO: erase TESTS-->
-            <!--<div id="modal-6">-->
-                <!--<button ng-click="testService()">TEST SERVICE</button>-->
-            <!--</div>-->
         </div>
     </div>
 
 <!--end #shiPlacingUI-->
+    <!-- #enemy  -->
 <div id="enemy" ng-show="ships_placed()">
     <div class="player-info">
         <span><b>Enemy Player: </b>{{enemyGamePlayer.player.username}}</span><br />
         <span><b>E-mail: </b>{{enemyGamePlayer.player.email}}</span><br />
         <span><b>Joining Date: </b>{{enemyGamePlayer.player.joining_date}}</span>
     </div>
-<table id="enemy-grid">
-    <thead>
-    <tr>
-        <td></td>
-        <td ng-repeat="number in nums">{{number}}</td>
-
-    </tr>
-    </thead>
-    <tbody>
-    <tr ng-repeat="letter in abc" >
-        <th>{{letter}}</th>
-        <!-- TODO ng-style="getSalvoStyle({{letter}}{{number}}" -->
-        <td ng-repeat="number in nums" data-cell="{{letter}}{{number}}" ng-style="getEnemyStyle(letter+number)" ><span ng-bind="getTurn(letter+number)"></span></td>
-        <td class="empty"></td>
-    </tr>
-    <tr>
-        <td class="empty" ng-repeat="number in nums"></td>
-    </tr>
-    </tbody>
-</table>
+    <table id="enemy-grid">
+        <thead>
+            <tr>
+                <td></td>
+                <td ng-repeat="number in nums">{{number}}</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="letter in abc" >
+                <th>{{letter}}</th>
+                <!-- TODO define new conditions for getTurn" -->
+                <td ng-repeat="number in nums"
+                    data-cell="{{letter}}{{number}}"
+                    ng-click="targetCell(letter+number)"
+                    ng-style="getEnemyStyle(letter+number)"
+                >
+                    <!--writing the salvo turn on the enemie's grid-->
+                    <span ng-bind="getTurn(letter+number)"></span>
+                </td>
+                <td class="empty"></td>
+            </tr>
+            <tr>
+                <td class="empty" ng-repeat="number in nums"></td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 <!--end #enemy-->
 </div>
@@ -121,6 +123,7 @@
     <!--TODO ERASE BUTTON-->
     <div id="submit-salvos">
         <button ng-click="submitSalvos()">Submit Salvos</button>
+        <button ng-click="testing()">> TEST ME <</button>
     </div>
 <h4>Ships</h4>
 <p ng-repeat="ship in ships"><b>Type: </b>{{ship.type}}  &nbsp; <b>Locations: </b><span ng-repeat="loc in ship.locations">{{loc}} &nbsp; </span></p>
@@ -133,6 +136,7 @@
 <script type="text/javascript" src="js/angular_services.js"></script>
 <script type="text/javascript" src="js/gameView/gameViewService.js"></script>
 <script type="text/javascript" src="js/gameView/placingShipsService.js"></script>
+<script type="text/javascript" src="js/gameView/salvosLogicService.js"></script>
 
 
 </body>

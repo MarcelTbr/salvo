@@ -31,11 +31,14 @@ angular.module('PlayerViewModule').service('updateGameView', function(){
 
     this.allUserSalvoes = function(salvoes_obj) {
         var all_salvoes = [];
+        // iterating throught the salvos object by turns
+        // getting the salvo locations array for each turn
          for(turn in salvoes_obj){
-                          var salvo_array = salvoes_obj[turn];
-                          for(var i = 0; i < salvo_array.length; i++){
-                            all_salvoes.push(salvo_array[i]);
-                          }
+              var salvo_array = salvoes_obj[turn];
+              for(var i = 0; i < salvo_array.length; i++){
+                //pushing all salvo locations into the same array.
+                all_salvoes.push(salvo_array[i]);
+              }
          }
          return all_salvoes;
     }
@@ -49,7 +52,10 @@ angular.module('PlayerViewModule').service('updateGameView', function(){
                 for(var j = 0; j < enemies.length; j++){
     //                console.log("enemy")
     //                console.log(enemies[j]);
-                    if(all_salvoes[i] == enemies[j]){ console.log("hit!"); hits.push(all_salvoes[i]) }
+                    if(all_salvoes[i] == enemies[j]){
+                        console.log("hit!");
+                        hits.push(all_salvoes[i])
+                    }
                 }
               }
         return hits;

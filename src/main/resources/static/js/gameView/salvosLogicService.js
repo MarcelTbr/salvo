@@ -18,11 +18,11 @@ angular.module('PlayerViewModule').service('salvosLogic', function($http){
 
     }
 
-    this.getHitsArray = function(response) {
+    this.getHitsArray = function(salvos_obj) {
 //                    console.log("getHitsArray()");
 //                    console.log("response: "); console.log(response);
                 var hits_array = [];
-                var salvos_obj = response.data["salvosDTO"]
+//                var salvos_obj = response.data["salvosDTO"]
 
         for(turn in salvos_obj){
                 // console.log("turn: " + turn);

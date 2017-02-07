@@ -69,8 +69,8 @@ public class SalvoController {
             String [] locations = salvo_locs.split(", "); //the blank space is important here!
             Salvo submitted_salvo = new Salvo(gamePlayer, Long.parseLong(turn), Arrays.asList(locations) );
             salvoRepo.save(submitted_salvo);
-            System.out.println(salvos_str + " ; turn: " + turn + "; salvo_locs: " + salvo_locs);
-            System.out.println("submitted_salvo: " + Arrays.asList(locations) );
+                System.out.println(salvos_str + " ; turn: " + turn + "; salvo_locs: " + salvo_locs);
+                System.out.println("submitted_salvo: " + Arrays.asList(locations) );
 
             return new ResponseEntity<Map<String, Object>>(makeMap("submitted_salvos", salvos ),HttpStatus.CREATED);
         }
@@ -81,26 +81,54 @@ public class SalvoController {
     public ResponseEntity<Map<String, Object>> getPlayersSalvos (@PathVariable long gamePlayerId, Authentication auth){
 
         GamePlayer gamePlayer = gamePlayerRepo.findById(gamePlayerId);
-//        return getAllPlayerSalvos(gamePlayer);
-        //getting all player salvos
-        Object playerSalvos = getAllPlayerSalvos(gamePlayer);
 
-        System.out.println("playerSalvos: " + playerSalvos);
+        long number_of_players = gamePlayer.getGame().getPlayers().stream().count();
 
-        Set<Salvo> playerSalvosSet = gamePlayer.getSalvos();
+        if(number_of_players < 1){
 
-        //get a random Salvo
-        Salvo testSalvo = new Salvo();
-        for(Salvo aSalvo : playerSalvosSet){
-            testSalvo = aSalvo;
-            break;
+            return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, no players yet"), HttpStatus.NO_CONTENT);
+        } else if (number_of_players == 1){
+
+            return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, wait until " +
+                    "an enemy player joins the game"), HttpStatus.FORBIDDEN);
+        } else {
+            //getting all player salvos
+            Object playerSalvos = getAllPlayerSalvos(gamePlayer);
+            System.out.println("playerSalvos: " + playerSalvos);
+            Set<Salvo> playerSalvosSet = gamePlayer.getSalvos();
+            //get enemy's Fleet
+            GamePlayer enemyGamePlayer = getEnemyGamePlayer(gamePlayer);
+
+            Map<Long, Object> salvos_dto = makeUserSalvosDTO(playerSalvosSet, enemyGamePlayer);
+            // make enemy salvos dto
+            Map<Long, Object> e_salvos_dto = makeEnemySalvosDTO(gamePlayer, enemyGamePlayer);
+
+            Map<String, Object> salvos_response = new HashMap<>();
+            salvos_response.put("salvosDTO", salvos_dto);
+            salvos_response.put("enemySalvosDTO", e_salvos_dto);
+
+            //return the salvos_dto object and an accepted HttpStatus Response
+            return new ResponseEntity<Map<String, Object>>(salvos_response, HttpStatus.ACCEPTED );
+
         }
-        System.out.println("testSalvo_locs: "+ testSalvo.getSalvoLocations());
 
-        //get enemy's Fleet
-        GamePlayer enemyGamePlayer = getEnemyGamePlayer(gamePlayer);
+
+
+
+    }
+
+    private Map<Long, Object> makeEnemySalvosDTO(GamePlayer gamePlayer, GamePlayer enemyGamePlayer) {
+        Map<Long, Object> e_salvos_dto = new HashMap<>();
+        enemyGamePlayer.getSalvos().stream()
+                .forEach(e_salvo ->
+                e_salvos_dto.put(e_salvo.getTurn(), makeSalvoDTO(e_salvo, gamePlayer.getShips()))
+                );
+        System.out.println("enemy_salvos_dto: " + e_salvos_dto);
+        return e_salvos_dto;
+    }
+
+    private Map<Long, Object> makeUserSalvosDTO(Set<Salvo> playerSalvosSet, GamePlayer enemyGamePlayer) {
         Set<Ship> enemyShips = enemyGamePlayer.getShips();
-
         Map<Long, Object> salvos_dto = new HashMap<>();
         // stream the player's salvo set
         playerSalvosSet.stream()
@@ -110,9 +138,7 @@ public class SalvoController {
                 );
 
         System.out.println("salvos_dto: " + salvos_dto);
-            //return the salvos_dto object and an accepted HttpStatus Response
-        return new ResponseEntity<Map<String, Object>>(makeMap("salvosDTO", salvos_dto), HttpStatus.ACCEPTED );
-
+        return salvos_dto;
     }
 
     private Object makeSalvoDTO(Salvo pl_salvo, Set<Ship> enemyShips) {

@@ -82,3 +82,20 @@ tbody td {border: 2px dotted lightgreen;}
     position:relative;
     left: -20px;
 }
+
+.user-info {
+
+    background-color: darkblue;
+    color: white;
+    height: 40px;
+    padding-top: 20px;
+    opacity: 0.59;
+    margin: 0px 60px;
+
+}
+
+#submit-salvos button{
+
+    margin-top: 30px;
+    font-size: 20px;
+}

@@ -1,11 +1,5 @@
 angular.module('PlayerViewModule').service('placingShips', function($http){
 
-  this.onLoadTest = function(){
-
-    console.log("placingShips.onLoadTest() trigerred!");
-  }
-
-
   this.makeShip = function(prov_ship_loc, ship_type){
         ship_obj = {}
         ship_obj["shipType"] = ship_type;
@@ -17,7 +11,7 @@ angular.module('PlayerViewModule').service('placingShips', function($http){
     console.log("Ships Saved:"); console.log(ship_obj_array);
     $http.post( "/api/games/players/"+gp_id+"/ships", ship_obj_array)
   }
-  //TODO: use it or remove it
+  //LEGACY
   this.legalCol = function(cell_data){
            var cell_num = Number(cell_data.slice(1,3));
            console.log("cell_num: " + cell_num);
@@ -31,16 +25,16 @@ angular.module('PlayerViewModule').service('placingShips', function($http){
         var list_full = typeof ship_list != 'undefined'; //make sure ship_list is defined and has data
         if(list_full){
               for(var i = 0; i < ship_list.length; i++){ //iterating through each ship
-                             var ship_loc_list = ship_list[i]["shipLocations"];
+                     var ship_loc_list = ship_list[i]["shipLocations"];
 
-                             for(var j = 0; j < ship_loc_list.length; j++){ //iterating through all ship locations
+                     for(var j = 0; j < ship_loc_list.length; j++){ //iterating through all ship locations
 
-                                 if(ship_loc_list[j] == grid_cell){ //if the location overlaps it's illegal
-                                        //  console.log(grid_cell + " is an illegal position!")
-                                        //  console.log("ILLEGAL>>cell: " + grid_cell+ " == " + ship_loc_list[j] )
-                                     return false;
-                                 }else { is_legal = true;}
-                             }
+                         if(ship_loc_list[j] == grid_cell){ //if the location overlaps it's illegal
+                                //  console.log(grid_cell + " is an illegal position!")
+                                //  console.log("ILLEGAL>>cell: " + grid_cell+ " == " + ship_loc_list[j] )
+                             return false;
+                         }else { is_legal = true;}
+                     }
 
               } //end ship_list iteration
 
@@ -146,21 +140,6 @@ angular.module('PlayerViewModule').service('placingShips', function($http){
                                     }
                                }
   }
-
-  /*this.paintNextShip = function (prov_ship_loc, ship_list, cell_data, ship_legal){
-          for (var i = 0; i < prov_ship_loc.length; i++){ //iterating through the mouseover ship locations
-
-                   var provisional_ship = typeof prov_ship_loc != 'undefined';
-                   if(provisional_ship && prov_ship_loc[i] === cell_data){
-                       if (ship_legal){
-                        return {'background-color': 'lightyellow'}
-                        }else {
-                            return {'background-color': 'red'}
-                       }
-                   }
-
-          }
-    }*/
 
   //returns an array of locations to show in front end, based on cell data & ship data (type, num of cells, alignment)
   this.getProvShipLoc = function(row, col, selected_ship, ship_align){

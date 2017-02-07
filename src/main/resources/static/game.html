@@ -16,6 +16,12 @@
 
 <h2 class="center" >{{userGamePlayer.player.username}}'s Game View</h2>
 <h4 class="center" >Game #{{game_view_obj.game_id}} | Created: {{game_view_obj.created}}</h4>
+<h4 class="center" ng-show="showTurnInfo()">Current Turn: <span>{{current_turn}}</span></h4>
+<h4 class="center user-info" ng-bind="user_info" ng-show="showTurnInfo()"></h4>
+<h4 class="center user-info" ng-bind="user_info_ships" ng-show="!showTurnInfo()"></h4>
+<div class="center" id="submit-salvos" ng-show="salvosReady()">
+    <button ng-click="submitSalvos()">Submit Salvos</button>
+</div>
 <br />
 <div id="grids">
 <div id="user">
@@ -38,7 +44,9 @@
                 ng-mouseover="showShip(letter, number)"
                 ng-click="placeShip(letter, number)"
                 ng-style="getStyle(letter+number)"
-            ></td>
+            >
+                <span ng-bind="isHitByEnemy(letter+number)"></span>
+            </td>
             <td class="empty"></td>
         </tr>
         <tr>
@@ -119,12 +127,7 @@
 <!--end #enemy-->
 </div>
 <!--end #grids-->
-<div class="center">
-    <!--TODO ERASE BUTTON-->
-    <div id="submit-salvos">
-        <button ng-click="submitSalvos()">Submit Salvos</button>
-        <button ng-click="testing()">> TEST ME <</button>
-    </div>
+<div class="center" hidden>
 <h4>Ships</h4>
 <p ng-repeat="ship in ships"><b>Type: </b>{{ship.type}}  &nbsp; <b>Locations: </b><span ng-repeat="loc in ship.locations">{{loc}} &nbsp; </span></p>
 </div>

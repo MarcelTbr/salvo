@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 public class SalvoController {
 
 
-    //Calendar now = new GregorianCalendar(TimeZone.getTimeZone("ES")); //TODO: Refactor Date (format at endpoint)
+    //Calendar now = new GregorianCalendar(TimeZone.getTimeZone("ES")); // NICE TO HAVE: Refactor Date (format at endpoint)
 
     @Autowired
     private GameRepository gameRepo;
@@ -40,14 +41,132 @@ public class SalvoController {
     /** ======== ENDPOINTS ======== */
 
     @RequestMapping("/tests")
-    public List<Map<String, Object>> getOutput(Authentication auth){
+    public  Map<String, Long> getOutput(Authentication auth){ //List<Map<String, Object>>
 
-        List<Player> playerList = playerRepo.findAll();
+        /*List<Player> playerList = playerRepo.findAll();
         List<Map<String, Object>> playerDTO =
                 playerList.stream().map(pl -> getUserDTO(pl)).collect(Collectors.toList());
 
+        return playerDTO;*/
+        // A getting needed variables
+        String testSalvo = "B5"; //TODO this is a SalvoLocation not a real salvo
+        GamePlayer testGp = gamePlayerRepo.findById(1);
+        Set<Ship> enemyFleet = getEnemyGamePlayer(testGp).getShips();
 
-        return playerDTO;
+                        //Set<Ship> / Ship / Array<String> / String
+                        Optional<String> match = enemyFleet.stream()
+                                .map(Ship::getShipLocations)
+                                .flatMap(Collection::stream ).filter(s_loc -> s_loc == testSalvo).findAny();
+
+                               //print the name of the location //not necessary we have it in testSalvo
+                        System.out.println(match.get());
+
+                        //find ship by salvo location in a fleet
+                       /* Optional<Ship> ship_found =  enemyFleet.stream()
+                                .filter(s -> salvoHitShip(s, testSalvo)).findAny();*/
+
+                        //TESTING LOCATIONS ARRAY
+                        ArrayList<String> testSalvoArray = new ArrayList<>(); ///Arrays.asList("B5", "I5");
+                        testSalvoArray.add("B5"); testSalvoArray.add("I5"); testSalvoArray.add("B1");
+
+                        //TEST Salvo
+
+                        //Ship[] hitShips = new Ship[5];
+
+        Salvo testingSalvo = salvoRepo.findByGamePlayer(testGp).get(0);
+        // test an array of locations for each ship
+        // push all ships with a match into an array of Ships
+
+
+
+        //[A] Get a clean Salvo Hit Array
+
+        List<String> salvoHitLocations = getSalvoHits(testingSalvo, enemyFleet);
+
+        // [B] Stream salvo Hits and get all Ships from the fleet
+
+        ArrayList<Ship> hitShips = new ArrayList<>();
+
+        salvoHitLocations.stream()
+            .forEach(s_hit -> hitShips.add( getShipFromSalvoHit(s_hit, enemyFleet)));
+
+                                    //this is the result of a Salvo (one turn)
+                                    /*return salvoHitLocations.stream()
+                                            .map(s_hit -> getShipFromSalvoHit(s_hit, enemyFleet))
+                                            .collect(Collectors.toList());*/
+                                    hitShips.add(getShipFromSalvoHit("I6", enemyFleet));
+                            //        return hitShips;
+
+        // [C] find repeated ships in hitShips list and return a List of the shipTypes
+
+        Set<String> repeatedShips = findRepeatedShips(hitShips);
+
+        // [D] find out how many times they are repeated
+        // TODO erase this step. it's not re-assigned, nor saved into a new variable, thus as if nothing was done
+
+        repeatedShips.stream()
+                .map(rep_ship -> getNumberOfShipHits(rep_ship, hitShips))
+                .collect(Collectors.toList());
+
+        // [E] get single hit ships
+
+        Set<String> singleHitShips = hitShips.stream()
+                .filter(s -> getNumberOfShipHits(s.getShipType(), hitShips) == 1)
+                .map(s -> s.getShipType())
+                .collect(Collectors.toSet());
+
+
+        // [F] put C, D & E together (or do both at once?)
+                Map<String, Long> historyTurnMap = new HashMap<>();
+
+                singleHitShips.stream()
+                        .forEach(s -> historyTurnMap.put(s, 1L));
+                repeatedShips.stream()
+                        .forEach(rep_s -> historyTurnMap.put(rep_s, getNumberOfShipHits(rep_s, hitShips)));
+
+
+        return historyTurnMap;
+    }
+
+    private Long getNumberOfShipHits(String rep_ship, ArrayList<Ship> hitShips) {
+
+        return hitShips.stream()
+                .filter( s -> s.getShipType() == rep_ship).count();
+
+    }
+
+    private Set<String> findRepeatedShips(ArrayList<Ship> hitShips) {
+        return hitShips.stream()
+                .filter(s -> hitShips.stream().filter(hit_ship -> hit_ship == s).count() > 1) //filter repeated ships
+                .map( repeated_s -> repeated_s.getShipType())
+                .collect(Collectors.toSet());
+
+    }
+
+    private Ship getShipFromSalvoHit(String salvo_loc, Set<Ship> fleet) {
+       return fleet.stream()
+               .filter( s -> salvoHitShip(s, salvo_loc).isPresent())
+               .collect(Collectors.toList()).get(0);
+    }
+
+    // this method is useful for a single salvo_loc, not while streaming a salvo_loc array/list
+    private ArrayList<Ship> getHitShips(Set<Ship> fleet, String salvo_loc) {
+
+        ArrayList<Ship> hitShips = new ArrayList<>();
+        fleet.stream()
+                .filter(s -> salvoHitShip(s, salvo_loc).isPresent())
+                .forEach(hit_ship -> hitShips.add(hit_ship));
+
+        return hitShips;
+
+    }
+
+    private Optional salvoHitShip(Ship ship, String salvoLocation) {
+
+        return ship.getShipLocations().stream()
+                .filter(s_loc -> s_loc == salvoLocation).findAny();
+
+
     }
 
     @RequestMapping ( value="games/players/{gamePlayerId}/salvos", method= RequestMethod.POST )
@@ -64,7 +183,7 @@ public class SalvoController {
             String turn = salvos_str.substring(1, salvos_str.indexOf('='));
             String salvo_locs = salvos_str.substring(salvos_str.indexOf('[')+1, salvos_str.indexOf(']'));
 
-//            JSONParser parser = new JSONParser(); //TODO explore this parser method and JSON library
+            // JSONParser parser = new JSONParser(); //NICE TO HAVE: explore this parser method and JSON library
 
             String [] locations = salvo_locs.split(", "); //the blank space is important here!
             Salvo submitted_salvo = new Salvo(gamePlayer, Long.parseLong(turn), Arrays.asList(locations) );
@@ -143,53 +262,43 @@ public class SalvoController {
 
     private Object makeSalvoDTO(Salvo pl_salvo, Set<Ship> enemyShips) {
         Map<String, List<String>> turn_dto = new LinkedHashMap<>();
-        turn_dto.put("hits", getHits(pl_salvo, enemyShips));
+        turn_dto.put("hits", getSalvoHits(pl_salvo, enemyShips));
         turn_dto.put("misses", getMisses(pl_salvo, enemyShips));
         return turn_dto;
     }
 
     private List<String> getMisses(Salvo testSalvo, Set<Ship> enemyShips) {
         List<String> misses = testSalvo.getSalvoLocations().stream()
-                .filter(s_loc -> !enemyHit(s_loc, enemyShips))
+                .filter(s_loc -> !salvoHitAnyShip(s_loc, enemyShips))
                 .collect(Collectors.toList());
 
         System.out.println("misses: " + misses);
         return misses;
     }
 
-    private List<String> getHits(Salvo testSalvo, Set<Ship> enemyShips) {
-        List<String> hits = testSalvo.getSalvoLocations().stream()
-                .filter(s_loc -> enemyHit(s_loc, enemyShips))
+    private List<String> getSalvoHits(Salvo salvo, Set<Ship> fleet) {
+        List<String> hits = salvo.getSalvoLocations().stream()
+                .filter(s_loc -> salvoHitAnyShip(s_loc, fleet)) //filters out the salvo that missed the target
                 .collect(Collectors.toList());
-
-        System.out.println("hits: " + hits);
+        // System.out.println("hits: " + hits);
         return hits;
     }
 
-    private boolean enemyHit(String salvo_loc, Set<Ship> enemyShips) {
-
-                //find out if that salvo hits a ship
-                long hit = enemyShips.stream()
+    private boolean salvoHitAnyShip(String salvo_loc, Set<Ship> fleet) {
+        Optional<String> any = fleet.stream()
                 .map(Ship::getShipLocations)
                 .flatMap(Collection::stream)
                 .filter(e_loc -> e_loc == salvo_loc)
-                .count();
+                .findAny();
 
-                //TODO could be better? Refactor
-//        Optional<String> any = enemyShips.stream()
-//                .map(Ship::getShipLocations)
-//                .flatMap(Collection::stream)
-//                .filter(e_loc -> e_loc == salvo_loc)
-//                .findAny();
-//
-//        return any.isPresent();
+        return any.isPresent();
 
-        if(hit > 0) {return true;} else { return false;}
+
     }
 
     private GamePlayer getEnemyGamePlayer(GamePlayer gamePlayer) {
 
-        //TODO use findFirst + Optional
+        //REFACTOR: use findFirst + Optional
         return gamePlayer.getGame().getGamePlayers().stream()
                     .filter(gp -> gp.getGamePlayerId() != gamePlayer.getGamePlayerId())
                     .collect(Collectors.toList()).get(0);
@@ -317,7 +426,7 @@ public class SalvoController {
         Map<String, List<Double>> scoresDTO = new HashMap<>();
         List<Player> players = playerRepo.findAll();
 
-        players.stream().forEach(p -> scoresDTO.put (p.getId()+": " + p.getUsername(), getTotalScoresList(p, p.getGameScoresSet())));
+        players.stream().forEach(p -> scoresDTO.put (/*p.getId()+": " +*/ p.getUsername(), getTotalScoresList(p, p.getGameScoresSet())));
 
         return scoresDTO;
     }

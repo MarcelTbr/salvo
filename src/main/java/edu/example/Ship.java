@@ -23,9 +23,14 @@ public class Ship {
     @Column(name="ship_location")
     private List<String> shipLocations;
 
-//    @ElementCollection
-//    @Column (name="ship_type")  // This does not need to have an extra table, It's just one value
+    // This does not need to have an extra table, It's just one value
     private String shipType;
+
+    private long shipSize;
+
+    private long hits;
+
+    private boolean sunkShip;
 
     /** Ship Constructor **/
 
@@ -35,6 +40,9 @@ public class Ship {
         this.gamePlayer = gamePlayer;
         this.shipLocations = shipLocations;
         this.shipType = shipType;
+        this.shipSize = shipLocations.size();
+        this.hits = 0;
+        this.sunkShip = false;
     }
 
     public void setGamePlayer(GamePlayer gamePlayer){
@@ -67,4 +75,13 @@ public class Ship {
 
         this.shipType = shipType;
     }
+
+    public long getShipHits() { return this.hits; }
+    public void setShipHits(long hits) {this.hits = hits;}
+
+    public boolean isSunkShip() {
+        return sunkShip;
+    }
+
+    public void setSunkShip(){ this.sunkShip = true;}
 }

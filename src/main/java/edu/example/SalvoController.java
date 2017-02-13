@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,91 +40,90 @@ public class SalvoController {
     /** ======== ENDPOINTS ======== */
 
     @RequestMapping("/tests")
-    public  Map<String, Long> getOutput(Authentication auth){ //List<Map<String, Object>>
+    public  Map<String, Object> getOutput(Authentication auth){ //List<Map<String, Object>>
 
         /*List<Player> playerList = playerRepo.findAll();
         List<Map<String, Object>> playerDTO =
                 playerList.stream().map(pl -> getUserDTO(pl)).collect(Collectors.toList());
 
         return playerDTO;*/
-        // A getting needed variables
-        String testSalvo = "B5"; //TODO this is a SalvoLocation not a real salvo
-        GamePlayer testGp = gamePlayerRepo.findById(1);
-        Set<Ship> enemyFleet = getEnemyGamePlayer(testGp).getShips();
+        // [00:00]
+        long gp_id = 1; // passed through url
 
-                        //Set<Ship> / Ship / Array<String> / String
-                        Optional<String> match = enemyFleet.stream()
-                                .map(Ship::getShipLocations)
-                                .flatMap(Collection::stream ).filter(s_loc -> s_loc == testSalvo).findAny();
+        //[A] Get needed Objects
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gp_id);
+        GamePlayer enemyGp = getEnemyGamePlayer(gamePlayer);
+        Set<Ship> playerFleet = gamePlayer.getShips();
+        Set<Ship> enemyFleet = enemyGp.getShips();
+        List<Salvo> gpSalvos = salvoRepo.findByGamePlayer(gamePlayer);
+        List<Salvo> enemyGpSalvos = salvoRepo.findByGamePlayer(enemyGp);
 
-                               //print the name of the location //not necessary we have it in testSalvo
-                        System.out.println(match.get());
+        //[B] get turn historyMap for both players
+        Map<Long, Object> turnHistoryMap = makeTurnHistoryMap(enemyFleet, gpSalvos);
+        Map<Long, Object> enemyTurnHistoryMap = makeTurnHistoryMap(playerFleet, enemyGpSalvos);
 
-                        //find ship by salvo location in a fleet
-                       /* Optional<Ship> ship_found =  enemyFleet.stream()
-                                .filter(s -> salvoHitShip(s, testSalvo)).findAny();*/
+        //[C] make gameHistoryDTO
+        Map<String, Object> gameHistoryDTO = new LinkedHashMap<>();
+        gameHistoryDTO.put("Player", turnHistoryMap);
+        gameHistoryDTO.put("Enemy", enemyTurnHistoryMap);
 
-                        //TESTING LOCATIONS ARRAY
-                        ArrayList<String> testSalvoArray = new ArrayList<>(); ///Arrays.asList("B5", "I5");
-                        testSalvoArray.add("B5"); testSalvoArray.add("I5"); testSalvoArray.add("B1");
+        return gameHistoryDTO;
+    }
 
-                        //TEST Salvo
+    public Map<Long, Object> makeTurnHistoryMap(Set<Ship> fleet, List<Salvo> gpSalvos) {
+        return gpSalvos.stream()
+                .sorted(Comparator.comparing(Salvo::getTurn)) //sorting by Turn
+                .collect(Collectors.toMap(Salvo::getTurn, salvo -> makeHistoryTurnObj(fleet, salvo)));
+    }
 
-                        //Ship[] hitShips = new Ship[5];
+    public Map<Long, Object>  makeLongIndexMap(long number, Object object) {
+        Map<Long, Object> longIndexMap = new LinkedHashMap<>();
+        longIndexMap.put(number, object);
+        return longIndexMap;
+    }
 
-        Salvo testingSalvo = salvoRepo.findByGamePlayer(testGp).get(0);
-        // test an array of locations for each ship
-        // push all ships with a match into an array of Ships
 
+    public Map<String, Long> makeHistoryTurnObj(Set<Ship> fleet, Salvo salvo) {
+        //[A] Getting Hit Ships
+        ArrayList<Ship> hitShips = getHitShips(fleet, salvo);
 
+        // [B] find repeated ships in hitShips list and return a List of the shipTypes
+        Set<String> repeatedShips = findRepeatedShips(hitShips);
 
+        // [C] get single hit ships
+        Set<String> singleHitShips = getSingleHitShips(hitShips);
+
+        // [D] make a history map object for 1 player in 1 turn
+        return makeHistoryTurnObj(hitShips, repeatedShips, singleHitShips);
+    }
+
+    public Map<String, Long> makeHistoryTurnObj(ArrayList<Ship> hitShips, Set<String> repeatedShips, Set<String> singleHitShips) {
+        Map<String, Long> historyTurnMap = new HashMap<>();
+
+        singleHitShips.stream()
+                .forEach(s -> historyTurnMap.put(s, 1L));
+        repeatedShips.stream()
+                .forEach(rep_s -> historyTurnMap.put(rep_s, getNumberOfShipHits(rep_s, hitShips)));
+        return historyTurnMap;
+    }
+
+    public ArrayList<Ship> getHitShips(Set<Ship> fleet, Salvo salvo) {
         //[A] Get a clean Salvo Hit Array
+        List<String> salvoHitLocations = getSalvoHits(salvo, fleet);
 
-        List<String> salvoHitLocations = getSalvoHits(testingSalvo, enemyFleet);
-
-        // [B] Stream salvo Hits and get all Ships from the fleet
-
+        // [B] Stream salvo Hit locations and get all Ships from the fleet
         ArrayList<Ship> hitShips = new ArrayList<>();
 
         salvoHitLocations.stream()
-            .forEach(s_hit -> hitShips.add( getShipFromSalvoHit(s_hit, enemyFleet)));
+            .forEach(s_hit -> hitShips.add( getShipFromSalvoHit(s_hit, fleet)));
+        return hitShips;
+    }
 
-                                    //this is the result of a Salvo (one turn)
-                                    /*return salvoHitLocations.stream()
-                                            .map(s_hit -> getShipFromSalvoHit(s_hit, enemyFleet))
-                                            .collect(Collectors.toList());*/
-                                    hitShips.add(getShipFromSalvoHit("I6", enemyFleet));
-                            //        return hitShips;
-
-        // [C] find repeated ships in hitShips list and return a List of the shipTypes
-
-        Set<String> repeatedShips = findRepeatedShips(hitShips);
-
-        // [D] find out how many times they are repeated
-        // TODO erase this step. it's not re-assigned, nor saved into a new variable, thus as if nothing was done
-
-        repeatedShips.stream()
-                .map(rep_ship -> getNumberOfShipHits(rep_ship, hitShips))
-                .collect(Collectors.toList());
-
-        // [E] get single hit ships
-
-        Set<String> singleHitShips = hitShips.stream()
+    public Set<String> getSingleHitShips(ArrayList<Ship> hitShips) {
+        return hitShips.stream()
                 .filter(s -> getNumberOfShipHits(s.getShipType(), hitShips) == 1)
                 .map(s -> s.getShipType())
                 .collect(Collectors.toSet());
-
-
-        // [F] put C, D & E together (or do both at once?)
-                Map<String, Long> historyTurnMap = new HashMap<>();
-
-                singleHitShips.stream()
-                        .forEach(s -> historyTurnMap.put(s, 1L));
-                repeatedShips.stream()
-                        .forEach(rep_s -> historyTurnMap.put(rep_s, getNumberOfShipHits(rep_s, hitShips)));
-
-
-        return historyTurnMap;
     }
 
     private Long getNumberOfShipHits(String rep_ship, ArrayList<Ship> hitShips) {
@@ -149,6 +147,7 @@ public class SalvoController {
                .collect(Collectors.toList()).get(0);
     }
 
+    //TODO: use or erase
     // this method is useful for a single salvo_loc, not while streaming a salvo_loc array/list
     private ArrayList<Ship> getHitShips(Set<Ship> fleet, String salvo_loc) {
 

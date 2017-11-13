@@ -13,10 +13,11 @@
 
 </head>
 <body ng-app="PlayerViewModule" ng-controller="PlayerViewController" >
-
+<div id="user-game-view-title">
 <h2 class="center" >{{userGamePlayer.player.username}}'s Game View</h2>
 <h4 class="center" >Game #{{game_view_obj.game_id}} | Created: {{game_view_obj.created}}</h4>
 <h4 class="center" ng-show="showTurnInfo()">Current Turn: <span>{{current_turn}}</span></h4>
+</div>
 <h4 class="center user-info" ng-bind="user_info" ng-show="showTurnInfo()"></h4>
 <h4 class="center user-info" ng-bind="user_info_ships" ng-show="!showTurnInfo()"></h4>
 <div class="center" id="submit-salvos" ng-show="salvosReady()">
@@ -25,7 +26,7 @@
 <br />
 <div id="grids">
 <div id="user">
-    <div class="player-info">
+    <div id="player-info-user" class="player-info">
         <span><b>Player: </b>{{userGamePlayer.player.username}}</span><br/>
         <span><b>E-mail: </b>{{userGamePlayer.player.email}}</span><br />
         <span><b>Joining Date: </b>{{userGamePlayer.player.joining_date}}</span>

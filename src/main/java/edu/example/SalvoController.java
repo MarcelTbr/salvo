@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @RestController
 public class SalvoController {
 
-
     //Calendar now = new GregorianCalendar(TimeZone.getTimeZone("ES")); // NICE TO HAVE: Refactor Date (format at endpoint)
 
     @Autowired
@@ -49,7 +48,12 @@ public class SalvoController {
         return playerDTO;*/
         // [00:00]
         long gp_id = 1; // passed through url
+        Map<String, Object> gameHistoryDTO = getGameHistoryDTO(gp_id);
 
+        return gameHistoryDTO;
+    }
+
+    public Map<String, Object> getGameHistoryDTO(long gp_id) {
         //[A] Get needed Objects
         GamePlayer gamePlayer = gamePlayerRepo.findById(gp_id);
         GamePlayer enemyGp = getEnemyGamePlayer(gamePlayer);
@@ -66,7 +70,6 @@ public class SalvoController {
         Map<String, Object> gameHistoryDTO = new LinkedHashMap<>();
         gameHistoryDTO.put("Player", turnHistoryMap);
         gameHistoryDTO.put("Enemy", enemyTurnHistoryMap);
-
         return gameHistoryDTO;
     }
 
@@ -83,27 +86,58 @@ public class SalvoController {
     }
 
 
-    public Map<String, Long> makeHistoryTurnObj(Set<Ship> fleet, Salvo salvo) {
+    public Map<String, Object> makeHistoryTurnObj(Set<Ship> fleet, Salvo salvo) {
         //[A] Getting Hit Ships
         ArrayList<Ship> hitShips = getHitShips(fleet, salvo);
 
         // [B] find repeated ships in hitShips list and return a List of the shipTypes
-        Set<String> repeatedShips = findRepeatedShips(hitShips);
+        Set<Ship> repeatedShips = findRepeatedShips(hitShips);
 
         // [C] get single hit ships
-        Set<String> singleHitShips = getSingleHitShips(hitShips);
+        Set<Ship> singleHitShips = getSingleHitShips(hitShips);
 
-        // [D] make a history map object for 1 player in 1 turn
+        // [D]
+        updateHits(singleHitShips, repeatedShips, hitShips);
+
+        // [E] make a history map object for 1 player in 1 turn
         return makeHistoryTurnObj(hitShips, repeatedShips, singleHitShips);
     }
 
-    public Map<String, Long> makeHistoryTurnObj(ArrayList<Ship> hitShips, Set<String> repeatedShips, Set<String> singleHitShips) {
-        Map<String, Long> historyTurnMap = new HashMap<>();
+    private void updateHits(Set<Ship> singleHitShips, Set<Ship> repeatedShips, ArrayList<Ship> hitShips) {
 
         singleHitShips.stream()
-                .forEach(s -> historyTurnMap.put(s, 1L));
+                .forEach(s-> s.setShipHits(s.getShipHits()+1));
         repeatedShips.stream()
-                .forEach(rep_s -> historyTurnMap.put(rep_s, getNumberOfShipHits(rep_s, hitShips)));
+                .forEach(rep_s -> rep_s.setShipHits(rep_s.getShipHits() + getNumberOfShipHits(rep_s.getShipType(), hitShips)) );
+    }
+
+    public Map<String, Object> makeHistoryTurnObj(ArrayList<Ship> hitShips, Set<Ship> repeatedShips, Set<Ship> singleHitShips) {
+        Map<String, Object> historyTurnMap = new HashMap<>();
+
+        singleHitShips.stream()
+                .forEach(s -> historyTurnMap.put(s.getShipType(), 1L));
+        repeatedShips.stream()
+                .forEach(rep_s -> historyTurnMap.put(rep_s.getShipType(), getNumberOfShipHits(rep_s.getShipType(), hitShips)));
+
+        LinkedList<String> sunkShips= new LinkedList<>();
+        singleHitShips.stream()
+                .filter(s -> s.getShipHits() == s.getShipLocations().size())
+                .forEach(sunk_ship -> sunkShips.add(sunk_ship.getShipType()));
+        repeatedShips.stream()
+                .filter(rep_s -> rep_s.getShipHits() == rep_s.getShipLocations().size())
+                .forEach(sunk_ship -> sunkShips.add(sunk_ship.getShipType()));
+
+        historyTurnMap.put("sunk", sunkShips);
+
+        //change Ship Sunk attribute
+        // TODO extract this as an independent method?
+        singleHitShips.stream()
+                .filter(s -> s.getShipHits() == s.getShipLocations().size())
+                .forEach(Ship::setSunkShip);
+        repeatedShips.stream()
+                .filter(s -> s.getShipHits() == s.getShipLocations().size())
+                .forEach(Ship::setSunkShip);
+
         return historyTurnMap;
     }
 
@@ -119,10 +153,9 @@ public class SalvoController {
         return hitShips;
     }
 
-    public Set<String> getSingleHitShips(ArrayList<Ship> hitShips) {
+    public Set<Ship> getSingleHitShips(ArrayList<Ship> hitShips) {
         return hitShips.stream()
                 .filter(s -> getNumberOfShipHits(s.getShipType(), hitShips) == 1)
-                .map(s -> s.getShipType())
                 .collect(Collectors.toSet());
     }
 
@@ -133,10 +166,9 @@ public class SalvoController {
 
     }
 
-    private Set<String> findRepeatedShips(ArrayList<Ship> hitShips) {
+    private Set<Ship> findRepeatedShips(ArrayList<Ship> hitShips) {
         return hitShips.stream()
                 .filter(s -> hitShips.stream().filter(hit_ship -> hit_ship == s).count() > 1) //filter repeated ships
-                .map( repeated_s -> repeated_s.getShipType())
                 .collect(Collectors.toSet());
 
     }
@@ -229,9 +261,6 @@ public class SalvoController {
             return new ResponseEntity<Map<String, Object>>(salvos_response, HttpStatus.ACCEPTED );
 
         }
-
-
-
 
     }
 
@@ -550,7 +579,7 @@ public class SalvoController {
             if(gp.getGamePlayerId() != gamePlayerId){enemyPlayer = gp;}
         }
         /** Creating and filling the endpoint's game_viewDTO*/
-        Map<String, Object> game_viewDTO = getGameViewDTO(gamePlayer, enemyPlayer, gamePlayersList);
+        Map<String, Object> game_viewDTO = getGameViewDTO(gamePlayer, enemyPlayer, gamePlayersList, gamePlayerId);
         return game_viewDTO;
     }
 
@@ -728,7 +757,9 @@ public class SalvoController {
         return playerInfo;
     }
 
-    private Map<String, Object> getGameViewDTO(GamePlayer gamePlayer, GamePlayer enemyPlayer, LinkedList<Map<String, Object>> gamePlayersList) {
+    private Map<String, Object> getGameViewDTO(GamePlayer gamePlayer, GamePlayer enemyPlayer,
+                                               LinkedList<Map<String, Object>> gamePlayersList,
+                                               long gp_id) {
         Map<String, Object> game_viewDTO = new LinkedHashMap<String, Object>() {};
         game_viewDTO.put("game_id", gamePlayer.getGame().getId());
         game_viewDTO.put("created", gamePlayer.getGame().getCreationDate());
@@ -744,6 +775,7 @@ public class SalvoController {
         Object salvoesDTO = getAllPlayerSalvos(gamePlayer);
         game_viewDTO.put("salvoes", salvoesDTO);
         game_viewDTO.put("enemy_salvoes", getAllPlayerSalvos(enemyPlayer));
+        game_viewDTO.put("gameHistory",  getGameHistoryDTO(gp_id));
 
         return game_viewDTO;
     }

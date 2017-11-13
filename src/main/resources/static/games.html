@@ -28,34 +28,34 @@
         <form  id="signup-form" onsubmit="return false">
             <label>U: <input ng-model="new_username" type="text" name="new_username" placeholder="new username"></label>
             <label>E: <input ng-model="new_email" type="text" name="new_email" placeholder="new email"></label>
-            <label>P: <input ng-model="new_password" type="text" name="new_password" placeholder="new password"></label>
+            <label>P: <input ng-model="new_password" type="password" name="new_password" placeholder="new password"></label>
             <button ng-click="signMeUp()" id="signup-button">Sign Up</button>
         </form>
     </div>
 <div  ng-show="user" id="user-info" class="space-around">
     <h4>Welcome {{player.username}}</h4>
     <h4>{{player.email}}</h4>
-<form id="logout-form" onsubmit="return false">
-    <button ng-click="logMeOut()" id="logout-button">Log out</button>
-</form>
-    </div>
-    <div  ng-style="feedback_style"id="feedback">
-        <!--ng-show="response != null"-->
-        <span  >{{feedback_message}}</span>
-    </div>
-    <!--<div  ng-show="user" id="ui-buttons" class="space-around">-->
-        <!--<form id="create-game-form">-->
-            <!--<button ng-click="createGame()">Create Game</button>-->
+    <form id="logout-form" onsubmit="return false">
+        <button ng-click="logMeOut()" id="logout-button">Log out</button>
+    </form>
+</div>
+<div  ng-style="feedback_style"id="feedback">
+    <!--ng-show="response != null"-->
+    <span  >{{feedback_message}}</span>
+</div>
+    <div  ng-show="user" id="ui-buttons" class="space-around">
+        <form id="create-game-form">
+            <button ng-click="createGame()">Create Game</button>
         </form>
-        <form id="join-game-form">
-            <button ng-click="joinGameById()">Join Game By Id</button>
-        </form>
+
     </div>
 </section>
 
 <!-- ======== Leaderboard ======= -->
 <h2 class="center">Leaderboard</h2>
-
+<form id="join-game-form">
+    <button ng-click="joinGameById()">Join Game By Id</button>
+</form>
 <table id="scores" >
     <thead>
     <tr ><th>User</th><th>Total Points</th><th>Won</th><th>Lost</th><th>Tied</th></tr>
@@ -73,8 +73,8 @@
     <div >
         <ul id="player_games_list">
             <li ng-repeat="game in player_games" >
-                <u><b>Game {{game.game_id}}</b></u><br />
-                <b>Creation Date:</b></b> {{game.game_date}}<br />
+                <u class="game-title"><b >Game {{game.game_id}}</b></u><br /><br />
+                <b>Creation Date:</b></b> {{game.game_date}}<br /><br />
                 <span ng-repeat="player in game.game_players">
 
                     <!--TODO: remove GP numbers from the front end-->
@@ -99,8 +99,8 @@
 <h2>Active Salvo Games</h2>
 <ul id="games_list">
     <li ng-repeat="game in games" game-data="{{game.game_id}}">
-        <u><b>Game {{game.game_id}}</b></u><br />
-        <b>Creation Date:</b></b> {{game.game_date}}<br />
+        <u class="game-title"><b >Game {{game.game_id}}</b></u><br /><br />
+        <b>Creation Date:</b></b> {{game.game_date}}<br /><br />
         <span ng-repeat="player in game.game_players">
             <b>Player {{player.id}}:</b> {{player.username}}
             <b>Joined:</b> {{player.joining_date }} <br />

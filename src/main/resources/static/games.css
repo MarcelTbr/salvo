@@ -1,20 +1,58 @@
  /* =============== games.css ============== */
 
+body {
+
+    font-family: Helvetica;
+    background: url(img/battleship_bckgrnd.jpeg) 0px 100px no-repeat #336699;
+    background-size: contain;
+    color: orange;
+
+}
+
+body:after {
+
+    font-family: Arial;
+    background: url(img/battleship_bckgrnd.jpeg) 0px 100px no-repeat #336699;
+    background-size: contain;
+    color: orange;
+    opacity: 0.8;
+}
+
+h2 {
+
+    background-color: rgba(0,0,0, 0.5);
+    padding: 5px 0px;
+    border-radius: 15px;
+    /*color: darkorange;*/
+}
 
 
- #games_list li, #player_games_list li {
+#signup {
+    position: relative;
+    top: 15px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 15px;
+
+}
+
+
+#games_list li, #player_games_list li {
 
         list-style: none;
 
-        }
+
+}
 
 #scores {
-    background-color: darkblue;
+    background-color: rgba(0,0,0, 0.5);
     color: white;
     width: 600px;
     height: 400px;
     text-align: center;
-    margin: 0 auto;
+    margin: 100px auto 300px;
+    padding: 20px;
+    padding-left: 0px;
+    border-radius: 15px;
 }
 
 #scores td { padding: 10px;}
@@ -32,4 +70,71 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
+}
+
+#player_games_list li, #games_list li {
+    border-radius: 15px;
+    background-color: rgba(0,0,0,0.5);
+    width: 450px;
+    padding-top: 10px;
+    margin: 10px;
+
+}
+
+#player_games_list, #games_list {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: space-around;
+    flex-wrap: wrap;
+}
+
+#player_games_list b, #games_list b{
+
+    color: darkorange;
+}
+
+
+button {
+    color: white;
+    background-color: #336699;
+    border: 1px solid white;
+    border-radius: 10px;
+    width: 100px;
+    height: 28px;
+    font-size: 16px;
+}
+
+button:hover {
+   background-color: orange;
+
+}
+
+#join-game-form button, #join-game-form{
+
+    width: 250px;
+    margin: 0 auto;
+}
+
+#join-game-form button { position: relative; top: 40px;}
+
+#create-game-form button, #create-game-form {
+     width: 250px;
+     margin: 0 auto;
+
+}
+
+a {
+    text-style: none;
+    color: red;
+
+}
+
+a:visited {
+    color: #336699;
+}
+
+.game-title {
+    color: darkorange;
 }

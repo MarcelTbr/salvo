@@ -99,3 +99,32 @@ tbody td {border: 2px dotted lightgreen;}
     margin-top: 30px;
     font-size: 20px;
 }
+
+/* ======== look & feel =====  */
+
+body {
+    font-family: Helvetica;
+    color: orange;
+    background: url(img/game-bckgrnd.jpeg) 0px 169px no-repeat #336699;
+    background-size: contain;
+    margin: 0px;
+}
+
+body b, body h2 {
+    color: darkorange;
+}
+
+
+#user-game-view-title {
+    background-color: rgba(0,0,0,0.5);
+    margin: 0px;
+    padding-top: 10px;
+
+}
+#player-info-user {
+    background-color: rgba(0,0,0,0.5);
+    width: 300px;
+    color: white;
+    border-radius: 10px;
+
+}

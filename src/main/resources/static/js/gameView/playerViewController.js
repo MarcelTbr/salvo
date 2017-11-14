@@ -234,8 +234,9 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
             }, function(response){ //user feedback & redirection if he is not authorized
                 console.log("Response:"); console.log(response);
-                alert(response.data.unauthorize);
-                $window.location.href = "http://" + $window.location.host + "/games.html";
+                alert("Not authorized: " + response.data.error + " " + response.data.status);
+                console.info(response)
+                //$window.location.href = "http://" + $window.location.host + "/games.html";
             })
 
         }
@@ -392,7 +393,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
      }
 
-    //NICE TO HAVE;  condition to place every ship type ONLY ONCE!
+    //TODO NICE TO HAVE;  condition to place every ship type ONLY ONCE!
     $scope.placeShip = function (row,col) {
         //  var is_legal = placingShips.insideGridTwo($scope.prov_ship_loc, $scope.ship_align);
         var placed_ships = $scope.ship_placing_obj[$scope.gp];

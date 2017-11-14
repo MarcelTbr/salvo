@@ -39,7 +39,7 @@ public class SalvoController {
     /** ======== ENDPOINTS ======== */
 
     @RequestMapping("/tests")
-    public  Map<String, Object> getOutput(Authentication auth){ //List<Map<String, Object>>
+    public  Optional<Map<String, Object>> getOutput(Authentication auth){ //List<Map<String, Object>>
 
         /*List<Player> playerList = playerRepo.findAll();
         List<Map<String, Object>> playerDTO =
@@ -48,29 +48,51 @@ public class SalvoController {
         return playerDTO;*/
         // [00:00]
         long gp_id = 1; // passed through url
-        Map<String, Object> gameHistoryDTO = getGameHistoryDTO(gp_id);
+        Optional<Map<String, Object> >gameHistoryDTO = getGameHistoryDTO(gp_id);
 
         return gameHistoryDTO;
     }
+    /** Post method for createGame */
+    @RequestMapping(value="/new_games", method = RequestMethod.POST)
+    public ResponseEntity<Map<String,Object>> createNewGame(){
 
-    public Map<String, Object> getGameHistoryDTO(long gp_id) {
+        Date newDate = new Date();
+        Game newGame = new Game(newDate); gameRepo.save(newGame);
+        GamePlayer newGamePlayer = new GamePlayer(newDate, playerRepo.findById(1), newGame);
+        gamePlayerRepo.save(newGamePlayer);
+
+        return new ResponseEntity<Map<String, Object>>(makeMap("submitted_salvos", newGame ),HttpStatus.CREATED);
+    }
+
+
+    public Optional<Map<String, Object>>getGameHistoryDTO(long gp_id) {
         //[A] Get needed Objects
         GamePlayer gamePlayer = gamePlayerRepo.findById(gp_id);
-        GamePlayer enemyGp = getEnemyGamePlayer(gamePlayer);
         Set<Ship> playerFleet = gamePlayer.getShips();
-        Set<Ship> enemyFleet = enemyGp.getShips();
         List<Salvo> gpSalvos = salvoRepo.findByGamePlayer(gamePlayer);
-        List<Salvo> enemyGpSalvos = salvoRepo.findByGamePlayer(enemyGp);
 
-        //[B] get turn historyMap for both players
-        Map<Long, Object> turnHistoryMap = makeTurnHistoryMap(enemyFleet, gpSalvos);
-        Map<Long, Object> enemyTurnHistoryMap = makeTurnHistoryMap(playerFleet, enemyGpSalvos);
+        Optional<GamePlayer> enemyGp = getEnemyGamePlayer(gamePlayer);
+        if( enemyGp.isPresent()) {
+            Optional<List<Salvo>> enemyGpSalvos = Optional.of(salvoRepo.findByGamePlayer(enemyGp.get()));
+            Optional<Set<Ship>> enemyFleet = Optional.of(enemyGp.get().getShips());
 
-        //[C] make gameHistoryDTO
-        Map<String, Object> gameHistoryDTO = new LinkedHashMap<>();
-        gameHistoryDTO.put("Player", turnHistoryMap);
-        gameHistoryDTO.put("Enemy", enemyTurnHistoryMap);
-        return gameHistoryDTO;
+            /** TODO fix the optional for enemy fleet and salvos*/
+
+            //[B] get turn historyMap for both players
+            Map<Long, Object> turnHistoryMap = makeTurnHistoryMap(enemyFleet.get(), gpSalvos);
+            Map<Long, Object> enemyTurnHistoryMap = makeTurnHistoryMap(playerFleet, enemyGpSalvos.get());
+
+            //[C] make gameHistoryDTO
+            Map<String, Object> gameHistoryDTO = new LinkedHashMap<>();
+            gameHistoryDTO.put("Player", turnHistoryMap);
+            gameHistoryDTO.put("Enemy", enemyTurnHistoryMap);
+            return Optional.of(gameHistoryDTO);
+        } else {
+
+            return Optional.empty();
+        }
+
+
     }
 
     public Map<Long, Object> makeTurnHistoryMap(Set<Ship> fleet, List<Salvo> gpSalvos) {
@@ -240,14 +262,14 @@ public class SalvoController {
         } else if (number_of_players == 1){
 
             return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, wait until " +
-                    "an enemy player joins the game"), HttpStatus.FORBIDDEN);
+                    "an enemy player joins the game"), HttpStatus.ACCEPTED); //FORBIDDEN TODO fix this BUG
         } else {
             //getting all player salvos
             Object playerSalvos = getAllPlayerSalvos(gamePlayer);
             System.out.println("playerSalvos: " + playerSalvos);
             Set<Salvo> playerSalvosSet = gamePlayer.getSalvos();
             //get enemy's Fleet
-            GamePlayer enemyGamePlayer = getEnemyGamePlayer(gamePlayer);
+            GamePlayer enemyGamePlayer = getEnemyGamePlayer(gamePlayer).get(); //it's an optional
 
             Map<Long, Object> salvos_dto = makeUserSalvosDTO(playerSalvosSet, enemyGamePlayer);
             // make enemy salvos dto
@@ -324,12 +346,18 @@ public class SalvoController {
 
     }
 
-    private GamePlayer getEnemyGamePlayer(GamePlayer gamePlayer) {
+    private Optional<GamePlayer> getEnemyGamePlayer(GamePlayer gamePlayer) {
 
         //REFACTOR: use findFirst + Optional
-        return gamePlayer.getGame().getGamePlayers().stream()
-                    .filter(gp -> gp.getGamePlayerId() != gamePlayer.getGamePlayerId())
-                    .collect(Collectors.toList()).get(0);
+       Optional< GamePlayer > enemyGamePlayer = gamePlayer.getGame().getGamePlayers().stream()
+                .filter(gp -> !Objects.equals(gp.getGamePlayerId(), gamePlayer.getGamePlayerId()))
+                .collect(Collectors.toList()).stream().findAny();
+
+//        GamePlayer enemyGamePlayer = gamePlayer.getGame().getGamePlayers().stream()
+//                .filter(gp -> gp.getGamePlayerId() != gamePlayer.getGamePlayerId())
+//                .collect(Collectors.toList()).get(0);
+
+        return enemyGamePlayer;
     }
 
     @RequestMapping ("games/players/{gamePlayerId}/ships")
@@ -511,10 +539,17 @@ public class SalvoController {
                     return new ResponseEntity<Map<String, Object>>(getGameViewDTO(gamePlayerId), HttpStatus.ACCEPTED);
 
                 }else {
+
+                    String username = gamePlayerRepo.findById(gamePlayerId).getPlayer().getUsername();
+
+                    //System.out.println( "Username AUTH: " + Objects.equals(username, auth.getName() ));
+
+                    //return new ResponseEntity<Map<String, Object>>(getGameViewDTO(gamePlayerId), HttpStatus.ACCEPTED);
+
                     return new ResponseEntity<Map<String, Object>>(
                             makeMap("unauthorize", "it's not allowed to see other users data"),
                             HttpStatus.UNAUTHORIZED);
-                }
+                 }
 
 
     }
@@ -561,7 +596,11 @@ public class SalvoController {
 
     private boolean gamePlayerAuthorization(long gamePlayerId, Authentication auth) {
 
-        if( gamePlayerRepo.findById(gamePlayerId).getPlayer().getUsername() == auth.getName() ) { return true; }
+        String username = gamePlayerRepo.findById(gamePlayerId).getPlayer().getUsername();
+
+        System.out.println( "Username AUTH: " + Objects.equals(username, auth.getName() ));
+
+        if( Objects.equals(username, auth.getName() ) ) { return true; }
         else{ return false; }
     }
 
@@ -576,7 +615,16 @@ public class SalvoController {
         for (GamePlayer gp : gamePlayersSet) {
             Map<String, Object> GamePlayerDTO = getGamePlayerDTO(gp);
             gamePlayersList.add(GamePlayerDTO);
-            if(gp.getGamePlayerId() != gamePlayerId){enemyPlayer = gp;}
+
+            boolean differentGamePlayer = !Objects.equals(gp.getGamePlayerId(),gamePlayerId);
+
+            if( differentGamePlayer ){
+
+                enemyPlayer = gp;
+
+            }
+
+            // if(gp.getGamePlayerId() != gamePlayerId){enemyPlayer = gp;}
         }
         /** Creating and filling the endpoint's game_viewDTO*/
         Map<String, Object> game_viewDTO = getGameViewDTO(gamePlayer, enemyPlayer, gamePlayersList, gamePlayerId);
@@ -767,10 +815,14 @@ public class SalvoController {
         /** Getting an instance of the players' ships  */
         Set<Ship> playerShips =  gamePlayer.getShips();
         /** Creating and filling a List with the desired ship instance data*/
-        List<Object> playerShipsList = getPlayerShipsList(playerShips);
-        List<Object> enemyShipsList = getPlayerShipsList(enemyPlayer.getShips());
+        List<Object> playerShipsList = getPlayerShipsList(playerShips).get();
+        Optional<List<Object>> enemyShipsList = getPlayerShipsList(enemyPlayer.getShips());
         game_viewDTO.put("ships", playerShipsList);
-        game_viewDTO.put("enemy_ships", enemyShipsList);
+        if (enemyShipsList.isPresent()) {
+            game_viewDTO.put("enemy_ships", enemyShipsList);
+        } else {
+            game_viewDTO.put("enemy_ships", "");
+        }
         /** getting the salvoesDTO {"turn" : "salvoes-array" }*/
         Object salvoesDTO = getAllPlayerSalvos(gamePlayer);
         game_viewDTO.put("salvoes", salvoesDTO);
@@ -789,7 +841,7 @@ public class SalvoController {
                 return playerSalvoesList;
     }
 
-    private List<Object> getPlayerShipsList(Set<Ship> playerShips) {
+    private Optional<List<Object>> getPlayerShipsList(Set<Ship> playerShips) {
         List<Object> playerShipsList = new LinkedList<>();
         for(Ship ship : playerShips){
             Map<String, Object> playerShipsMap = new LinkedHashMap<>();
@@ -797,7 +849,7 @@ public class SalvoController {
             playerShipsMap.put("locations", ship.getShipLocations());
             playerShipsList.add(playerShipsMap);
         }
-        return playerShipsList;
+        return Optional.ofNullable(playerShipsList);
     }
 
     private Map<String, Object> getGameSalvoDTO(Game g) {

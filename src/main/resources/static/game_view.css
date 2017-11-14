@@ -4,7 +4,7 @@
 table {
     margin: 0 auto;
     color: white;
-    background-color: darkblue;
+    background-color: rgba(0,51,153, 0.8);
     border-collapse: collapse;
 }
 
@@ -41,17 +41,18 @@ tbody td {border: 2px dotted lightgreen;}
 .space-around {
      display:flex;
      flex-direction: row;
+     align-content: space-around;
      align-items: center;
-     justify-content: space-around;
+     justify-content: center;
 }
 .player-info {
     padding: 15px 5px;
 }
 
-#shipPlacingUI {
+/*#shipPlacingUI {
     width: 400px;
     margin: 0 auto;
-}
+}*/
 
 #ship-legend {
     margin-bottom: 50px;
@@ -85,12 +86,27 @@ tbody td {border: 2px dotted lightgreen;}
 
 .user-info {
 
-    background-color: darkblue;
+    background-color:  rgba(255,153,0, 0.8);
     color: white;
     height: 40px;
     padding-top: 20px;
-    opacity: 0.59;
+    /*opacity: 0.59;*/
     margin: 0px 60px;
+    border-radius: 10px;
+
+}
+
+button {
+    color: white;
+    background-color: #336699;
+    border: 1px solid white;
+    border-radius: 10px;
+    height: 28px;
+    font-size: 16px;
+}
+
+button:hover {
+   background-color: orange;
 
 }
 
@@ -127,4 +143,19 @@ body b, body h2 {
     color: white;
     border-radius: 10px;
 
+}
+
+#grids {
+    margin-bottom: 200px;
+}
+
+.placed-ship {
+    /*background-color: darkred;
+    border: 1px dotted lightpink;*/
+    visibility: hidden;
+
+}
+
+.placed-legend {
+    color: red;
 }

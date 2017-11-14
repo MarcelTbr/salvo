@@ -24,7 +24,7 @@
     <button ng-click="submitSalvos()">Submit Salvos</button>
 </div>
 <br />
-<div id="grids">
+<div id="grids" class="space-around">
 <div id="user">
     <div id="player-info-user" class="player-info">
         <span><b>Player: </b>{{userGamePlayer.player.username}}</span><br/>
@@ -61,9 +61,9 @@
     <div id="shipPlacingUI" ng-show="!ships_placed()">
         <div id="ship-legend">
             <div ng-repeat="ship in ship_types">
-                <span class="ship space-around" ng-click="selectShip($index)">
-                <span data-ship-type="{{ship.type}}">{{ship.type}} </span>
-                <span><span class="mock-cell" ng-repeat="ship in ship_types | limitTo:ship.cells">&nbsp;&nbsp;&nbsp;</span></span>
+                <span  class="ship space-around" ng-click="selectShip($index)">
+                <span ng-class="getLegendNameClass($index)" id="legend{{$index}}" data-ship-type="{{ship.type}}">{{ship.type}} </span>
+                <span id="ship{{$index}}" ng-class="getLegendShipClass($index)"><span  class="mock-cell" ng-repeat="ship in ship_types | limitTo:ship.cells">&nbsp;&nbsp;&nbsp;</span></span>
                 </span>
             </div>
         </div>

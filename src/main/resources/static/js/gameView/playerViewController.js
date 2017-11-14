@@ -38,15 +38,29 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             {type: "Patrol Boat", cells: 2}
     ];
     console.info("Ship Types: ", $scope.ship_types);
-
-    //Default selected ship
-    $scope.selected_ship = $scope.ship_types[1];
     $scope.ship_align = "Vertical";
-    $scope.ship_name = $scope.selected_ship["shipType"];
+
     $scope.user_info; $scope.user_info_ships;
     $scope.enemy_salvos_obj;
+    $scope.ship_placing_obj[$scope.gp] = [];
 
+    // LEGEND CLASS LOGIC
 
+       //getLegendNameClass($index)
+
+        $scope.getLegendNameClass = function(index) {
+                var ship_name = $scope.ship_types[index].type;
+                var placed_ships_array = $scope.ship_placing_obj[$scope.gp];
+                var noShipRepeated = placingShips.noShipRepeated(ship_name, placed_ships_array );
+                if(!noShipRepeated){ return "placed-legend";} else { return "";}
+        }
+
+         $scope.getLegendShipClass = function(index) {
+                        var ship_name = $scope.ship_types[index].type;
+                        var placed_ships_array = $scope.ship_placing_obj[$scope.gp];
+                        var noShipRepeated = placingShips.noShipRepeated(ship_name, placed_ships_array );
+                        if(!noShipRepeated){ return "placed-ship";} else { return "";}
+                }
 
         //    [2] Load Back-end Objects
 
@@ -235,8 +249,8 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             }, function(response){ //user feedback & redirection if he is not authorized
                 console.log("Response:"); console.log(response);
                 alert("Not authorized: " + response.data.error + " " + response.data.status);
-                console.info(response)
-                //$window.location.href = "http://" + $window.location.host + "/games.html";
+
+                $window.location.href = "http://" + $window.location.host + "/games.html";
             })
 
         }
@@ -313,15 +327,41 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             return false;
         }
     }
-
+        // TODO implement no Ship Repeated
     $scope.selectShip = function(ship_index){
-        $scope.selected_ship = $scope.ship_types[ship_index]; //alert("ship Selected: "+ ship_index);
+//        1. scope variables initialization
+        $scope.selected_ship = $scope.ship_types[ship_index];
+                ///alert("Ship Selected: " + $scope.ship_types[ship_index].type);
+        console.info("ship Selected", $scope.ship_types[ship_index]);
+        $scope.ship_name = $scope.selected_ship["type"];
+
+
+
+
+        //review object of placed_ship_names && indexes
+
+        //if it's placed show alert select another ship and
+
+
     }
 
     $scope.showShip = function(row, col) {
     // inputs: cell data, an array of predefined ship types, and the orientation or alignment of the ship
     // outputs: save a provisional array of ship locations, to paint on the frontend
-     $scope.prov_ship_loc = placingShips.getProvShipLoc(row,col, $scope.selected_ship, $scope.ship_align);
+        var placed_ships_array = $scope.ship_placing_obj[$scope.gp];
+
+        // 1- When Ship selected, get provisional ship location
+        if( $scope.selected_ship != undefined){
+            $scope.prov_ship_loc = placingShips.getProvShipLoc(row,col, $scope.selected_ship, $scope.ship_align);
+                                //console.info("PLACED SHIPS ARR", $scope.ship_placing_obj[$scope.gp])
+        }
+
+        //2- Check if the ship is repeated in the placed ships array
+        var noShipRepeated = placingShips.noShipRepeated($scope.ship_name, placed_ships_array );
+                                //console.info("NO SHIP REPEATED", noShipRepeated);
+                                //console.info("PLACED SHIPS ARRAY LENGTH", placed_ships_array.length)
+        //3- If selected_ship is in placed_ships array, then assign to undefined, to avoid painting it on the board
+        if( !noShipRepeated && (typeof $scope.selected_ship != 'undefined')  ){  $scope.selected_ship = "undefined"; }
      }
 
      // [3] get the current Turn
@@ -412,9 +452,14 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                         //console.log(placed_ships_loc_array);
             var ship_overlapping = placingShips.shipOverlapping($scope.prov_ship_loc, placed_ships_loc_array)
                         //alert("ship_overlapping is: " + ship_overlapping);
+
+            placingShips.noShipRepeated($scope.ship_name, $scope.ship_placing_obj[$scope.gp]);
+
         }
 
         if(inside_grid && !ship_overlapping){
+
+            // Todo before ship_name is not defined
             var new_ship = placingShips.makeShip($scope.prov_ship_loc, $scope.ship_name);
                     console.log(new_ship);
              // 1) check if there's place in $scope.ship_placing_obj[gp_id]
@@ -445,10 +490,20 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
                          var provisional_ship = typeof prov_ship_loc != 'undefined';
                          if(provisional_ship && prov_ship_loc[i] === cell_data){
-                             if (placingShips.legalPosition(prov_ship_loc[i], ship_list)){
+
+                             if (placingShips.legalPosition(prov_ship_loc[i], ship_list) && ($scope.selected_ship != 'undefined')){
                               return {'background-color': 'lightyellow'}
-                              }else {
-                                  return {'background-color': 'red'}
+                              } else {
+
+                                //paint the first non-placed ship lightyellow as well
+                                $scope.is_first_ship = ($scope.ship_placing_obj[$scope.gp].length == 0);
+
+                                    if( !$scope.is_first_ship){
+                                    $scope.is_first_ship = false;
+                                     return {'background-color': 'red'}
+                                     } else {
+                                       return {'background-color': 'lightyellow'}
+                                     }
                              }
                          }
 

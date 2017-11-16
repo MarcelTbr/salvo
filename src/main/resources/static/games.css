@@ -111,10 +111,15 @@ button:hover {
 
 }
 
-#join-game-form button, #join-game-form{
+#join-game-form button, #join-game-form, #new-pl-signup, #new-pl-signup button{
 
     width: 250px;
     margin: 0 auto;
+}
+
+#new-pl-signup button {
+    position: relative;
+    top: -115px;
 }
 
 #join-game-form button { position: relative; top: 40px;}
@@ -137,4 +142,9 @@ a:visited {
 
 .game-title {
     color: darkorange;
+}
+
+#signup {
+
+    visibility: hidden;
 }

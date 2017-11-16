@@ -64,13 +64,13 @@ angular.module('PlayerViewModule').service('placingShips', function($http){
   }
 
   this.noShipRepeated = function(ship_name, gp_ship_placing_arr){
-    console.log("No SHip repeated")
-    console.log(ship_name);
-    console.log(gp_ship_placing_arr);
+    //console.log("No SHip repeated")
+    //console.log(ship_name);
+    //console.log(gp_ship_placing_arr);
 
     var filtered = gp_ship_placing_arr.filter(ship => ship.shipType == ship_name);
 
-    console.info("FILTERED ARRAY OF SHIPS", filtered);
+    //console.info("FILTERED ARRAY OF SHIPS", filtered);
 
     var notRepeated = (filtered.length == 0);
 

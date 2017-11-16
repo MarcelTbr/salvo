@@ -12,8 +12,8 @@ function paramObj(search) {
 }
 
 angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope', '$http', '$location',
-'$window', '$interval', '$timeout', 'updateGameView', 'placingShips', 'salvosLogic', 'myFactoryTest',   //'salvosLogic',
-  function($scope, $http, $location, $window, $interval, $timeout, updateGameView, placingShips, salvosLogic, myFactoryTest) { //salvosLogic,
+'$window', '$interval', '$timeout', 'updateGameView', 'placingShips', 'salvosLogic', 'gameHistory','myFactoryTest',   //'salvosLogic',
+  function($scope, $http, $location, $window, $interval, $timeout, updateGameView, placingShips, salvosLogic, gameHistory, myFactoryTest) { //salvosLogic,
 
     //  [1] Initialize variables
 
@@ -291,6 +291,8 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                          $scope.enemy_turns = 1;
                     }
 
+
+                    //TODO better implement turn logic
                     if ($scope.salvos_obj != null && $scope.enemy_salvos_obj != null) {
                         $timeout(function(){getCurrentTurn()}, 100);
                     }
@@ -302,8 +304,11 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             );
 
         }
+
+        //// [ Calling functions to load back-end objects ]  \\\\
         loadGameView();
-        loadSalvos();
+        loadSalvos();  //get current turn is inside with a timeout of 100ms
+
         //load salvos (& game_view every) 3,5 secs to check if enemy fired new salvos
         $interval(function(){ loadGameView();loadSalvos();}, 3500);
 
@@ -327,21 +332,13 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             return false;
         }
     }
-        // TODO implement no Ship Repeated
+
     $scope.selectShip = function(ship_index){
-//        1. scope variables initialization
+
         $scope.selected_ship = $scope.ship_types[ship_index];
                 ///alert("Ship Selected: " + $scope.ship_types[ship_index].type);
         console.info("ship Selected", $scope.ship_types[ship_index]);
         $scope.ship_name = $scope.selected_ship["type"];
-
-
-
-
-        //review object of placed_ship_names && indexes
-
-        //if it's placed show alert select another ship and
-
 
     }
 
@@ -433,7 +430,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
      }
 
-    //TODO NICE TO HAVE;  condition to place every ship type ONLY ONCE!
     $scope.placeShip = function (row,col) {
         //  var is_legal = placingShips.insideGridTwo($scope.prov_ship_loc, $scope.ship_align);
         var placed_ships = $scope.ship_placing_obj[$scope.gp];
@@ -459,7 +455,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
         if(inside_grid && !ship_overlapping){
 
-            // Todo before ship_name is not defined
             var new_ship = placingShips.makeShip($scope.prov_ship_loc, $scope.ship_name);
                     console.log(new_ship);
              // 1) check if there's place in $scope.ship_placing_obj[gp_id]
@@ -536,6 +531,34 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         }
 
     } // end of paintPlaced Ships
+
+
+    /// [Game History UI Logic] \\\
+
+    $scope.TESThistoryDTO = { "historyDTO":
+        {"1": {"hits": [{"Submarine": 2}, {"Destroyer": 1}], "sinks" : []},
+        "2": {"hits": [{"Submarine": 1}, {"PatrolBoat": 1}, {"Destroyer": 1}], "sinks" : ["Submarine"]}
+        }
+    , "enemyHistoryDTO":
+          {"1": {"hits": [{"Submarine": 2}, {"Destroyer": 1}], "sinks" : []},
+                 "2": {"hits": [{"Submarine": 1}, {"PatrolBoat": 1}, {"Destroyer": 1}], "sinks" : ["Submarine"]},
+                 "3":{"hits":[{"AircraftCarrier": 2, "Battleship": 3, "PatrolBoat":1}], "sinks":["PatrolBoat"]}
+                 }
+
+    }
+    $scope.gameHistoryUI = function(historyDTO){
+
+        var player_history = historyDTO.historyDTO;
+        gameHistory.showShipTurnHits(player_history, "player-history");
+        var enemy_history = historyDTO.enemyHistoryDTO;
+        gameHistory.showShipTurnHits(enemy_history, "enemy-player-history");
+
+
+        }
+
+    $scope.num_hits = 0;
+    $scope.gameHistoryUI($scope.TESThistoryDTO);
+
 
 
   }]);

@@ -24,7 +24,7 @@
     <button ng-click="submitSalvos()">Submit Salvos</button>
 </div>
 <br />
-<div id="grids" class="space-around">
+<section id="grids" class="space-around">
 <div id="user">
     <div id="player-info-user" class="player-info">
         <span><b>Player: </b>{{userGamePlayer.player.username}}</span><br/>
@@ -126,8 +126,103 @@
     </table>
 </div>
 <!--end #enemy-->
-</div>
+</section>
 <!--end #grids-->
+<!--//ng-show="showHistoryUI()"-->
+<section id="salvo-history-UI"  >
+    <h3 class="center">Salvo Turn History</h3>
+    <div id="player-history">
+        <p>Aircraft Carrier</p>
+        <table>
+        <tr id="AircraftCarrier" class="ship">
+            <td  class="mock-cell s0"></td>
+            <td  class="mock-cell s1"></td>
+            <td  class="mock-cell s2"></td>
+            <td  class="mock-cell s3"></td>
+            <td  class="mock-cell s4"></td>
+        </tr>
+        </table>
+       <p>Battleship</p>
+        <table>
+        <tr id="Battleship" class="ship">
+            <td  class="mock-cell s0"></td>
+            <td  class="mock-cell s1"></td>
+            <td  class="mock-cell s2"></td>
+            <td  class="mock-cell s3"></td>
+        </tr>
+        </table>
+        <p>Submarine</p>
+        <table>
+        <tr id="Submarine" class="ship">
+            <td  class="mock-cell s0"></td>
+            <td  class="mock-cell s1"></td>
+            <td  class="mock-cell s2"></td>
+        </tr>
+        </table>
+        <p>Destroyer</p>
+        <table>
+        <tr id="Destroyer" class="ship">
+            <td  class="mock-cell s0"></td>
+            <td  class="mock-cell s1"></td>
+            <td  class="mock-cell s2"></td>
+        </tr>
+        </table>
+        <p>Patrol Boat</p>
+        <table>
+        <tr id="PatrolBoat" class="ship">
+            <td  class="mock-cell s0"></td>
+            <td  class="mock-cell s1"></td>
+        </tr>
+        </table>
+    </div>
+
+    <div id="enemy-player-history">
+        <p>Aircraft Carrier</p>
+        <table>
+            <tr id="E-AircraftCarrier" class="ship">
+                <td  class="mock-cell s0"></td>
+                <td  class="mock-cell s1"></td>
+                <td  class="mock-cell s2"></td>
+                <td  class="mock-cell s3"></td>
+                <td  class="mock-cell s4"></td>
+            </tr>
+        </table>
+        <p>Battleship</p>
+        <table>
+            <tr id="E-Battleship" class="ship">
+                <td  class="mock-cell s0"></td>
+                <td  class="mock-cell s1"></td>
+                <td  class="mock-cell s2"></td>
+                <td  class="mock-cell s3"></td>
+            </tr>
+        </table>
+        <p>Submarine</p>
+        <table>
+            <tr id="E-Submarine" class="ship">
+                <td  class="mock-cell s0"></td>
+                <td  class="mock-cell s1"></td>
+                <td  class="mock-cell s2"></td>
+            </tr>
+        </table>
+        <p>Destroyer</p>
+        <table>
+            <tr id="E-Destroyer" class="ship">
+                <td  class="mock-cell s0"></td>
+                <td  class="mock-cell s1"></td>
+                <td  class="mock-cell s2"></td>
+            </tr>
+        </table>
+        <p>Patrol Boat</p>
+        <table>
+            <tr id="E-PatrolBoat" class="ship">
+                <td  class="mock-cell s0"></td>
+                <td  class="mock-cell s1"></td>
+            </tr>
+        </table>
+    </div>
+
+</section>
+<br><br>
 <div class="center" hidden>
 <h4>Ships</h4>
 <p ng-repeat="ship in ships"><b>Type: </b>{{ship.type}}  &nbsp; <b>Locations: </b><span ng-repeat="loc in ship.locations">{{loc}} &nbsp; </span></p>
@@ -141,6 +236,7 @@
 <script type="text/javascript" src="js/gameView/gameViewService.js"></script>
 <script type="text/javascript" src="js/gameView/placingShipsService.js"></script>
 <script type="text/javascript" src="js/gameView/salvosLogicService.js"></script>
+<script type="text/javascript" src="js/gameView/gameHistoryService.js"></script>
 
 
 </body>

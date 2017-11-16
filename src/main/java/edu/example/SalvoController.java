@@ -456,7 +456,7 @@ public class SalvoController {
     public  Map<String, Object> getGames(Authentication auth) {
         Map<String, Object> gamesAuthDTO = new HashMap<>();
 
-        if (auth != null) {
+        if (!Objects.equals(auth, null)) { // auth != null
             List<Player> playerList = playerRepo.findByUsername(auth.getName());
             Player user = playerList.get(0);
             Map<String, Object> userDTO = getUserDTO(user);
@@ -464,7 +464,7 @@ public class SalvoController {
             gamesAuthDTO.put("player", userDTO);
             gamesAuthDTO.put("player_games", userGamesDTO);
             gamesAuthDTO.put("games",  getGamesDTO());
-            gamesAuthDTO.put("auth", auth);
+            gamesAuthDTO.put("auth", auth.getName() + " " + auth.isAuthenticated()); //auth
             return gamesAuthDTO;
         }else {
             gamesAuthDTO.put("games",  getGamesDTO());
@@ -598,7 +598,7 @@ public class SalvoController {
 
         String username = gamePlayerRepo.findById(gamePlayerId).getPlayer().getUsername();
 
-        System.out.println( "Username AUTH: " + Objects.equals(username, auth.getName() ));
+                    //  System.out.println( "Username AUTH: " + Objects.equals(username, auth.getName() ));
 
         if( Objects.equals(username, auth.getName() ) ) { return true; }
         else{ return false; }

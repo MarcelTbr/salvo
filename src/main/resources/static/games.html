@@ -53,9 +53,12 @@
 
 <!-- ======== Leaderboard ======= -->
 <h2 class="center">Leaderboard</h2>
-<form id="join-game-form">
+<form ng-show="user" id="join-game-form">
     <button ng-click="joinGameById()">Join Game By Id</button>
 </form>
+<div id="new-pl-signup">
+<button  ng-show="guest" ng-click="showSignup()">New Player Signup</button>
+</div>
 <table id="scores" >
     <thead>
     <tr ><th>User</th><th>Total Points</th><th>Won</th><th>Lost</th><th>Tied</th></tr>

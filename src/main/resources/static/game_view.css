@@ -49,6 +49,9 @@ tbody td {border: 2px dotted lightgreen;}
     padding: 15px 5px;
 }
 
+
+/* ====== ship placing UI ======== */
+
 /*#shipPlacingUI {
     width: 400px;
     margin: 0 auto;
@@ -65,12 +68,22 @@ tbody td {border: 2px dotted lightgreen;}
     margin: 5px 0px;
 }
 
+div.ship {
+    width: auto;
+    margin:0px;
+    display: block;
+
+
+}
+
 .mock-cell {
     background-color: green;
     border: 1px dotted lightgreen;
     margin:15px 0px;
     color: lightgreen;
-    width: 15px;
+    width: 30px;
+    height: 30px;
+
 }
 
 #ship-placing-modal, #ship-placing-modal div {
@@ -83,6 +96,50 @@ tbody td {border: 2px dotted lightgreen;}
     position:relative;
     left: -20px;
 }
+
+
+/* ======== Salvo History UI ======== */
+
+#salvo-history-UI table { display: block;
+        margin-left: 10px;
+        width: 150px;
+        background-color: transparent;
+}
+
+#salvo-history-UI td {
+
+    border: 1px solid lightgreen;
+}
+#salvo-history-UI p {
+    display: block;
+    -webkit-margin-before: 10px;
+    -webkit-margin-after:5px;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    margin: 12px 0px 5px;
+    padding-left: 10px;
+
+}
+#salvo-history-UI h3{
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 10px;
+}
+#salvo-history-UI {
+    width: 1280px;
+    height: 460px;
+     margin: 30px auto;
+}
+
+#player-history  {
+    float: left;
+     width: 640px;
+
+}
+
+#enemy-player-history { float: left;  width: 300px; margin-left: 100px;}
+
+/* ======== look & feel =====  */
 
 .user-info {
 
@@ -116,7 +173,6 @@ button:hover {
     font-size: 20px;
 }
 
-/* ======== look & feel =====  */
 
 body {
     font-family: Helvetica;
@@ -124,6 +180,7 @@ body {
     background: url(img/game-bckgrnd.jpeg) 0px 169px no-repeat #336699;
     background-size: contain;
     margin: 0px;
+    height: 1080px;
 }
 
 body b, body h2 {
@@ -146,7 +203,7 @@ body b, body h2 {
 }
 
 #grids {
-    margin-bottom: 200px;
+    margin-bottom: 20px;
 }
 
 .placed-ship {
@@ -159,3 +216,7 @@ body b, body h2 {
 .placed-legend {
     color: red;
 }
+
+
+
+

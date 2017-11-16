@@ -166,6 +166,11 @@ function($scope, $http, $window) {
                                     console.log("email is good!");
                                     $scope.postNewUser()
 
+                                    //reset New Player Signup button visibility
+                                    document.getElementById("signup").style.visibility = "hidden";
+                                    document.querySelector("#new-pl-signup button").style.visibility = "visible";
+
+
                             }else {
                                     console.log("give in a correct email adress.");
                                     alert("Please give in a correct e-mail adress.");
@@ -208,6 +213,15 @@ function($scope, $http, $window) {
                     } ).success(function(status){ console.log("angular login succeeded!");   })
                     .error(function(status){   console.log("Sorry, angular login failed!")    console.log(status)    })
 
+                }
+
+
+                $scope.showSignup = function () {
+
+
+                    document.getElementById("signup").style.visibility = "visible";
+
+                    document.querySelector("#new-pl-signup button").style.visibility = "hidden";
                 }
 
     }]);

@@ -14,19 +14,20 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
                 var id = ships[s].id.slice(2,ships[s].id.length);
                 var hits_arr_key = id;
             }
-            //if(playerOrEnemy =="player-history"){
-                var all_ships_hits_arr = [];
-                //loop through hits_arr && return hits for all ships
-                for(var h = 0; h < hits_arr.length; h++){
-                    //console.log(hits_arr[h][hits_arr_key])
-                    //console.info("S: ", s);
-                    all_ships_hits_arr.push(hits_arr[h][hits_arr_key]);
-                }
-                function definedHit(hit){
-                    return hit != undefined;
-                }
 
-                return all_ships_hits_arr.find(definedHit);
+            var all_ships_hits_arr = [];
+            //loop through hits_arr && return hits for all ships
+            for(var h = 0; h < hits_arr.length; h++){
+                var hit_loc_arr = hits_arr[h][hits_arr_key]
+                //console.log("hit_loc_arr", hit_loc_arr);
+                //console.info("S: ", s);
+                all_ships_hits_arr.push(hit_loc_arr);
+            }
+            function definedHit(hit){
+                return hit != undefined;
+            }
+
+            return all_ships_hits_arr.find(definedHit);
 
         }
 
@@ -41,8 +42,9 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
                ship_cells = document.querySelectorAll("#E-"+ship_name+" .mock-cell");
             }
 
+            if(turn_hits != undefined){
 
-                var count = turn_hits
+                var count = turn_hits.length
                while( count > 0 ){
 
                     for(var sc = 0; sc < ship_cells.length; sc++){
@@ -59,11 +61,26 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
                     }
                 count--;
                 }
-
-
             }
 
+        }
 
+        var showSunkenShips = function(sunk_ships_arr) {
+
+            sunk_ships_arr.forEach(function(sunk_ship){
+
+                    //console.info("SUNK SHIP", sunk_ship)
+
+                    if(playerOrEnemy == "player-history"){
+                        document.getElementById(sunk_ship).setAttribute("class", "sunk");
+                    } else {
+                        document.getElementById("E-"+sunk_ship).setAttribute("class", "sunk");
+                    }
+
+                    }
+            )
+
+        }
 
         //loop through each ship element
         for(var s = 0; s < ships.length; s++){
@@ -71,16 +88,13 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
             for( var turn_key in history){
                 var turn_hits = countTurnHits(history[turn_key].hits)
                 var ship_name = ship_names[s];
-                        console.info("==== history", history[turn_key]);
-                        console.info("TURN HITS =====>", turn_hits);
+                        //console.info("==== history", history[turn_key]);
+                        //console.info("TURN HITS =====>", turn_hits);
 
                 showTurnHits(turn_hits, ship_name, turn_key );
-
+                var sunk_ships_arr = history[turn_key].sinks
+                showSunkenShips(sunk_ships_arr)
             }
-
-
-
-
 
         }
 

@@ -139,6 +139,15 @@ div.ship {
 
 #enemy-player-history { float: left;  width: 300px; margin-left: 100px;}
 
+
+.sunk td{
+
+    background-color: darkred!important;
+    color: red !important;
+    border: 1px solid red !important;
+
+}
+
 /* ======== look & feel =====  */
 
 .user-info {

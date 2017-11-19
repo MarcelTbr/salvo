@@ -239,6 +239,23 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                 /* Getting User and Enemy Information*/
                 $scope.userGamePlayer = updateGameView.getUserPlayer($scope.gp, $scope.players);
 
+                /*  show Game History UI */
+                $scope.showGameHistoryUI = function(){
+
+                        if($scope.ships.length == 5){
+
+                        $scope.show_history_UI = true;
+
+                        } else {
+
+                            $scope.show_history_UI = false;
+                        }
+
+                    }
+
+                $scope.showGameHistoryUI();
+
+
                 // REFACTOR: this function has no more use
                 $scope.enemyGamePlayer = updateGameView.getEnemyPlayer($scope.gp, $scope.players);
                     console.info("$scope.userGamePlayer", $scope.userGamePlayer);
@@ -535,14 +552,14 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
     /// [Game History UI Logic] \\\
 
-    $scope.TESThistoryDTO = { "historyDTO":
-        {"1": {"hits": [{"Submarine": 2}, {"Destroyer": 1}], "sinks" : []},
-        "2": {"hits": [{"Submarine": 1}, {"PatrolBoat": 1}, {"Destroyer": 1}], "sinks" : ["Submarine"]}
-        }
+    $scope.TESThistoryDTO = { "historyDTO": {}
+//        {"1": {"hits": [{"Submarine": 2}, {"Destroyer": 1}], "sinks" : []},
+//        "2": {"hits": [{"Submarine": 1}, {"PatrolBoat": 1}, {"Destroyer": 1}], "sinks" : ["Submarine"]}
+//        }
     , "enemyHistoryDTO":
-          {"1": {"hits": [{"Submarine": 2}, {"Destroyer": 1}], "sinks" : []},
-                 "2": {"hits": [{"Submarine": 1}, {"PatrolBoat": 1}, {"Destroyer": 1}], "sinks" : ["Submarine"]},
-                 "3":{"hits":[{"AircraftCarrier": 2, "Battleship": 3, "PatrolBoat":1}], "sinks":["PatrolBoat"]}
+          {"1": {"hits": [{"Submarine": ["A1", "A2"]}, {"Destroyer": ["B1"]}], "sinks" : []},
+                 "2": {"hits": [{"Submarine": ["A3"]}, {"PatrolBoat": ["C1"]}, {"Destroyer": ["B2"]}], "sinks" : ["Submarine"]},
+                 "3":{"hits":[{"AircraftCarrier": ["E1", "E2"], "Battleship": ["D1", "D2", "D3"], "PatrolBoat":["C2"]}], "sinks":["PatrolBoat"]}
                  }
 
     }

@@ -1,4 +1,4 @@
-package edu.example;
+package salvo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

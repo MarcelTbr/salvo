@@ -1,7 +1,9 @@
-package edu.example;
+package salvo.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import salvo.entities.GamePlayer;
+import salvo.entities.Salvo;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package edu.example;
+package salvo.repositories;
 
 /**
  * Created by marceltauber on 7/12/16.
@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * Making it a REST Repository "import ....RepositoryRestResource" + the annotation: "@RepositoryRestResource"
  * */
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import salvo.entities.Player;
 
 @RepositoryRestResource
 public interface PlayerRepository extends JpaRepository<Player, Long> {

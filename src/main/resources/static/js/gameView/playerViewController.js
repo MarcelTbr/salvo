@@ -552,17 +552,38 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
     /// [Game History UI Logic] \\\
 
-    $scope.TESThistoryDTO = { "historyDTO": {}
-//        {"1": {"hits": [{"Submarine": 2}, {"Destroyer": 1}], "sinks" : []},
-//        "2": {"hits": [{"Submarine": 1}, {"PatrolBoat": 1}, {"Destroyer": 1}], "sinks" : ["Submarine"]}
-//        }
-    , "enemyHistoryDTO":
-          {"1": {"hits": [{"Submarine": ["A1", "A2"]}, {"Destroyer": ["B1"]}], "sinks" : []},
-                 "2": {"hits": [{"Submarine": ["A3"]}, {"PatrolBoat": ["C1"]}, {"Destroyer": ["B2"]}], "sinks" : ["Submarine"]},
-                 "3":{"hits":[{"AircraftCarrier": ["E1", "E2"], "Battleship": ["D1", "D2", "D3"], "PatrolBoat":["C2"]}], "sinks":["PatrolBoat"]}
-                 }
+//    $scope.TESThistoryDTO = { "historyDTO": {}
+////        {"1": {"hits": [{"Submarine": 2}, {"Destroyer": 1}], "sinks" : []},
+////        "2": {"hits": [{"Submarine": 1}, {"PatrolBoat": 1}, {"Destroyer": 1}], "sinks" : ["Submarine"]}
+////        }
+//    , "enemyHistoryDTO":
+//          {"1": {"hits": [{"Submarine": ["A1", "A2"]}, {"Destroyer": ["B1"]}], "sinks" : []},
+//                 "2": {"hits": [{"Submarine": ["A3"]}, {"PatrolBoat": ["C1"]}, {"Destroyer": ["B2"]}], "sinks" : ["Submarine"]},
+//                 "3":{"hits":[{"AircraftCarrier": ["E1", "E2"], "Battleship": ["D1", "D2", "D3"], "PatrolBoat":["C2"]}], "sinks":["PatrolBoat"]}
+//                 }
+//
+//    }
+//    var getGameHistory = function (historyCallback) {
+//    $http.get("api/history/" + $scope.gp)
+//                .then(function(response){
+//
+//                 console.log(response);
+//                 historyCallback(response.data);
+//                 });
+//
+//    }
+//
+//    $scope.gameHistory = getGameHistory(function(responseData){
+//        $scope.TESThistoryDTO = responseData;
+//    })
 
-    }
+    $scope.TESThistoryDTO = null;
+        gameHistory.getHistoryDTO(function(dataResponse) {
+            $scope.TESThistoryDTO = dataResponse;
+
+
+        });
+
     $scope.gameHistoryUI = function(historyDTO){
 
         var player_history = historyDTO.historyDTO;
@@ -574,8 +595,12 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         }
 
     $scope.num_hits = 0;
-    $scope.gameHistoryUI($scope.TESThistoryDTO);
 
-
+    var getGameHistoryDTO = function() {
+        if ($scope.TESThistoryDTO != undefined) {
+        $scope.gameHistoryUI($scope.TESThistoryDTO);
+        }
+    }
+    $timeout(function(){getGameHistoryDTO()}, 100)
 
   }]);

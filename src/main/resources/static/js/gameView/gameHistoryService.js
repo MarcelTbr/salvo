@@ -1,5 +1,21 @@
 angular.module('PlayerViewModule').service('gameHistory', function($http){
 
+    this.getHistoryDTO = function(callbackFunc){
+
+
+    $http.get("api/history/1")
+            .success(function(response){
+
+                console.info("api/history", response);
+                callbackFunc(response.data);
+            }).error(function(response){
+
+                alert(response.error);
+            });
+
+    }
+
+
     this.showShipTurnHits = function(history, playerOrEnemy){
 
          var ship_names = ["AircraftCarrier", "Battleship", "Submarine", "Destroyer", "PatrolBoat"]

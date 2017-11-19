@@ -1,4 +1,4 @@
-package edu.example;
+package salvo.entities;
 
 
 import java.text.DateFormat;

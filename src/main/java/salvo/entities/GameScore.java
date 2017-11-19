@@ -1,4 +1,4 @@
-package edu.example;
+package salvo.entities;
 
 import javax.persistence.*;
 import java.util.Date;

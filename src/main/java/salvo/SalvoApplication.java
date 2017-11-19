@@ -1,4 +1,4 @@
-package edu.example;
+package salvo;
 
 /**
  * SpringBoot Library link for using CommandLineRunner
@@ -25,6 +25,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import salvo.entities.*;
+import salvo.repositories.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -135,8 +137,7 @@ public class SalvoApplication {
             ship1_1_loc1.add("A3");
 
             /** later we pass it as an argument to make a new Ship instance */
-
-            Ship ship1_1 = new Ship(gp1, ship1_1_loc1, "Destroyer");
+            Ship ship1_1 = new Ship(gp1, ship1_1_loc1, "Destroyer" );
 
             /**
              * Create more locations to later create a more Ship instances.
@@ -153,9 +154,9 @@ public class SalvoApplication {
 
             Ship ship1_2 = new Ship(gp1, ship1_2_loc2, "Submarine");
             Ship ship1_3 = new Ship(gp1, ship1_3_loc3, "Patrol Boat");
+
             Ship ship1_4 = new Ship(gp1, Arrays.asList("I2", "I3", "I4", "I5", "I6"), "Aricraft Carrier");
             Ship ship1_5 = new Ship(gp1, Arrays.asList("E9", "F9", "G9", "H9"), "Battleship");
-
             /** This adds an instance of a Ship to it's GamePlayer instance */
             gp1.addShip(ship1_1); gp1.addShip(ship1_2); gp1.addShip(ship1_3); gp1.addShip(ship1_4); gp1.addShip(ship1_5);
             ships.save(ship1_1); ships.save(ship1_2); ships.save(ship1_3); ships.save(ship1_4); ships.save(ship1_5);
@@ -202,7 +203,7 @@ public class SalvoApplication {
 
             /** Create and Save Salvos for gp2 */
             List<String> salvo2_1_locs = new LinkedList<String>() {};
-            salvo2_1_locs.add("A2"); salvo2_1_locs.add("A3");
+            salvo2_1_locs.add("A1");salvo2_1_locs.add("A2"); salvo2_1_locs.add("A3");
             Salvo salvo2_1 = new Salvo(gp2, 1, salvo2_1_locs);
             gp2.addSalvo(salvo2_1); salvos.save(salvo2_1);
             List<String> salvo2_2_locs = new LinkedList<String>() {};

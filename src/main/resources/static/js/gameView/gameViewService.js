@@ -1,5 +1,22 @@
 
-angular.module('PlayerViewModule').service('updateGameView', function(){
+angular.module('PlayerViewModule').service('updateGameView', function($http){
+
+    this.getGameViewDTO = function(gp_id, callback){
+
+        $http.get("api/game_view/" + gp_id)
+            .success(function(response){
+
+                callback(response);
+
+            }).error(function(){
+
+                console.info('api/game_view/'+gp_id);
+                alert("Sorry, unable to get api/game_view/"+gp_id);
+            });
+
+
+    }
+
 
     this.getShipLocations = function(ships_array){
 

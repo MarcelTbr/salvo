@@ -29,7 +29,9 @@ angular.module('PlayerViewModule').service('salvosLogic', function($http){
             var turn_hits = salvos_obj[turn]["hits"];
             for(var i=0; i < turn_hits.length; i++){
                 // console.log(turn_hits[i]);
-                hits_array.push(turn_hits[i]);
+                if(turn_hits[i] != null){
+                    hits_array.push(turn_hits[i]);
+                }
             }
         }
         // console.log("hits_array: "); console.log(hits_array);

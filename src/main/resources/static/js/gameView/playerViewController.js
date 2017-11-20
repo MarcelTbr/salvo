@@ -141,7 +141,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                     function repeatedSalvo(cell_data){
 
                          for(turn in $scope.salvos_obj){
-                        // find repeated sell in hits array
+                        // find repeated cell in hits array
                         for(var i = 0; i < $scope.salvos_obj[turn]["hits"].length; i++) {
                             if(cell_data == $scope.salvos_obj[turn]["hits"][i]){return true;}
 
@@ -272,6 +272,15 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
         }
 
+        //TODO loadGameView refactor;
+        //$scope.game_view_obj = null;
+        updateGameView.getGameViewDTO($scope.gp, function(response){
+             console.info("updateGameView.getGameViewDTO", response);
+            console.info("SALVOES==>", response.salvoes);
+
+        })
+
+
         function loadSalvos(){
 
             salvosLogic.getSalvosObject($scope.gp).then(
@@ -323,11 +332,11 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         }
 
         //// [ Calling functions to load back-end objects ]  \\\\
-        loadGameView();
+        loadGameView(); //TODO clean this out
         loadSalvos();  //get current turn is inside with a timeout of 100ms
 
         //load salvos (& game_view every) 3,5 secs to check if enemy fired new salvos
-        $interval(function(){ loadGameView();loadSalvos();}, 3500);
+        $interval(function(){ loadGameView();loadSalvos();}, 3500); //Todo clean loadGameView
 
     $scope.showTurnInfo = function(){
         /// console.warn("$scope.user_turns", $scope.user_turns)

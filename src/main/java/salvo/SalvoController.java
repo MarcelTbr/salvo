@@ -40,18 +40,29 @@ public class SalvoController {
 
     /** ======== ENDPOINTS ======== */
 
-    @RequestMapping("/tests")
-    public Map<String, Object> getOutput(Authentication auth){ //List<Map<String, Object>>
+    @RequestMapping("/tests/{gpId}")
+    public Map<String, Object> getOutput(@PathVariable long gpId, Authentication auth){ //List<Map<String, Object>>
 
 
-        long gp_id = 1; // passed through url
-        Optional<Map<String, Object> > LegacyGameHistoryDTO = getGameHistoryDTO(gp_id); //LEGACY
+        long gp_id = gpId; // passed through url
+        //Optional<Map<String, Object> > LegacyGameHistoryDTO = getGameHistoryDTO(gp_id); //LEGACY
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gp_id);
+        Set<Ship> fleet = gamePlayer.getShips();
+        Optional<GamePlayer> enemyGamePlayer = getEnemyGamePlayer(gamePlayer);
+
+        if(enemyGamePlayer.isPresent()) {
+
+            List<Salvo> enemySalvos = salvoRepo.findByGamePlayer(enemyGamePlayer.get());
+
+
+
+        }
         return makeHistoryDTO(gp_id);
 
 
 //        return fleetHits;
     }
-
+    //TODO wipe out inneccessary code
     public Map<String, Object> makeHistoryDTO(long gp_id) {
         /** making the game history DTO **/
         GamePlayer gamePlayer = gamePlayerRepo.findById(gp_id);
@@ -131,8 +142,6 @@ public class SalvoController {
         if( enemyGp.isPresent()) {
             Optional<List<Salvo>> enemyGpSalvos = Optional.of(salvoRepo.findByGamePlayer(enemyGp.get()));
             Optional<Set<Ship>> enemyFleet = Optional.of(enemyGp.get().getShips());
-
-            /** TODO fix the optional for enemy fleet and salvos*/
 
             //[B] get turn historyMap for both players
             Map<Long, Object> turnHistoryMap = makeTurnHistoryMap(enemyFleet.get(), gpSalvos);
@@ -386,15 +395,24 @@ public class SalvoController {
         List<String> hits = salvo.getSalvoLocations().stream()
                 .filter(s_loc -> salvoHitAnyShip(s_loc, fleet)) //filters out the salvo that missed the target
                 .collect(Collectors.toList());
+
+        List<String> salvoHits = new LinkedList<>();
+                salvo.getSalvoLocations().stream()
+                        .forEach(sl -> {
+                            if(salvoHitAnyShip(sl, fleet)){
+                                salvoHits.add(sl);
+                            }
+                        });
+        return salvoHits;
         // System.out.println("hits: " + hits);
-        return hits;
+        //return hits;
     }
 
     private boolean salvoHitAnyShip(String salvo_loc, Set<Ship> fleet) {
         Optional<String> any = fleet.stream()
                 .map(Ship::getShipLocations)
                 .flatMap(Collection::stream)
-                .filter(e_loc -> e_loc == salvo_loc)
+                .filter(e_loc -> e_loc.equals(salvo_loc) )
                 .findAny();
 
         return any.isPresent();
@@ -889,11 +907,11 @@ public class SalvoController {
         } else {
             game_viewDTO.put("enemy_ships", "");
         }
-        /** getting the salvoesDTO {"turn" : "salvoes-array" }*/
-        Object salvoesDTO = getAllPlayerSalvos(gamePlayer);
-        game_viewDTO.put("salvoes", salvoesDTO);
-        game_viewDTO.put("enemy_salvoes", getAllPlayerSalvos(enemyPlayer));
-        game_viewDTO.put("gameHistory",  getGameHistoryDTO(gp_id));
+//        /** getting the salvoesDTO {"turn" : "salvoes-array" }*/
+//        Object salvoesDTO = getAllPlayerSalvos(gamePlayer);
+//        game_viewDTO.put("salvoes", salvoesDTO);
+//        game_viewDTO.put("enemy_salvoes", getAllPlayerSalvos(enemyPlayer));
+        //game_viewDTO.put("gameHistory",  getGameHistoryDTO(gp_id));
 
         return game_viewDTO;
     }
@@ -1009,8 +1027,8 @@ public class SalvoController {
     //                .map(ship-> makeMap(ship.getShipType().replaceAll("\\s",""), ship.getTurnHitLocations()))
     //                .collect(Collectors.toList());
 
-        //TODO check this
-        List<Map<String, Object>> turnHitsListTEST = new LinkedList<>();
+
+        List<Map<String, Object>> turnHitsList = new LinkedList<>();
 
         fleet.forEach(ship -> {
 
@@ -1018,7 +1036,7 @@ public class SalvoController {
 
             if(numTurnHits > 0){
 
-                turnHitsListTEST.add(makeMap(ship.getShipType().replaceAll("\\s",""), ship.getTurnHitLocations()));
+                turnHitsList.add(makeMap(ship.getShipType().replaceAll("\\s",""), ship.getTurnHitLocations()));
 
             }
 
@@ -1034,9 +1052,9 @@ public class SalvoController {
         updateShipSinkState(fleet);
         //fleet.stream().forEach(ship -> ship.updateShipHitsNum());
 
-        System.out.println("turnHitsList: " + turnHitsListTEST);
+        System.out.println("turnHitsList: " + turnHitsList);
 
-        return turnHitsListTEST;
+        return turnHitsList;
 
     }
 

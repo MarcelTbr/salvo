@@ -1,16 +1,16 @@
 angular.module('PlayerViewModule').service('gameHistory', function($http){
 
-    this.getHistoryDTO = function(callbackFunc){
+    this.getHistoryDTO = function(gpId, callbackFunc){
 
 
-    $http.get("api/history/1")
+    $http.get("api/history/" + gpId)
             .success(function(response){
 
                 console.info("api/history", response);
-                callbackFunc(response.data);
+                callbackFunc(response);
             }).error(function(response){
-
-                alert(response.error);
+                console.info("api/history", response)
+                alert("unable to get gameHistoryDTO");
             });
 
     }
@@ -23,7 +23,7 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
         console.log(history)
 
         var countTurnHits = function(hits_arr){
-            console.log(ships[s].id);
+            //console.log(ships[s].id);
             if(playerOrEnemy == "player-history"){
                 var hits_arr_key = ships[s].id;
             } else {
@@ -50,12 +50,19 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
         var showTurnHits = function(turn_hits, ship_name, turn_num){
 
             var ship_cells = [];
+            var removeSpaces = function (string) {
+                                return string.replace(/\s+/g, '');
+                            }
+            ship_name = removeSpaces(ship_name);
+
+            //console.info("removeSpaces", ship_name);
+
             if(playerOrEnemy == "player-history"){
-             ship_cells = document.querySelectorAll("#"+ship_name+" .mock-cell");
+             ship_cells = document.querySelectorAll("#"+removeSpaces(ship_name)+" .mock-cell");
             }
 
             if (playerOrEnemy == "enemy-player-history"){
-               ship_cells = document.querySelectorAll("#E-"+ship_name+" .mock-cell");
+               ship_cells = document.querySelectorAll("#E-"+removeSpaces(ship_name)+" .mock-cell");
             }
 
             if(turn_hits != undefined){
@@ -82,21 +89,29 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
         }
 
         var showSunkenShips = function(sunk_ships_arr) {
+        if(sunk_ships_arr.length > 0){
+           for (var s_sh = 0; s_sh < sunk_ships_arr.length; s_sh++){
 
-            sunk_ships_arr.forEach(function(sunk_ship){
+            //sunk_ships_arr.forEach(function(sunk_ship){
 
                     //console.info("SUNK SHIP", sunk_ship)
-
-                    if(playerOrEnemy == "player-history"){
-                        document.getElementById(sunk_ship).setAttribute("class", "sunk");
-                    } else {
-                        document.getElementById("E-"+sunk_ship).setAttribute("class", "sunk");
+                var sunk_ship = sunk_ships_arr[s_sh];
+                var removeSpaces = function (string) {
+                        return string.replace(/\s+/g, '');
                     }
 
-                    }
-            )
+                sunk_ship = removeSpaces(sunk_ship);
+
+                        if(playerOrEnemy == "player-history"){
+                            document.getElementById(sunk_ship).setAttribute("class", "sunk");
+                        } else {
+                            document.getElementById("E-"+sunk_ship).setAttribute("class", "sunk");
+                        }
+
+            }
 
         }
+    }
 
         //loop through each ship element
         for(var s = 0; s < ships.length; s++){

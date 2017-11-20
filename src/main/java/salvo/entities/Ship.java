@@ -91,7 +91,7 @@ public class Ship {
     }
 
     public long getShipHitsNum() { return this.hits_num; }
-    public void setShipHitsNum(long hits) {this.hits_num = this.hits_num + hits;}
+    public void setShipHitsNum(long hits) {this.hits_num = hits_num + hits;}
 
     public boolean isSunkShip() {
         return sunkShip;
@@ -142,5 +142,9 @@ public class Ship {
 
         }
 
+    }
+
+    public List<String> getAllHitLocations() {
+        return this.allHitLocations;
     }
 }

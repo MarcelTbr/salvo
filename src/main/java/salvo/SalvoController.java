@@ -76,8 +76,8 @@ public class SalvoController {
             Set<Ship> enemyFleet = enemyGamePlayer.get().getShips();
             List<Salvo> playerSalvos = salvoRepo.findByGamePlayer(gamePlayer);
             playerSalvos.stream().forEach(salvo -> {
-                List<String> salvoLocs = salvo.getSalvoLocations();
-                enemyHistoryDTO.put(String.valueOf(salvo.getTurn()), makeTurnDTO(enemyFleet, salvoLocs));
+                List<String> playerSalvoLocs = salvo.getSalvoLocations();
+                enemyHistoryDTO.put(String.valueOf(salvo.getTurn()), makeTurnDTO(enemyFleet, playerSalvoLocs));
             });
 
         }
@@ -967,7 +967,7 @@ public class SalvoController {
         System.out.println("ShipHITSArray ===>" + shipHitsArr);
 
 
-        return makeMap(ship.getShipType(), shipHitsArr);
+        return makeMap(ship.getShipType().replaceAll("\\s",""), shipHitsArr);
 
     }
 
@@ -1005,22 +1005,38 @@ public class SalvoController {
 //        fleet.forEach(ship-> turnHitsList.put(ship.getShipType(), ship.getTurnHitLocations()) );
 //        ...better solution, but FE was already written to meet the format below
 
-        List<Map<String, Object>> turnHitsList = fleet.stream()
-                .map(ship-> makeMap(ship.getShipType(), ship.getTurnHitLocations()))
-                .collect(Collectors.toList());
+    //        List<Map<String, Object>> turnHitsList = fleet.stream()
+    //                .map(ship-> makeMap(ship.getShipType().replaceAll("\\s",""), ship.getTurnHitLocations()))
+    //                .collect(Collectors.toList());
 
+        //TODO check this
+        List<Map<String, Object>> turnHitsListTEST = new LinkedList<>();
+
+        fleet.forEach(ship -> {
+
+            long numTurnHits = ship.getTurnHitLocations().size();
+
+            if(numTurnHits > 0){
+
+                turnHitsListTEST.add(makeMap(ship.getShipType().replaceAll("\\s",""), ship.getTurnHitLocations()));
+
+            }
+
+
+        });
+
+        /** updating all of the hits, to know when a ship is sunk */
         updateShipHitsNum(fleet);
 
 
-        /** updating all of the hits, to know when a ship is sunk */
         fleet.stream().forEach(ship -> ship.updateAllHitLocations(ship.getTurnHitLocations()));
 
         updateShipSinkState(fleet);
         //fleet.stream().forEach(ship -> ship.updateShipHitsNum());
 
-        System.out.println("turnHitsList: " + turnHitsList);
+        System.out.println("turnHitsList: " + turnHitsListTEST);
 
-        return turnHitsList;
+        return turnHitsListTEST;
 
     }
 
@@ -1029,8 +1045,11 @@ public class SalvoController {
         fleet.stream().forEach(
 
                 ship -> {
-                    long hits = ship.getShipHitsNum();
+                    long hits =  ship.getAllHitLocations().size(); //ship.getShipHitsNum();
                     long size = ship.getShipLocations().size();
+
+                    System.out.println("SHIP: " + ship.getShipType() + " Hits: " + ship.getAllHitLocations() + " Ship SIZE " + ship.getShipLocations().size() );
+
                     if (Objects.equals(hits, size )) {
 
                         ship.setSunkShip();
@@ -1055,18 +1074,18 @@ public class SalvoController {
 
         List<String> sunkenShips = new LinkedList<>();
 
-        updateShipHitsNum(fleet);
-
-        /** updating all of the hits, to know when a ship is sunk */
-        fleet.stream().forEach(ship -> ship.updateAllHitLocations(ship.getTurnHitLocations()));
-
-        updateShipSinkState(fleet);
+//        updateShipHitsNum(fleet);
+//
+//        /** updating all of the hits, to know when a ship is sunk */
+//        fleet.stream().forEach(ship -> ship.updateAllHitLocations(ship.getTurnHitLocations()));
+//
+//        updateShipSinkState(fleet);
 
         fleet.stream().forEach(ship -> {
 
             if(ship.isSunkShip()){
-
-                sunkenShips.add(ship.getShipType());
+                /** be sure to have the space between ship name words removed, for DOM selecting purposes */
+                sunkenShips.add(ship.getShipType().replaceAll("\\s",""));
             }
 
         });

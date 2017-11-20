@@ -576,13 +576,16 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 //    $scope.gameHistory = getGameHistory(function(responseData){
 //        $scope.TESThistoryDTO = responseData;
 //    })
-
-    $scope.TESThistoryDTO = null;
-        gameHistory.getHistoryDTO(function(dataResponse) {
+      $scope.TESThistoryDTO = null; //!important
+       $timeout( gameHistory.getHistoryDTO( $scope.gp, function(dataResponse) {
             $scope.TESThistoryDTO = dataResponse;
 
+            console.info("dataResponse", dataResponse);
 
-        });
+        }),
+         1000
+         );
+
 
     $scope.gameHistoryUI = function(historyDTO){
 
@@ -597,10 +600,13 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
     $scope.num_hits = 0;
 
     var getGameHistoryDTO = function() {
+
+
+
         if ($scope.TESThistoryDTO != undefined) {
         $scope.gameHistoryUI($scope.TESThistoryDTO);
         }
     }
-    $timeout(function(){getGameHistoryDTO()}, 100)
+    $interval(function(){getGameHistoryDTO()}, 2000)
 
   }]);

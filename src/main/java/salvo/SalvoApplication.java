@@ -155,7 +155,7 @@ public class SalvoApplication {
             Ship ship1_2 = new Ship(gp1, ship1_2_loc2, "Submarine");
             Ship ship1_3 = new Ship(gp1, ship1_3_loc3, "Patrol Boat");
 
-            Ship ship1_4 = new Ship(gp1, Arrays.asList("I2", "I3", "I4", "I5", "I6"), "Aricraft Carrier");
+            Ship ship1_4 = new Ship(gp1, Arrays.asList("I2", "I3", "I4", "I5", "I6"), "Aircraft Carrier");
             Ship ship1_5 = new Ship(gp1, Arrays.asList("E9", "F9", "G9", "H9"), "Battleship");
             /** This adds an instance of a Ship to it's GamePlayer instance */
             gp1.addShip(ship1_1); gp1.addShip(ship1_2); gp1.addShip(ship1_3); gp1.addShip(ship1_4); gp1.addShip(ship1_5);
@@ -172,7 +172,7 @@ public class SalvoApplication {
             Ship ship2_1 = new Ship(gp2, ship2_1_loc1, "Destroyer");
             Ship ship2_2 = new Ship(gp2, ship2_2_loc2, "Submarine");
             Ship ship2_3 = new Ship(gp2, ship2_3_loc3, "Patrol Boat");
-            Ship ship2_4 = new Ship(gp2, Arrays.asList("E2", "F2", "G2", "H2", "I2"), "Aricraft Carrier");
+            Ship ship2_4 = new Ship(gp2, Arrays.asList("E2", "F2", "G2", "H2", "I2"), "Aircraft Carrier");
             Ship ship2_5 = new Ship(gp1, Arrays.asList("G7", "G8", "G9", "G10"), "Battleship");
 
             gp2.addShip(ship2_1); gp2.addShip(ship2_2); gp2.addShip(ship2_3); gp2.addShip(ship2_4); gp2.addShip(ship2_5);

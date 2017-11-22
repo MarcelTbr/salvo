@@ -1,17 +1,20 @@
 
-angular.module('PlayerViewModule').service('updateGameView', function($http){
+angular.module('PlayerViewModule').service('updateGameView', function($http, $window){
 
     this.getGameViewDTO = function(gp_id, callback){
 
         $http.get("api/game_view/" + gp_id)
             .success(function(response){
-
+                console.info("api/game_view/"+gp_id)
                 callback(response);
 
-            }).error(function(){
+            }).error(function(response){
 
-                console.info('api/game_view/'+gp_id);
-                alert("Sorry, unable to get api/game_view/"+gp_id);
+                 console.log("Response:"); console.log(response);
+                alert("Sorry, not authorized to see this page.")
+
+                 $window.location.href = "http://" + $window.location.host + "/games.html";
+
             });
 
 

@@ -16,7 +16,7 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
     }
 
 
-    this.showShipTurnHits = function(history, playerOrEnemy){
+    this.showShipTurnHits = function(history, playerOrEnemy, historyCount){
 
          var ship_names = ["AircraftCarrier", "Battleship", "Submarine", "Destroyer", "PatrolBoat"]
         var ships = document.querySelectorAll("#"+playerOrEnemy + " tr.ship");
@@ -130,6 +130,11 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
         }
 
 
+        //TODO: solve this turn issue;
+        //be sure this function is called only thrice per page load;
+        if(historyCount > 2){
+        this.showShipTurnHits = function() { return false;}
+        }
     }
 
 
@@ -145,7 +150,7 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
 
                     var cell_turn_num = turn_num;
 
-                       // TODO
+
                     var removeSpaces = function (string) {
                                 return string.replace(/\s+/g, '');
                             }

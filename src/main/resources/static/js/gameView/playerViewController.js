@@ -425,13 +425,13 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                             }
                         }
 
-                        //gets the enemy_ships from the front-end view object
-                        $scope.enemies = updateGameView.getEnemies($scope.enemy_ships);
+                        // LEGACY gets the enemy_ships from the front-end view object
+                       // $scope.enemies = updateGameView.getEnemies($scope.enemy_ships);
                         $scope.all_salvoes = updateGameView.allUserSalvoes($scope.salvoes);
 
                         $scope.getEnemyStyle = function (cell_data){
-                            var all_salvoes = $scope.all_salvoes;
-                            var enemies = $scope.enemies;
+                            //var all_salvoes = $scope.all_salvoes;
+                            //var enemies = $scope.enemies;
                             var hits = [];
 
                             // LEGACY: hits = updateGameView.getHitsArray(all_salvoes, enemies);
@@ -493,7 +493,10 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
                         //  console.info("get salvos response: ", response);
 
-                    $scope.hits_array = salvosLogic.getHitsArray(response.data["salvosDTO"]);
+                    //$scope.hits_array = salvosLogic.getHitsArray(response.data["salvosDTO"]);
+                     $timeout(function(){
+                            $scope.hits_array = gameHistory.getEnemyHitsArray($scope.historyDTO.enemyHistoryDTO);
+                        }, 500);
                     $scope.enemy_hits_array = salvosLogic.getHitsArray(response.data["enemySalvosDTO"]);
                     $scope.salvos_obj = response.data["salvosDTO"];
                     $scope.enemy_salvos_obj = response.data["enemySalvosDTO"];
@@ -839,7 +842,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                 console.info("enemyTurns", $scope.enemy_turns);
                 console.info("historyDTO length", Object.keys($scope.historyDTO.historyDTO).length);
 
-        if($scope.enemy_turns > Object.keys($scope.historyDTO.historyDTO).length) {
+        if($scope.enemy_turns > Object.keys($scope.historyDTO.historyDTO).length && $scope.ships_placed) {
 
             function reloadPage() {
             $window.location.href = "http://" + $window.location.host + "/game.html?gp="+$scope.gp+"#/r";
@@ -868,4 +871,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
     }
     $scope.historyCount = 0;
     //***** END OF GAME HISTORY UI ******** //
+
+
   }]);

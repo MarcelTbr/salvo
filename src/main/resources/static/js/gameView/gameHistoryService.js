@@ -16,6 +16,42 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
     }
 
 
+    this.getEnemyHitsArray = function(enemyHistoryDTO){
+
+            var enemyHits = [];
+
+            console.info("getEnemyHitsArray", enemyHistoryDTO);
+
+
+            for (var turn_key in enemyHistoryDTO){
+
+                var hits_arr = enemyHistoryDTO[turn_key].hits
+
+                for(var sh_obj = 0; sh_obj < hits_arr.length; sh_obj++){
+
+                    for (var sh_key in hits_arr[sh_obj]){
+
+                        var ship_hits_arr = hits_arr[sh_obj][sh_key];
+
+                        for (var sh_hit = 0; sh_hit < ship_hits_arr.length; sh_hit++){
+
+
+                            enemyHits.push(ship_hits_arr[sh_hit]);
+                        }
+
+
+                    }
+                }
+
+
+
+            }
+
+            console.info("enemyHits===>", enemyHits)
+
+            return enemyHits;
+    }
+
     this.showShipTurnHits = function(history, playerOrEnemy, historyCount){
 
          var ship_names = ["AircraftCarrier", "Battleship", "Submarine", "Destroyer", "PatrolBoat"]

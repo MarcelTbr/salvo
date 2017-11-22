@@ -902,11 +902,11 @@ public class SalvoController {
         List<Object> playerShipsList = getPlayerShipsList(playerShips).get();
         Optional<List<Object>> enemyShipsList = getPlayerShipsList(enemyPlayer.getShips());
         game_viewDTO.put("ships", playerShipsList);
-        if (enemyShipsList.isPresent()) {
-            game_viewDTO.put("enemy_ships", enemyShipsList);
-        } else {
-            game_viewDTO.put("enemy_ships", "");
-        }
+//        if (enemyShipsList.isPresent()) {
+//            game_viewDTO.put("enemy_ships", enemyShipsList);
+//        } else {
+//            game_viewDTO.put("enemy_ships", "");
+//        }
 //        /** getting the salvoesDTO {"turn" : "salvoes-array" }*/
 //        Object salvoesDTO = getAllPlayerSalvos(gamePlayer);
 //        game_viewDTO.put("salvoes", salvoesDTO);

@@ -70,27 +70,22 @@ public class SalvoController {
         return makeMap("stateOfGame", stateOfGame);
 
     }
-    //TODO wipe out inneccessary code
+    //TODO FIND OUT LOOPS
     public Map<String, Object> makeHistoryDTO(long gp_id) {
         /** making the game history DTO **/
         GamePlayer gamePlayer = gamePlayerRepo.findById(gp_id);
         Set<Ship> fleet = gamePlayer.getShips();
         Optional<GamePlayer> enemyGamePlayer = getEnemyGamePlayer(gamePlayer);
 
-        Map<String, Object> shipHits = new HashMap<>();
-
-        List<Map<String, Object>> fleetHits = new LinkedList<>();
         Map<String, Object> playerHistoryDTO = new HashMap<>();
         Map<String, Object> enemyHistoryDTO = new HashMap<>();
         if(enemyGamePlayer.isPresent()){
 
             List<Salvo> enemySalvos = salvoRepo.findByGamePlayer(enemyGamePlayer.get());
-            //List<String> salvoLocations = enemySalvos.stream().findAny().get().getSalvoLocations();
             enemySalvos.stream().forEach(salvo -> {
                List<String> salvoLocs = salvo.getSalvoLocations();
                 playerHistoryDTO.put(String.valueOf(salvo.getTurn()), makeTurnDTO(fleet, salvoLocs));
             });
-            // LEGACY makeTurnDTO(fleet, salvoLocations);
 
             Set<Ship> enemyFleet = enemyGamePlayer.get().getShips();
             List<Salvo> playerSalvos = salvoRepo.findByGamePlayer(gamePlayer);
@@ -319,6 +314,11 @@ public class SalvoController {
             salvoRepo.save(submitted_salvo);
                 System.out.println(salvos_str + " ; turn: " + turn + "; salvo_locs: " + salvo_locs);
                 System.out.println("submitted_salvo: " + Arrays.asList(locations) );
+
+            /** update the state of ship sinks **/
+            Set<Ship> fleet =  gamePlayer.getShips();
+            updateShipSinkState(fleet);
+
 
             return new ResponseEntity<Map<String, Object>>(makeMap("submitted_salvos", salvos ),HttpStatus.CREATED);
         }
@@ -742,6 +742,41 @@ public class SalvoController {
 
     }
 
+    @RequestMapping(value="/enemy_game_state/{gpId}", method = RequestMethod.POST)
+    void changeEnemyGameState (Authentication auth, @PathVariable long gpId,  @RequestParam ("gameState") long gameState){
+
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gpId);
+        GamePlayer enemyGamePlayer = getEnemyGamePlayer(gamePlayer).get();
+        enemyGamePlayer.setStateOfGame(gameState);
+        gamePlayerRepo.save(enemyGamePlayer);
+    }
+
+
+    @RequestMapping("game_over/{gpId}")
+    boolean getGameOverState (Authentication auth, @PathVariable long gpId) {
+
+
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gpId);
+        GamePlayer enemyGamePlayer = getEnemyGamePlayer(gamePlayer).get();
+
+
+        long notSunkShips = gamePlayer.getShips().stream().map(ship -> ship.isSunkShip()).filter(isSunkShip -> isSunkShip == false).count();
+        long enemyNotSunkShips = enemyGamePlayer.getShips().stream().map(ship -> ship.isSunkShip()).filter(isSunkShip -> isSunkShip == false).count();
+
+        System.out.println("notSunkShips " + notSunkShips);
+        System.out.println("enemyNotSunkShips " + enemyNotSunkShips);
+
+        if(notSunkShips > 0 || enemyNotSunkShips > 0) {
+
+            return false;
+        } else {
+
+            return true;
+        }
+
+
+    }
+
 
     /** ======== METHODS ======== */
 
@@ -1001,6 +1036,7 @@ public class SalvoController {
 
                 long enemyGameState = enemyPlayer.getStateOfGame();
                 game_viewDTO.put("enemyGameState", enemyGameState);
+        game_viewDTO.put("gameHistoryDTO", makeHistoryDTO(gp_id));
 //        if (enemyShipsList.isPresent()) {
 //            game_viewDTO.put("enemy_ships", enemyShipsList);
 //        } else {
@@ -1146,7 +1182,11 @@ public class SalvoController {
         updateShipHitsNum(fleet);
 
 
-        fleet.stream().forEach(ship -> ship.updateAllHitLocations(ship.getTurnHitLocations()));
+        fleet.stream().forEach(ship -> {ship.updateAllHitLocations(ship.getTurnHitLocations());
+            //TODO beware of loops
+
+
+        });
 
         updateShipSinkState(fleet);
         //fleet.stream().forEach(ship -> ship.updateShipHitsNum());
@@ -1166,10 +1206,11 @@ public class SalvoController {
                     long size = ship.getShipLocations().size();
 
                     System.out.println("SHIP: " + ship.getShipType() + " Hits: " + ship.getAllHitLocations() + " Ship SIZE " + ship.getShipLocations().size() );
-
+                    //TODO beware of loops;
                     if (Objects.equals(hits, size )) {
 
                         ship.setSunkShip();
+                        shipRepo.save(ship);
 
                     }
 

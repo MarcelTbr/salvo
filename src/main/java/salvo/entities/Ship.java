@@ -54,7 +54,7 @@ public class Ship {
         this.sunkShip = false;
         this.turnHitLocations = new LinkedList<>();
         this.allHitLocations = new LinkedList<>();
-        //TODO: maybe we have to set it to null for better conditional checks
+
     }
 
     /** methods **/
@@ -136,10 +136,14 @@ public class Ship {
 
     public void updateAllHitLocations(List<String> turnHitLocations){
 
+
         for (String turnHitLocation : turnHitLocations) {
 
-            this.allHitLocations.add(turnHitLocation);
-
+            long hit_found = this.allHitLocations.stream().filter(turnHitLoc -> turnHitLoc.equals(turnHitLocation)).count();
+            /** prevent algorithm from adding more hit locations each time the gameViewDTO is updated*/
+            if (hit_found == 0) {
+                this.allHitLocations.add(turnHitLocation);
+            }
         }
 
     }

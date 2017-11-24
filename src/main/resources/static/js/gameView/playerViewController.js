@@ -86,6 +86,8 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
                      // *** USER INFO ** //
                      $scope.user_info = getUserInfo($scope.game_view_obj.enemyGameState, $scope.game_view_obj.gameState);
+
+
                 })
 
         $interval(function(){ updateGameView.getGameViewDTO($scope.gp, function(response){
@@ -106,6 +108,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             // *** USER INFO ** //
              $scope.user_info = getUserInfo($scope.game_view_obj.enemyGameState, $scope.game_view_obj.gameState);
 
+            console.info("historyDTO =====>>", $scope.game_view_obj.gameHistoryDTO);
 
 
         })
@@ -206,7 +209,12 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                             if($scope.prov_salvo_array.length < 5 ){
 
                                 if (repeated_cells.length > 0 || repeatedSalvo(cell_data)) { alert("Choose another cell.")}
-                                else { $scope.prov_salvo_array.push(cell_data);
+                                else {
+
+                                        $scope.prov_salvo_array.push(cell_data);
+                                        //update game state to "shooting salvos"
+                                       $.post("api/game_state/"+$scope.gp, {'gameState': 5})
+
                                        // alert($scope.prov_salvo_array);
                                        }
                             } else {
@@ -256,6 +264,11 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
                         $scope.all_salvoes = updateGameView.allUserSalvoes($scope.salvoes);
 
+                        //TODO fix this
+                        $scope.hits_array = gameHistory.getEnemyHitsArray($scope.game_view_obj.gameHistoryDTO.enemyHistoryDTO);
+
+                        paintEnemyHits($scope.hits_array);
+
                         $scope.getEnemyStyle = function (cell_data){
                             //var all_salvoes = $scope.all_salvoes;
                             //var enemies = $scope.enemies;
@@ -266,6 +279,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                             hits = $scope.hits_array;
                             if (hits != null){
                               //paint the ship cell red it it is found in the hits array.,
+                              //TODO ...
                               for(var i = 0; i < hits.length; i++) {
                                 if (cell_data == hits[i]) {return {'background-color': 'red'} }
                               }
@@ -278,6 +292,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
                               }
                             }
+
                         }
 
                         /* Getting User and Enemy Information*/
@@ -298,6 +313,9 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                             }
 
                         $scope.showGameHistoryUI();
+
+
+
 
                         // REFACTOR: this function has no more use
                         $scope.enemyGamePlayer = updateGameView.getEnemyPlayer($scope.gp, $scope.players);
@@ -320,9 +338,9 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                         //  console.info("get salvos response: ", response);
 
                     //$scope.hits_array = salvosLogic.getHitsArray(response.data["salvosDTO"]);
-                     $timeout(function(){
-                            $scope.hits_array = gameHistory.getEnemyHitsArray($scope.historyDTO.enemyHistoryDTO);
-                        }, 500);
+                        //                     $interval(function(){
+                        //                            $scope.hits_array = gameHistory.getEnemyHitsArray($scope.historyDTO.enemyHistoryDTO);
+                        //                        }, 500);
                     $scope.enemy_hits_array = salvosLogic.getHitsArray(response.data["enemySalvosDTO"]);
                     $scope.salvos_obj = response.data["salvosDTO"];
                     $scope.enemy_salvos_obj = response.data["enemySalvosDTO"];
@@ -354,6 +372,36 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                     if ($scope.salvos_obj != null && $scope.enemy_salvos_obj != null) {
                         $timeout(function(){getCurrentTurn()}, 100);
                     }
+
+//                    $scope.getEnemyStyle = function (cell_data){
+//                        //var all_salvoes = $scope.all_salvoes;
+//                        //var enemies = $scope.enemies;
+//                        var hits = [];
+//
+//                        // LEGACY: hits = updateGameView.getHitsArray(all_salvoes, enemies);
+//                        // use the new Backend object
+//                        hits = $scope.hits_array;
+//
+//                        //console.info("getEnemyStyle", hits);
+//
+//                        if (hits != null){
+//                          //paint the ship cell red it it is found in the hits array.,
+//                          for(var i = 0; i < hits.length; i++) {
+//                            if (cell_data == hits[i]) {return {'background-color': 'red'} }
+//                          }
+//
+//                          if ($scope.prov_salvo_array.length > 0){
+//                             for(var i = 0; i < $scope.prov_salvo_array.length; i++){
+//
+//                                if ( cell_data == $scope.prov_salvo_array[i]) { return {'background-color': 'yellow'}}
+//                             }
+//
+//                          }
+//                        }
+//
+//
+//                    }
+
 
                 }
 
@@ -449,7 +497,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             else if(user_turns == enemy_turns && user_turns != 0){
                 console.info("user_turns", user_turns);
                 $scope.current_turn = user_turns + 1;
-                $scope.user_info = "Turn #"+ user_turns +" ended. You can submit more salvos";
+               // $scope.user_info = "Turn #"+ user_turns +" ended. You can submit more salvos";
             }
             else if( user_turns > enemy_turns) {
                 $scope.current_turn = user_turns;
@@ -471,24 +519,53 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         var submit_salvos_obj = {};
         submit_salvos_obj[current_turn] = $scope.prov_salvo_array;
 
-        // [C] make sure it's your turn to submit salvos
-        if( $scope.user_turns <= $scope.enemy_turns){
+        // [C] make sure it's your turn to submit salvos and it's not game over
 
-            // [D] post it to the backend
-             $http.post("api/games/players/"+$scope.gp+"/salvos", submit_salvos_obj)
-             .then(function(response){
-                console.log("salvos submitted!"); console.log(response);
-             }, function(response){
-                console.log("something went wrong..."); console.log(response);
-             });
-            $scope.salvosSent = true;
+        if(!isGameOver()){
+            if( $scope.user_turns <= $scope.enemy_turns ){
 
-        } else { alert("Please wait for enemy's turn to submit salvos") }
+                // [D] post it to the backend
+                 $http.post("api/games/players/"+$scope.gp+"/salvos", submit_salvos_obj)
+                 .then(function(response){
+                    console.log("salvos submitted!"); console.log(response);
+                 }, function(response){
+                    console.log("something went wrong..."); console.log(response);
+                 });
+                $scope.salvosSent = true;
 
-        // [E] reload page to show results
-          $window.location.href = "http://" + $window.location.host + "/game.html?gp="+$scope.gp;
+                //update Game State to "waiting for enemy salvos"
+                if($scope.game_view_obj.enemyGameState != 7){
 
-     }
+                $.post("api/game_state/"+$scope.gp, {'gameState': 6})
+                $.post("api/enemy_game_state/"+$scope.gp, {'gameState': 7})
+
+                } else {
+
+                $.post("api/game_state/"+$scope.gp, {'gameState': 7})
+
+                }
+
+            // [E] reload page to show results
+             //TODO REFACTOR code to avoid having to reload page each time
+             $scope.prov_salvo_array = [];
+             //$window.location.href = "http://" + $window.location.host + "/game.html?gp="+$scope.gp;
+
+            } else { alert("Please wait for enemy's turn to submit salvos") }
+
+
+
+        } else {
+            //TODO do count wins and losses
+
+             alert("Game Over, You won/loosed");
+
+              $window.location.href = "http://" + $window.location.host + "/games.html";
+
+        }
+
+
+
+      }
 
      $scope.placeShip = function (row,col) {
         //  var is_legal = placingShips.insideGridTwo($scope.prov_ship_loc, $scope.ship_align);
@@ -599,20 +676,21 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
 //    [1] Get the historyDTO from the backend
     $scope.historyDTO = null; //!important
+    $scope.hits_array = null;
     $timeout( gameHistory.getHistoryDTO( $scope.gp, function(dataResponse) {
             $scope.historyDTO = dataResponse;
 
             console.info("dataResponse", dataResponse);
 
+
         }),
-         400
+         300
          );
 
          $interval(function(){
 
             console.info("updateHistoryUI", $scope.enemy_turns, $scope.user_turns);
-                       updateHistoryUI();
-
+                       updateHistoryUI($scope.game_view_obj.gameHistoryDTO);
                    }, 3500);
 
 
@@ -667,12 +745,12 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
     $timeout(function(){fillGameHistoryUI($scope.historyDTO);}, 500);
 
 
-    var updateHistoryUI = function() {
+    var updateHistoryUI = function(gameHistoryDTO) {
 
                 console.info("enemyTurns", $scope.enemy_turns);
-                console.info("historyDTO length", Object.keys($scope.historyDTO.historyDTO).length);
+                console.info("historyDTO length", Object.keys(gameHistoryDTO.historyDTO).length);
 
-        if($scope.enemy_turns > Object.keys($scope.historyDTO.historyDTO).length && $scope.gameState > 3) { //$scope.ships_placed
+        if($scope.enemy_turns > Object.keys(gameHistoryDTO.historyDTO).length && $scope.gameState > 3) { //$scope.ships_placed
 
             function reloadPage() {
             $window.location.href = "http://" + $window.location.host + "/game.html?gp="+$scope.gp+"#/r";
@@ -750,5 +828,42 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
 
     // **** END OF USER INFO LOGIC **** //
+
+
+    //**** GAME OVER LOGIC **** ///
+
+
+    function isGameOver(){
+
+
+            $.get("api/game_over/"+$scope.gp, function(data){
+
+            console.info("api/game_over/"+$scope.gp, data);
+
+
+            })
+
+
+
+
+    }
+
+
+
+    /// **** END OF GAME OVER LOGIC ****** //
+
+
+    function paintEnemyHits(hits_array){
+
+          for(var i = 0; i < hits_array.length; i++) {
+
+            document.querySelector("#enemy-grid [data-cell='"+hits_array[i]+"']").style.backgroundColor = "red";
+
+//            if (cell_data == hits[i]) {return {'background-color': 'red'} }
+          }
+
+
+
+    }
 
   }]);

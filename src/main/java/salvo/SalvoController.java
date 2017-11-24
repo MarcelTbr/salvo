@@ -478,7 +478,7 @@ public class SalvoController {
         if (auth == null || noSuchGP(gamePlayerId) || incorrectUser(auth, gamePlayerId)) {
 
             return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, not authorized"), HttpStatus.UNAUTHORIZED);
-        } else if (shipsPlaced(gamePlayerId) || gamePlayer.getStateOfGame() == (long) 2){
+        } else if (shipsPlaced(gamePlayerId) || gamePlayer.getStateOfGame() == (long) 3){
             return new ResponseEntity<Map<String, Object>>(makeMap("backend", "Not possible, ships were already placed."), HttpStatus.FORBIDDEN);
         }else{
 
@@ -490,22 +490,22 @@ public class SalvoController {
 
                 long enemyGameState = enemyGamePlayer.get().getStateOfGame();
 
-                if (enemyGameState == 2){
+                if (enemyGameState == 3){
 
-                    enemyGamePlayer.get().setStateOfGame((long) 3);
+                    enemyGamePlayer.get().setStateOfGame((long) 4);
                     gamePlayerRepo.save(enemyGamePlayer.get());
-                    gamePlayer.setStateOfGame((long) 3);
+                    gamePlayer.setStateOfGame((long) 4);
                     gamePlayerRepo.save(gamePlayer);
 
                 } else {
-                    gamePlayer.setStateOfGame((long) 2);
+                    gamePlayer.setStateOfGame((long) 3);
                     gamePlayerRepo.save(gamePlayer);
 
                 }
 
 
             } else {
-                gamePlayer.setStateOfGame((long) 2);
+                gamePlayer.setStateOfGame((long) 3);
                 gamePlayerRepo.save(gamePlayer);
 
             }
@@ -723,6 +723,25 @@ public class SalvoController {
 
         return salvosDTO;
     }
+
+    @RequestMapping(value="/game_state/{gpId}", method = RequestMethod.POST)
+    void changeGameState (Authentication auth, @PathVariable long gpId,  @RequestParam ("gameState") long gameState){
+
+                GamePlayer gamePlayer = gamePlayerRepo.findById(gpId);
+
+                gamePlayer.setStateOfGame(gameState);
+                gamePlayerRepo.save(gamePlayer);
+    }
+
+    @RequestMapping(value="/game_state/{gpId}")
+    long getGameState (Authentication auth, @PathVariable  long gpId){
+
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gpId);
+
+        return gamePlayer.getStateOfGame();
+
+    }
+
 
     /** ======== METHODS ======== */
 

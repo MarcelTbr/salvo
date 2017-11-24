@@ -450,8 +450,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                             }
                         }
 
-                        // LEGACY gets the enemy_ships from the front-end view object
-                       // $scope.enemies = updateGameView.getEnemies($scope.enemy_ships);
                         $scope.all_salvoes = updateGameView.allUserSalvoes($scope.salvoes);
 
                         $scope.getEnemyStyle = function (cell_data){
@@ -867,7 +865,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                 console.info("enemyTurns", $scope.enemy_turns);
                 console.info("historyDTO length", Object.keys($scope.historyDTO.historyDTO).length);
 
-        if($scope.enemy_turns > Object.keys($scope.historyDTO.historyDTO).length && $scope.ships_placed) {
+        if($scope.enemy_turns > Object.keys($scope.historyDTO.historyDTO).length && $scope.gameState > 1) { //$scope.ships_placed
 
             function reloadPage() {
             $window.location.href = "http://" + $window.location.host + "/game.html?gp="+$scope.gp+"#/r";

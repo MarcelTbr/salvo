@@ -465,29 +465,52 @@ public class SalvoController {
 
     @RequestMapping (value="games/players/{gamePlayerId}/ships", method= RequestMethod.POST )
     public ResponseEntity<Map<String, Object>> saveShips(@PathVariable long gamePlayerId, @RequestBody List<Ship> ships,
-                                                         Authentication auth) { // @RequestBody Ship ship,
+                                                         Authentication auth) {
         String newLine = System.getProperty("line.separator");
 
         System.out.println("Ships found:");
         System.out.print(ships);
         System.out.println(newLine);
 
+        GamePlayer gamePlayer = gamePlayerRepo.findById(gamePlayerId);
+        Optional<GamePlayer> enemyGamePlayer = getEnemyGamePlayer(gamePlayer);
+
         if (auth == null || noSuchGP(gamePlayerId) || incorrectUser(auth, gamePlayerId)) {
 
             return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, not authorized"), HttpStatus.UNAUTHORIZED);
-        } else if (shipsPlaced(gamePlayerId) ){ //|| gameState(gamePlayerId) == (long) 2
+        } else if (shipsPlaced(gamePlayerId) || gamePlayer.getStateOfGame() == (long) 2){
             return new ResponseEntity<Map<String, Object>>(makeMap("backend", "Not possible, ships were already placed."), HttpStatus.FORBIDDEN);
         }else{
 
-            GamePlayer gamePlayer = gamePlayerRepo.findById(gamePlayerId);
+            for(Ship ship: ships) {
+                ship.setGamePlayer(gamePlayer); shipRepo.save(ship);
+            }
+            /** change the state of game to "waiting for enemy ships" or "all ships placed" **/
+            if(enemyGamePlayer.isPresent()) {
 
-                for(Ship ship: ships) {
-            ship.setGamePlayer(gamePlayer); shipRepo.save(ship);
+                long enemyGameState = enemyGamePlayer.get().getStateOfGame();
+
+                if (enemyGameState == 2){
+
+                    enemyGamePlayer.get().setStateOfGame((long) 3);
+                    gamePlayerRepo.save(enemyGamePlayer.get());
+                    gamePlayer.setStateOfGame((long) 3);
+                    gamePlayerRepo.save(gamePlayer);
+
+                } else {
+                    gamePlayer.setStateOfGame((long) 2);
+                    gamePlayerRepo.save(gamePlayer);
+
                 }
-                /** change the state of game to "waiting for enemy ships" **/
-                //gamePlayer.setStateOfGame((long)2);
 
-                //System.out.println("StateOfGame: " + gamePlayer.getStateOfGame());
+
+            } else {
+                gamePlayer.setStateOfGame((long) 2);
+                gamePlayerRepo.save(gamePlayer);
+
+            }
+
+
 
             return new ResponseEntity<Map<String, Object>>(makeMap("backend", "ships created!"), HttpStatus.CREATED);
         }

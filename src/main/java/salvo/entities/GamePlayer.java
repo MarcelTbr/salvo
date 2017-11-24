@@ -28,10 +28,28 @@ public class GamePlayer {
 
     /** this annotation is for the ids*/
     @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER)
-    Set<Ship> ships = new HashSet<>();
+    private Set<Ship> ships = new HashSet<>();
 
     @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER)
-    Set<Salvo> salvos = new HashSet<>();
+    private Set<Salvo> salvos = new HashSet<>();
+
+    @OneToOne( cascade = CascadeType.ALL)
+    private GameState gameState;
+
+    private long stateOfGame;
+
+    /** stateOfGameLegend
+     *
+     * 0 = game created
+     * 1 = placing ships
+     * 2 = waiting for enemy ships
+     * 3 = all ships placed
+     * 4 = shooting salvos
+     * 5 = waiting for enemy salvos
+     * 6 = enemy salvos received
+     * 7 = game over
+     * **/
+
 
 
     public GamePlayer () {}
@@ -42,6 +60,10 @@ public class GamePlayer {
         this.playerJoinDate = df.format(date);
         this.player = player;
         this.game = game;
+        this.gameState = new GameState();
+//        LinkedList<Long> stateOfGame =  new LinkedList<Long>();
+//        stateOfGame.add((long)0);
+        this.stateOfGame = 0;
 
     }
 
@@ -100,6 +122,20 @@ public class GamePlayer {
 
         this.salvos.add(salvo); // adds a salvo to this gamePlayer's Set<Salvo> salvos
 
+    }
+
+    public GameState getGameState(){
+
+        return gameState;
+    }
+
+//    @Column(name="game_state")
+    public long getStateOfGame() {
+        return stateOfGame;
+    }
+
+    public void setStateOfGame(long stateOfGame) {
+        this.stateOfGame = stateOfGame;
     }
 
 }

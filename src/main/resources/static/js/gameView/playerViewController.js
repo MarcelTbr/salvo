@@ -275,6 +275,22 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         //TODO loadGameView refactor;
         $scope.game_view_obj = null;
         updateGameView.getGameViewDTO($scope.gp, function(response){
+                     console.info("updateGameView.getGameViewDTO", response);
+                    //console.info("SALVOES==>", response.salvoes); comes from the Salvoes object from loadSalvos();
+
+                    // 1) store the game_viewDTO from backend response into a variable
+                    $scope.game_view_obj = response;
+                   // then update all the objects that use this response
+                   updateGameViewObjects();
+                    //$interval(function(){updateGameViewObjects();}, 3500);
+
+                    $scope.gameState = $scope.game_view_obj.gameState;
+
+                    console.info("gameState ====>>", $scope.game_view_obj.gameState);
+                    console.info("enemyGameState ====>>", $scope.game_view_obj.enemyGameState);
+                })
+
+        $interval(function(){ updateGameView.getGameViewDTO($scope.gp, function(response){
              console.info("updateGameView.getGameViewDTO", response);
             //console.info("SALVOES==>", response.salvoes); comes from the Salvoes object from loadSalvos();
 
@@ -282,8 +298,17 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             $scope.game_view_obj = response;
            // then update all the objects that use this response
            updateGameViewObjects();
-            $interval(function(){updateGameViewObjects();}, 3500);
+            //$interval(function(){updateGameViewObjects();}, 3500);
+
+            $scope.gameState = $scope.game_view_obj.gameState;
+
+            console.info("gameState ====>>", $scope.game_view_obj.gameState);
+            console.info("enemyGameState ====>>", $scope.game_view_obj.enemyGameState);
         })
+
+        }, 3500);
+
+
 
         var updateGameViewObjects = function(){
                         console.info("loadGameView() Response:", $scope.game_view_obj);

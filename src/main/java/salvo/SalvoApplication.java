@@ -44,7 +44,7 @@ public class SalvoApplication {
 
     @Bean
     public CommandLineRunner initData(PlayerRepository players, GameRepository games, ShipRepository ships, GamePlayerRepository gamePlayers,
-                                      SalvoRepository salvos, GameScoreRepository gameScores) {
+                                      SalvoRepository salvos, GameScoreRepository gameScores, GameStateRepository gameStateRepo) {
         return (args) -> {
 
             Date date = new Date();

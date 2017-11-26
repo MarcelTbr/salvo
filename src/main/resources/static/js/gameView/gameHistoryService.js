@@ -52,13 +52,13 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
             return enemyHits;
     }
 
-    this.showShipTurnHits = function(history, playerOrEnemy, historyCount){
+    this.showShipTurnHits = function(history, playerOrEnemy, last_turn){
 
          var ship_names = ["AircraftCarrier", "Battleship", "Submarine", "Destroyer", "PatrolBoat"]
         var ships = document.querySelectorAll("#"+playerOrEnemy + " tr.ship");
         console.log(history)
 
-        var countTurnHits = function(hits_arr){
+        var countTurnHits = function(hits_arr, ships, s){
             //console.log(ships[s].id);
             if(playerOrEnemy == "player-history"){
                 var hits_arr_key = ships[s].id;
@@ -102,8 +102,28 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
             }
 
             if(turn_hits != undefined){
+                 //TODO first empty all cells
 
-                var count = turn_hits.length
+//                var  empty_cells = document.querySelectorAll("#"+playerOrEnemy +" .mock-cell");
+//                empty_cells.forEach(function(empty_cell){
+//                        empty_cell.innerHTML = "";
+//                })
+
+                 //then fill them with the hits
+
+//                var reset_count = turn_hits.length
+//                while( reset_count > 0){
+//                    for(var sc = 0; sc < ship_cells.length; sc++){
+//                        if(ship_cells[sc].textContent == last_turn){
+//                        ship_cells[sc].innerHTML = "";
+//
+//                        }
+//                    }
+//
+//                    reset_count--
+//                }
+
+              var count = turn_hits.length;
                while( count > 0 ){
 
                     for(var sc = 0; sc < ship_cells.length; sc++){
@@ -111,8 +131,12 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
                         var cell_empty = (ship_cells[sc].textContent == "");
 
                         if(cell_empty){
-                            ship_cells[sc].innerHTML = turn_num;
 
+//                           var span = document.createElement('span');
+//                          var textnode = document.createTextNode(turn_num);         // Create a text node
+//                          span.appendChild(textnode);
+//                            ship_cells[sc].appendChild(span); //.innerHTML = turn_num;
+                            ship_cells[sc].innerHTML = turn_num;
                             break;
                         }
 
@@ -125,36 +149,67 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
         }
 
         var showSunkenShips = function(sunk_ships_arr) {
-        if(sunk_ships_arr.length > 0){
-           for (var s_sh = 0; s_sh < sunk_ships_arr.length; s_sh++){
+            if(sunk_ships_arr.length > 0){
+               for (var s_sh = 0; s_sh < sunk_ships_arr.length; s_sh++){
 
-            //sunk_ships_arr.forEach(function(sunk_ship){
+                //sunk_ships_arr.forEach(function(sunk_ship){
 
-                    //console.info("SUNK SHIP", sunk_ship)
-                var sunk_ship = sunk_ships_arr[s_sh];
-                var removeSpaces = function (string) {
-                        return string.replace(/\s+/g, '');
-                    }
-
-                sunk_ship = removeSpaces(sunk_ship);
-
-                        if(playerOrEnemy == "player-history"){
-                            document.getElementById(sunk_ship).setAttribute("class", "sunk");
-                        } else {
-                            document.getElementById("E-"+sunk_ship).setAttribute("class", "sunk");
+                        //console.info("SUNK SHIP", sunk_ship)
+                    var sunk_ship = sunk_ships_arr[s_sh];
+                    var removeSpaces = function (string) {
+                            return string.replace(/\s+/g, '');
                         }
 
+                    sunk_ship = removeSpaces(sunk_ship);
+
+                            if(playerOrEnemy == "player-history"){
+                                document.getElementById(sunk_ship).setAttribute("class", "sunk");
+                            } else {
+                                document.getElementById("E-"+sunk_ship).setAttribute("class", "sunk");
+                            }
+
+                }
+
             }
+        }
+
+        eraseAllHits = function(ship_name){
+
+         var ship_cells = [];
+                    var removeSpaces = function (string) {
+                                        return string.replace(/\s+/g, '');
+                                    }
+                    ship_name = removeSpaces(ship_name);
+
+                    //console.info("removeSpaces", ship_name);
+
+                    if(playerOrEnemy == "player-history"){
+                     ship_cells = document.querySelectorAll("#"+removeSpaces(ship_name)+" .mock-cell");
+                    }
+
+                    if (playerOrEnemy == "enemy-player-history"){
+                       ship_cells = document.querySelectorAll("#E-"+removeSpaces(ship_name)+" .mock-cell");
+                    }
+
+
+              ship_cells.forEach(function(ship_cell){
+
+                            ship_cell.textContent = "";
+
+              })
+
 
         }
-    }
+
 
         //loop through each ship element
         for(var s = 0; s < ships.length; s++){
 
-            for( var turn_key in history){
-                var turn_hits = countTurnHits(history[turn_key].hits)
                 var ship_name = ship_names[s];
+                //eraseAllHits(ship_name)
+            for( var turn_key in history){
+                var turn_hits = countTurnHits(history[turn_key].hits, ships, s)
+
                         //console.info("==== history", history[turn_key]);
                         //console.info("TURN HITS =====>", turn_hits);
 
@@ -163,14 +218,18 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
                 showSunkenShips(sunk_ships_arr)
             }
 
+//            var turn_index = last_turn.toString()
+//            var last_turn_hits = countTurnHits(history[turn_index].hits);
+//            showTurnHits(last_turn_hits, ship_name, last_turn);
+
         }
 
 
         //TODO: solve this turn issue;
         //be sure this function is called only thrice per page load;
-        if(historyCount > 2){
-        this.showShipTurnHits = function() { return false;}
-        }
+//        if(historyCount > 2){
+//        this.showShipTurnHits = function() { return false;}
+//        }
     }
 
 

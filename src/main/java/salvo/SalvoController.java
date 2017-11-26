@@ -316,8 +316,8 @@ public class SalvoController {
                 System.out.println("submitted_salvo: " + Arrays.asList(locations) );
 
             /** update the state of ship sinks **/
-            Set<Ship> fleet =  gamePlayer.getShips();
-            updateShipSinkState(fleet);
+//            Set<Ship> fleet =  gamePlayer.getShips();
+//            updateShipSinkState(fleet);
 
 
             return new ResponseEntity<Map<String, Object>>(makeMap("submitted_salvos", salvos ),HttpStatus.CREATED);

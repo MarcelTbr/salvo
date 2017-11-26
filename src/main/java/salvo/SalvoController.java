@@ -41,6 +41,9 @@ public class SalvoController {
     @Autowired
     private GameStateRepository gameStateRepo;
 
+    @Autowired
+    private GameScoreRepository gameScoreRepo;
+
     /** ======== ENDPOINTS ======== */
 
     @RequestMapping("/tests/{gpId}")
@@ -315,10 +318,6 @@ public class SalvoController {
                 System.out.println(salvos_str + " ; turn: " + turn + "; salvo_locs: " + salvo_locs);
                 System.out.println("submitted_salvo: " + Arrays.asList(locations) );
 
-            /** update the state of ship sinks **/
-//            Set<Ship> fleet =  gamePlayer.getShips();
-//            updateShipSinkState(fleet);
-
 
             return new ResponseEntity<Map<String, Object>>(makeMap("submitted_salvos", salvos ),HttpStatus.CREATED);
         }
@@ -515,19 +514,6 @@ public class SalvoController {
             return new ResponseEntity<Map<String, Object>>(makeMap("backend", "ships created!"), HttpStatus.CREATED);
         }
     }
-
-//    private long gameState(long gamePlayerId) {
-//
-//        return gamePlayerRepo.findById(gamePlayerId).getStateOfGame();
-//    }
-
-//    @RequestMapping("game_state/{gpId}")
-//    public long getGameState (@PathVariable long gpId, Authentication auth){
-//
-//           return gameState(gpId);
-//
-//
-//    }
 
     @RequestMapping(value="games/{gameId}/players", method= RequestMethod.POST)
     public ResponseEntity <Map<String, Object>> saveGamePlayer( @PathVariable long gameId, Authentication auth){
@@ -766,14 +752,53 @@ public class SalvoController {
         System.out.println("notSunkShips " + notSunkShips);
         System.out.println("enemyNotSunkShips " + enemyNotSunkShips);
 
-        if(notSunkShips > 0 || enemyNotSunkShips > 0) {
+        long playerSalvos = gamePlayer.getSalvos().stream().count();
+        long enemySalvos = enemyGamePlayer.getSalvos().stream().count();
+
+        if (playerSalvos == enemySalvos) {
+            if (notSunkShips > 0 && enemyNotSunkShips > 0) {
+
+                return false;
+            } else {
+
+                defineGameScore(gamePlayer, notSunkShips, enemyNotSunkShips);
+
+                return true;
+            }
+        }else {
 
             return false;
-        } else {
-
-            return true;
         }
 
+    }
+
+    private void defineGameScore(GamePlayer gamePlayer, long notSunkShips, long enemyNotSunkShips) {
+        Game game = gamePlayer.getGame();
+        Player player = gamePlayer.getPlayer();
+
+        double score = defineScorePoints(notSunkShips, enemyNotSunkShips);
+
+        GameScore gameScore = new GameScore(game, player, score);
+        gameScoreRepo.save(gameScore);
+    }
+
+    private double defineScorePoints(long notSunkShips, long enemyNotSunkShips) {
+        double finalScore = 0;
+        if (notSunkShips == 0 && enemyNotSunkShips == 0){
+            //tie
+            finalScore = 0.5;
+        }
+        if(notSunkShips > 0 && enemyNotSunkShips == 0) {
+            //win
+            finalScore = 1;
+        }
+
+        if(notSunkShips == 0 && enemyNotSunkShips > 0 ){
+            //loss
+            finalScore = 0;
+        }
+
+        return finalScore;
 
     }
 

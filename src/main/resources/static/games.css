@@ -152,3 +152,8 @@ a:visited {
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+
+#join-game {
+    position: relative;
+    top: 8px;
+}

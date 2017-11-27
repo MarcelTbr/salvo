@@ -343,37 +343,53 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
                         console.info("historyUICount", $scope.historyUICount);
 
-                        if ($scope.gameState > 4){
-                       $scope.isGameOVer = "";
-                       $http.get("api/game_over/" + $scope.gp)
-                        .then(function successCallback(response){
-                                 console.info("api/game_over", response);
-                                $scope.isGameOver = response.data;
-                        },
-                        function errorCallback(error){
-                             console.info("api/game_over", error);
+                        //**** GAME OVER LOGIC **** ///
 
-                        })
+                        if ($scope.gameState > 4 ){ //$scope.gameState > 4
+
+                            if($scope.isGameOver){
+
+                                switch($scope.gameScore){
+
+                                   case 1: alert("Game Over, you won!"); break;
+                                   case 0.5: alert("Game Over, it's a tie!"); break;
+                                   case 0: alert("Game Over, you loosed, better luck next time!"); break;
+
+                                }
+
+                                $window.location.href = "http://" + $window.location.host + "/games.html";
+                            }
 
 
-                        console.info( "GAME OVER ===>" , $scope.isGameOver);
 
-                        if($scope.isGameOver){
+                           $scope.isGameOVer = "";
 
-                             alert("Game Over, You won/loosed");
+                           if($scope.gameScore == undefined){
+                               $http.get("api/game_over/" + $scope.gp)
+                                .then(function successCallback(response){
+                                         console.info("api/game_over", response);
+                                        $scope.isGameOver = response.data.isGameOver;
+                                        $scope.gameScore = response.data.gameScore;
+                                },
+                                function errorCallback(error){
+                                     console.info("api/game_over", error);
 
-                             $window.location.href = "http://" + $window.location.host + "/games.html";
-                        }
+                                })
+                            }
+                            //console.info( "GAME OVER ===>" , $scope.isGameOver);
+                            //console.info("GAME SCORE", $scope.gameScore);
+
+
 
                          }
 
+                        /// **** END OF GAME OVER LOGIC ****** //
 
-                        // REFACTOR: this function has no more use
+                        // get the enemy player to display above the enemy game player grid
                         $scope.enemyGamePlayer = updateGameView.getEnemyPlayer($scope.gp, $scope.players);
                             console.info("$scope.userGamePlayer", $scope.userGamePlayer);
                             console.info("$scope.enemyGamePlayer", $scope.enemyGamePlayer);
-                        //   =====>NICE TO HAVE: later implement a method that orders the gamePlayers Array [0]: User [1]: Enemy
-                        //        updateGameView.orderGamePlayers($scope.gp, $scope.players);
+
 
         }
 
@@ -386,12 +402,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                 function(response){
                     // then stores this into a $scope variable for the front-end to work with
 
-                        //  console.info("get salvos response: ", response);
-
-                    //$scope.hits_array = salvosLogic.getHitsArray(response.data["salvosDTO"]);
-                        //                     $interval(function(){
-                        //                            $scope.hits_array = gameHistory.getEnemyHitsArray($scope.historyDTO.enemyHistoryDTO);
-                        //                        }, 500);
                     $scope.enemy_hits_array = salvosLogic.getHitsArray(response.data["enemySalvosDTO"]);
                     $scope.salvos_obj = response.data["salvosDTO"];
                     $scope.enemy_salvos_obj = response.data["enemySalvosDTO"];
@@ -587,9 +597,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
 
         } else {
-            //TODO do count wins and losses
-
-             alert("Game Over, You won/loosed");
 
               $window.location.href = "http://" + $window.location.host + "/games.html";
 
@@ -819,32 +826,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
     // **** END OF USER INFO LOGIC **** //
 
 
-    //**** GAME OVER LOGIC **** ///
-
-        //TODO (4) isGAmeOVer return true
-
-
-
-
-
-//    function getGameOver(){
-//
-//            $.get("api/game_over/"+$scope.gp, function(data){
-//
-//            console.info("api/game_over/"+$scope.gp, data);
-//
-//               $scope.isGameOver = function(){
-//                    return data;
-//               }
-//
-//            })
-//
-//
-//    }
-
-
-
-    /// **** END OF GAME OVER LOGIC ****** //
 
 //
 //    function paintEnemyHits(hits_array){

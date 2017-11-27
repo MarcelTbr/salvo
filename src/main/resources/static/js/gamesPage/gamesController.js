@@ -35,7 +35,9 @@ function($scope, $http, $window) {
 
                 // [2] Get Objects from Backend
                 $scope.getGames();
-
+                $scope.scores_obj_new = [{"player": "Jimi Hendrix", "total": 1, "won": 0, "lost": 0, "tied": 2},
+                {"player": "Jack", "total": 0.5, "won": 0, "lost": 0, "tied": 1},
+                {"player": "Jane", "total": 2, "won": 2, "lost": 0, "tied": 0}]
                 $http.get("/api/scores")
                 .then(function(response){
 

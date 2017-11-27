@@ -620,12 +620,27 @@ public class SalvoController {
     }
 
     @RequestMapping("/scores")
-    public Map<String, List<Double>> getScores(){
+    public List<Map<String, Object>> getScores(){
 
-        Map<String, List<Double>> scoresDTO = new HashMap<>();
+        //Map<String, List<Double>> scoresDTO = new HashMap<>();
+
+        List<Map<String,Object>> scoresDTO = new LinkedList<>();
         List<Player> players = playerRepo.findAll();
 
-        players.stream().forEach(p -> scoresDTO.put (/*p.getId()+": " +*/ p.getUsername(), getTotalScoresList(p, p.getGameScoresSet())));
+        //players.stream().forEach(p -> scoresDTO.put (/*p.getId()+": " +*/ p.getUsername(), getTotalScoresList( p, p.getGameScoresSet() ) ));
+        players.stream().forEach(p -> {
+            List<Double> scoresList = getTotalScoresList( p, p.getGameScoresSet() );
+            Map<String, Object> playerScoresDTO = new HashMap<>();
+            playerScoresDTO.put("player", p.getUsername());
+            playerScoresDTO.put("total", scoresList.get(0));
+            playerScoresDTO.put("won", scoresList.get(1));
+            playerScoresDTO.put("lost", scoresList.get(2));
+            playerScoresDTO.put("tied", scoresList.get(3));
+
+            scoresDTO.add(playerScoresDTO);
+
+
+        });
 
         return scoresDTO;
     }
@@ -739,7 +754,7 @@ public class SalvoController {
 
 
     @RequestMapping("game_over/{gpId}")
-    boolean getGameOverState (Authentication auth, @PathVariable long gpId) {
+    Map<String, Object> getGameOverState (Authentication auth, @PathVariable long gpId) {
 
 
         GamePlayer gamePlayer = gamePlayerRepo.findById(gpId);
@@ -754,25 +769,27 @@ public class SalvoController {
 
         long playerSalvos = gamePlayer.getSalvos().stream().count();
         long enemySalvos = enemyGamePlayer.getSalvos().stream().count();
+        boolean gameOver = false;
+        Map <String, Object> gameOverDTO = new HashMap<>();
 
         if (playerSalvos == enemySalvos) {
             if (notSunkShips > 0 && enemyNotSunkShips > 0) {
 
-                return false;
+                gameOver = false;
             } else {
 
-                defineGameScore(gamePlayer, notSunkShips, enemyNotSunkShips);
-
-                return true;
+                double gameScore = defineGameScore(gamePlayer, notSunkShips, enemyNotSunkShips);
+                gameOverDTO.put("gameScore", gameScore);
+                gameOver = true;
             }
-        }else {
-
-            return false;
         }
 
+        gameOverDTO.put("isGameOver", gameOver);
+
+        return gameOverDTO;
     }
 
-    private void defineGameScore(GamePlayer gamePlayer, long notSunkShips, long enemyNotSunkShips) {
+    private double defineGameScore(GamePlayer gamePlayer, long notSunkShips, long enemyNotSunkShips) {
         Game game = gamePlayer.getGame();
         Player player = gamePlayer.getPlayer();
 
@@ -780,6 +797,8 @@ public class SalvoController {
 
         GameScore gameScore = new GameScore(game, player, score);
         gameScoreRepo.save(gameScore);
+
+        return score;
     }
 
     private double defineScorePoints(long notSunkShips, long enemyNotSunkShips) {

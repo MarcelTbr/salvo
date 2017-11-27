@@ -64,8 +64,8 @@
     <tr ><th>User</th><th>Total Points</th><th>Won</th><th>Lost</th><th>Tied</th></tr>
     </thead>
     <tbody>
-    <tr ng-repeat="(key, score) in scores_obj"><td>{{key}}</td><td>{{score[0]}}</td><td>{{score[1]}}<td>{{score[2]}}</td><td>{{score[3]}}</td></td></tr>
-
+    <!--<tr ng-repeat="(key, score) in scores_obj"><td>{{key}}</td><td>{{score[0]}}</td><td>{{score[1]}}<td>{{score[2]}}</td><td>{{score[3]}}</td></td></tr>-->
+    <tr ng-repeat="score in scores_obj | orderBy : '-total'"><td>{{score.player}}</td><<td>{{score.total}}</td><td>{{score.won}}</td><td>{{score.lost}}</td><td>{{score.tied}}</td></tr>
     </tbody>
 
 </table>
@@ -75,7 +75,7 @@
     <h2>Games played by {{player.username}}</h2>
     <div >
         <ul id="player_games_list">
-            <li ng-repeat="game in player_games" >
+            <li ng-repeat="game in player_games | orderBy : 'game_id'" >
                 <u class="game-title"><b >Game {{game.game_id}}</b></u><br /><br />
                 <b>Creation Date:</b></b> {{game.game_date}}<br /><br />
                 <span ng-repeat="player in game.game_players">
@@ -108,7 +108,7 @@
             <b>Player {{player.id}}:</b> {{player.username}}
             <b>Joined:</b> {{player.joining_date }} <br />
         </span>
-        <button ng-show="game.game_players.length < 2" ng-click="joinGame(game.game_id)">Join Game</button>
+        <button id="join-game" ng-show="game.game_players.length < 2" ng-click="joinGame(game.game_id)">Join Game</button>
         <br /><br />
     </li>
 </ul>

@@ -21,3 +21,8 @@ var app = angular.module('App', [ 'PlayerViewModule', 'GamesPageModule' ], funct
 
  var pl_view_mod = angular.module('PlayerViewModule', []);
 
+app.filter('sortTotalPoints', function(a,b){
+
+    return a[0] - b[0];
+
+})

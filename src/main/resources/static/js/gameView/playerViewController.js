@@ -67,7 +67,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         //    [2] Load Back-end Objects
 
         // ******** getGameViewDTO ******* //
-        //TODO loadGameView refactor;
         $scope.game_view_obj = null;
         updateGameView.getGameViewDTO($scope.gp, function(response){
                      console.info("updateGameView.getGameViewDTO", response);
@@ -211,21 +210,25 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                                 // if cell not repeated
                                 return false;
                             }
-
+                            if ($scope.gameState > 3){
                             if($scope.prov_salvo_array.length < 5 ){
-
-                                if (repeated_cells.length > 0 || repeatedSalvo(cell_data)) { alert("Choose another cell.")}
-                                else {
-
-                                        $scope.prov_salvo_array.push(cell_data);
-                                        //update game state to "shooting salvos"
-                                       $.post("api/game_state/"+$scope.gp, {'gameState': 5})
-                                       $.post("api/enemy_game_state/"+$scope.gp, {'gameState': 6})
-                                       // alert($scope.prov_salvo_array);
-                                       }
+                                    if (repeated_cells.length > 0 || repeatedSalvo(cell_data)) { alert("Choose another cell.")}
+                                    else {
+                                            //TODO (1)  gameState 5 & 6
+                                            if( $scope.gameState  > 3 &&  $scope.gameState != 6 ){
+                                                $scope.prov_salvo_array.push(cell_data);
+                                                //update game state to "shooting salvos"
+                                               $.post("api/game_state/"+$scope.gp, {'gameState': 5})
+                                               $.post("api/enemy_game_state/"+$scope.gp, {'gameState': 6})
+                                           } else {
+                                                alert("Please wait for your turn to fire salvos")
+                                           }
+                                           // alert($scope.prov_salvo_array);
+                                           }
                             } else {
                                 alert("Salvo limit reached");
                             }
+                            } else {  alert("Wait for the other player to join")}
 
                         }
                         $scope.isHitByEnemy = function (cell_data){
@@ -316,7 +319,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                                 }
 
                             }
-                                    // TODO (1) historyUICOUNT
+
                         $scope.showGameHistoryUI();
 
                         /* fill game History UI */
@@ -429,7 +432,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                     }
 
 
-                    //TODO better implement turn logic
                     if ($scope.salvos_obj != null && $scope.enemy_salvos_obj != null) {
                         $timeout(function(){getCurrentTurn()}, 100);
                     }
@@ -556,8 +558,8 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
         // [C] make sure it's your turn to submit salvos and it's not game over
 
-        if(!$scope.isGameOver){  //TODO (3) better implement Game Over Logic //!$scope.isGameOver()
-            if( $scope.user_turns <= $scope.enemy_turns ){
+        if(!$scope.isGameOver){  //TODO (3) gameStates 6 & 7
+            if( $scope.gameState == 4 || $scope.gameState == 5 ){ // $scope.user_turns <= $scope.enemy_turns
 
                 // [D] post it to the backend
                  $http.post("api/games/players/"+$scope.gp+"/salvos", submit_salvos_obj)
@@ -567,7 +569,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                     console.log("something went wrong..."); console.log(response);
                  });
                 $scope.salvosSent = true;
-                $scope.historyUICount = 0;     //TODO fix this
+                $scope.historyUICount = 0;
                 //update Game State to "waiting for enemy salvos"
                 if($scope.game_view_obj.enemyGameState != 7){
 
@@ -644,7 +646,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         }
        }
 
-    //TODO encapsulate as a Service
+    //TODO (2) encapsulate as a Service
     $scope.paintPlacedShips = function(gp_placed_ships_obj, prov_ship_loc, cell_data){
             // var grid_cell_legal = placingShips.legalCell(placingShips.legalRow, placingShips.legalCol);
         var mouse_over_grid = typeof prov_ship_loc != 'undefined';
@@ -756,7 +758,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
 
         }
-         var fillGameHistoryUIEnemy = function(historyDTO, historyUICount){  //TODO (2) fillEnemy
+         var fillGameHistoryUIEnemy = function(historyDTO, historyUICount){
 
                 if (historyDTO != null) {
                     var enemy_history = historyDTO.enemyHistoryDTO;

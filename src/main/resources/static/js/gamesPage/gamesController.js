@@ -1,5 +1,5 @@
-angular.module('GamesPageModule', []).controller('GamesController', ['$scope', '$http', '$window',
-function($scope, $http, $window) {
+angular.module('GamesPageModule', []).controller('GamesController', ['$scope', '$http', '$window', '$interval',
+function($scope, $http, $window, $interval) {
 
                 // [1] Initialize Variables
                 $scope.guest
@@ -35,19 +35,22 @@ function($scope, $http, $window) {
 
                 // [2] Get Objects from Backend
                 $scope.getGames();
-                $scope.scores_obj_new = [{"player": "Jimi Hendrix", "total": 1, "won": 0, "lost": 0, "tied": 2},
-                {"player": "Jack", "total": 0.5, "won": 0, "lost": 0, "tied": 1},
-                {"player": "Jane", "total": 2, "won": 2, "lost": 0, "tied": 0}]
-                $http.get("/api/scores")
-                .then(function(response){
 
-                     $scope.scores_obj = angular.fromJson(response.data);
-                     $scope.scores_keys = Object.keys($scope.scores_obj);
-                     console.log($scope.scores_obj);
-                     console.log("scores_obj_keys_array: ")
-                     console.log($scope.scores_keys);
+                $scope.getScores = function (){
+                    $http.get("/api/scores")
+                    .then(function(response){
 
-                })
+                         $scope.scores_obj = angular.fromJson(response.data);
+                         //$scope.scores_keys = Object.keys($scope.scores_obj);
+                         //console.log($scope.scores_obj);
+
+
+                    })
+                }
+
+                $scope.getScores();
+                //refresh games and scores list every 5 seconds
+                $interval(function(){ $scope.getGames(), $scope.getScores()}, 5000)
 
                             // LEGACY: use default Callback logging or remove
                             $scope.successCallback = function(status){ console.log("Sucess!")}
@@ -59,17 +62,7 @@ function($scope, $http, $window) {
                     var game_id = prompt("Please enter the id of the game you would like to join", "Game id");
 
                     $scope.joinGame(game_id);
-                    /*$.post("/api/games/"+game_id+"/players")
-                    .done(function(response){
-                         console.log("response:");
-                         console.log(response);
-                         $window.location.href = "http://" + $window.location.host + "/game.html?gp="+response.gp_id;
-                    })
-                    .fail(function(response){
-                         console.log("Fail response:");
-                         console.log(response);
-                         alert(response.responseJSON.backend);
-                    })*/
+
 
                 }
 

@@ -73,7 +73,7 @@ public class SalvoController {
         return makeMap("stateOfGame", stateOfGame);
 
     }
-    //TODO FIND OUT LOOPS
+
     public Map<String, Object> makeHistoryDTO(long gp_id) {
         /** making the game history DTO **/
         GamePlayer gamePlayer = gamePlayerRepo.findById(gp_id);
@@ -339,26 +339,38 @@ public class SalvoController {
             return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, wait until " +
                     "an enemy player joins the game"), HttpStatus.ACCEPTED); //FORBIDDEN TODO fix this BUG
         } else {
-            //getting all player salvos
-            Object playerSalvos = getAllPlayerSalvos(gamePlayer);
-            System.out.println("playerSalvos: " + playerSalvos);
-            Set<Salvo> playerSalvosSet = gamePlayer.getSalvos();
-            //get enemy's Fleet
-            GamePlayer enemyGamePlayer = getEnemyGamePlayer(gamePlayer).get(); //it's an optional
+            Map<String, Object> salvos_response = makeSalvosResponse(gamePlayer);
 
-            Map<Long, Object> salvos_dto = makeUserSalvosDTO(playerSalvosSet, enemyGamePlayer);
-            // make enemy salvos dto
-            Map<Long, Object> e_salvos_dto = makeEnemySalvosDTO(gamePlayer, enemyGamePlayer);
-
-            Map<String, Object> salvos_response = new HashMap<>();
-            salvos_response.put("salvosDTO", salvos_dto);
-            salvos_response.put("enemySalvosDTO", e_salvos_dto);
 
             //return the salvos_dto object and an accepted HttpStatus Response
             return new ResponseEntity<Map<String, Object>>(salvos_response, HttpStatus.ACCEPTED );
 
         }
 
+    }
+
+    public Map<String, Object> makeSalvosResponse(GamePlayer gamePlayer) {
+        //getting all player salvos
+        Object playerSalvos = getAllPlayerSalvos(gamePlayer);
+        System.out.println("playerSalvos: " + playerSalvos);
+        Set<Salvo> playerSalvosSet = gamePlayer.getSalvos();
+        //get enemy's Fleet
+        Optional<GamePlayer> enemyGamePlayer = getEnemyGamePlayer(gamePlayer); //it's an optional
+
+
+
+        Map<String, Object> salvos_response = new HashMap<>();
+
+        if(enemyGamePlayer.isPresent()){
+            Map<Long, Object> salvos_dto = makeUserSalvosDTO(playerSalvosSet, enemyGamePlayer.get());
+            // make enemy salvos dto
+            Map<Long, Object> e_salvos_dto = makeEnemySalvosDTO(gamePlayer, enemyGamePlayer.get());
+            salvos_response.put("salvosDTO", salvos_dto);
+            salvos_response.put("enemySalvosDTO", e_salvos_dto);
+        }
+
+
+        return salvos_response;
     }
 
     private Map<Long, Object> makeEnemySalvosDTO(GamePlayer gamePlayer, GamePlayer enemyGamePlayer) {
@@ -1081,6 +1093,9 @@ public class SalvoController {
                 long enemyGameState = enemyPlayer.getStateOfGame();
                 game_viewDTO.put("enemyGameState", enemyGameState);
         game_viewDTO.put("gameHistoryDTO", makeHistoryDTO(gp_id));
+        game_viewDTO.put("salvos", makeSalvosResponse(gamePlayer)); //TODO (1) Salvos DTO
+
+
 //        if (enemyShipsList.isPresent()) {
 //            game_viewDTO.put("enemy_ships", enemyShipsList);
 //        } else {

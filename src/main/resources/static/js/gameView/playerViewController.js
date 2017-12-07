@@ -82,7 +82,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                     $scope.enemyGameState = $scope.game_view_obj.enemyGameState
                     console.info("gameState ====>>", $scope.game_view_obj.gameState);
                     console.info("enemyGameState ====>>", $scope.game_view_obj.enemyGameState);
-
+                    loadSalvos();
                     updateGameViewObjects();
 
                      // *** USER INFO ** //
@@ -106,7 +106,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
             $scope.enemyGameState = $scope.game_view_obj.enemyGameState
             console.info("gameState ====>>", $scope.game_view_obj.gameState);
             console.info("enemyGameState ====>>", $scope.game_view_obj.enemyGameState);
-
+            loadSalvos();
             updateGameViewObjects(response);
 
             // *** USER INFO ** //
@@ -398,16 +398,12 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
         //******* END OF getGameViewDTO *********//
 
-        function loadSalvos(){
+        function loadSalvos(){ //TODO (0) load Salvos
 
-            salvosLogic.getSalvosObject($scope.gp).then(
 
-                function(response){
-                    // then stores this into a $scope variable for the front-end to work with
-
-                    $scope.enemy_hits_array = salvosLogic.getHitsArray(response.data["enemySalvosDTO"]);
-                    $scope.salvos_obj = response.data["salvosDTO"];
-                    $scope.enemy_salvos_obj = response.data["enemySalvosDTO"];
+                    $scope.enemy_hits_array = salvosLogic.getHitsArray($scope.game_view_obj.salvos.enemySalvosDTO);
+                    $scope.salvos_obj = $scope.game_view_obj.salvos.salvosDTO
+                    $scope.enemy_salvos_obj = $scope.game_view_obj.salvos.enemySalvosDTO;
                            // console.info("====== ALL SALVOS DTO ====", response.data);
 
                     if($scope.salvos_obj != null){
@@ -439,19 +435,9 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
 
 
-                }
-
-
-
-            );
 
         }
 
-        //// [ Calling functions to load back-end objects ]  \\\\
-        loadSalvos();  //get current turn is inside with a timeout of 100ms
-
-        //load salvos every 3,5 secs to check if enemy fired new salvos
-        $interval(function(){ loadSalvos();}, 3500);
 
     $scope.showTurnInfo = function(){
         /// console.warn("$scope.user_turns", $scope.user_turns)

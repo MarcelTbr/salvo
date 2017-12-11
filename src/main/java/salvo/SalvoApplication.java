@@ -38,6 +38,12 @@ import java.util.*;
 public class SalvoApplication {
 
     public static void main(String[] args) {
+
+        System.setProperty("javax.net.ssl.keyStore","keystore");
+        System.setProperty("javax.net.ssl.keyStorePassword","salvo87");
+        System.setProperty("javax.net.ssl.trustStore","truststore");
+        System.setProperty("javax.net.ssl.trustStorePassword","salvo87");
+
         SpringApplication.run(SalvoApplication.class, args);
     }
 

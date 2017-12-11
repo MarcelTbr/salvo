@@ -11,9 +11,9 @@ angular.module('PlayerViewModule').service('updateGameView', function($http, $wi
             }).error(function(response){
 
                  console.log("Response:"); console.log(response);
-                alert("Sorry, not authorized to see this page.")
+               // alert("Sorry, not authorized to see this page.")
 
-                $window.location.href = "http://" + $window.location.host + "/games.html";
+                //$window.location.href = "http://" + $window.location.host + "/games.html";
 
             });
 

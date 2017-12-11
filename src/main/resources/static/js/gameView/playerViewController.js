@@ -771,8 +771,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
 
     function getUserInfo(enemyGameState, gameState){
-        console.info("GetUSER INFO ===>", enemyGameState)
-        console.info("GetUSER INFO player STATE===>", gameState)
 
         var userInfo;
 

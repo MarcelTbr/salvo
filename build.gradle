@@ -36,8 +36,9 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-security')
-	runtime('mysql:mysql-connector-java')
+	runtime('org.postgresql:postgresql')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 //runtime('mysql:mysql-connector-java')
 //runtime('com.h2database:h2')
+//runtime('org.postgresql:postgresql')

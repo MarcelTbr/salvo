@@ -227,6 +227,8 @@ public class SalvoApplication {
             Salvo salvo2_3 = new Salvo(gp2, 3, salvo2_3_locs);
             gp2.addSalvo(salvo2_3); salvos.save(salvo2_3);
 
+            gp1.setStateOfGame(4);
+            gp2.setStateOfGame(7);
 
             /** Create some fake GameScore Instances */
 

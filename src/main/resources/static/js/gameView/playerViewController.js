@@ -482,20 +482,20 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
     // outputs: save a provisional array of ship locations, to paint on the frontend
         var placed_ships_array = $scope.ship_placing_obj[$scope.gp];
 
-        // 1- When Ship selected, get provisional ship location
-        if( $scope.selected_ship != undefined){
+        //1- Check if the ship is repeated in the placed ships array
+        var noShipRepeated = placingShips.noShipRepeated($scope.ship_name, placed_ships_array );
+                                //console.info("NO SHIP REPEATED", noShipRepeated);
+                                //console.info("PLACED SHIPS ARRAY LENGTH", placed_ships_array.length)
+        //2- If selected_ship is in placed_ships array, then assign to undefined, to avoid painting it on the board
+        if( !noShipRepeated && (typeof $scope.selected_ship != "undefined")  ){  $scope.selected_ship = "undefined"; }
+
+        // 3- When Ship selected, get provisional ship location
+        if( $scope.selected_ship != "undefined"){
             $scope.prov_ship_loc = placingShips.getProvShipLoc(row,col, $scope.selected_ship, $scope.ship_align);
                                 //console.info("PLACED SHIPS ARR", $scope.ship_placing_obj[$scope.gp])
 
 
         }
-
-        //2- Check if the ship is repeated in the placed ships array
-        var noShipRepeated = placingShips.noShipRepeated($scope.ship_name, placed_ships_array );
-                                //console.info("NO SHIP REPEATED", noShipRepeated);
-                                //console.info("PLACED SHIPS ARRAY LENGTH", placed_ships_array.length)
-        //3- If selected_ship is in placed_ships array, then assign to undefined, to avoid painting it on the board
-        if( !noShipRepeated && (typeof $scope.selected_ship != undefined)  ){  $scope.selected_ship = undefined; }
      }
 
      // [3] get the current Turn

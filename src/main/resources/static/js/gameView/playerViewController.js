@@ -211,6 +211,11 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                                 return false;
                             }
                             if ($scope.gameState > 3){
+
+                           if($scope.enemyGameState == 5){
+                                $.post("api/game_state/"+$scope.gp, {'gameState': 6})
+                           }
+
                             if($scope.prov_salvo_array.length < 5 ){
                                     if (repeated_cells.length > 0 || repeatedSalvo(cell_data)) { alert("Choose another cell.")}
                                     else {
@@ -219,7 +224,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                                                 $scope.prov_salvo_array.push(cell_data);
                                                 //update game state to "shooting salvos"
                                                $.post("api/game_state/"+$scope.gp, {'gameState': 5})
-                                               $.post("api/enemy_game_state/"+$scope.gp, {'gameState': 6})
+                                               //$.post("api/enemy_game_state/"+$scope.gp, {'gameState': 6})
                                            } else {
                                                 alert("Please wait for your turn to fire salvos")
                                            }
@@ -398,7 +403,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
         //******* END OF getGameViewDTO *********//
 
-        function loadSalvos(){ //TODO (0) load Salvos
+        function loadSalvos(){
 
 
                     $scope.enemy_hits_array = salvosLogic.getHitsArray($scope.game_view_obj.salvos.enemySalvosDTO);
@@ -480,6 +485,8 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         if( $scope.selected_ship != undefined){
             $scope.prov_ship_loc = placingShips.getProvShipLoc(row,col, $scope.selected_ship, $scope.ship_align);
                                 //console.info("PLACED SHIPS ARR", $scope.ship_placing_obj[$scope.gp])
+            $scope.selected_ship = undefined;
+            //reset selected ship once it is placed
         }
 
         //2- Check if the ship is repeated in the placed ships array

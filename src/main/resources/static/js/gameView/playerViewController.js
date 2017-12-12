@@ -473,6 +473,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                 ///alert("Ship Selected: " + $scope.ship_types[ship_index].type);
         console.info("ship Selected", $scope.ship_types[ship_index]);
         $scope.ship_name = $scope.selected_ship["type"];
+        console.info("ship_name", $scope.ship_name);
 
     }
 
@@ -485,8 +486,8 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         if( $scope.selected_ship != undefined){
             $scope.prov_ship_loc = placingShips.getProvShipLoc(row,col, $scope.selected_ship, $scope.ship_align);
                                 //console.info("PLACED SHIPS ARR", $scope.ship_placing_obj[$scope.gp])
-            $scope.selected_ship = undefined;
-            //reset selected ship once it is placed
+
+
         }
 
         //2- Check if the ship is repeated in the placed ships array
@@ -494,7 +495,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                                 //console.info("NO SHIP REPEATED", noShipRepeated);
                                 //console.info("PLACED SHIPS ARRAY LENGTH", placed_ships_array.length)
         //3- If selected_ship is in placed_ships array, then assign to undefined, to avoid painting it on the board
-        if( !noShipRepeated && (typeof $scope.selected_ship != 'undefined')  ){  $scope.selected_ship = "undefined"; }
+        if( !noShipRepeated && (typeof $scope.selected_ship != undefined)  ){  $scope.selected_ship = undefined; }
      }
 
      // [3] get the current Turn

@@ -187,12 +187,6 @@ angular.module('PlayerViewModule').service('gameHistory', function($http){
 
         }
 
-
-        //TODO: solve this turn issue;
-        //be sure this function is called only thrice per page load;
-//        if(historyCount > 2){
-//        this.showShipTurnHits = function() { return false;}
-//        }
     }
 
 

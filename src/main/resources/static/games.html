@@ -64,7 +64,6 @@
     <tr ><th>User</th><th>Total Points</th><th>Won</th><th>Lost</th><th>Tied</th></tr>
     </thead>
     <tbody>
-    <!--<tr ng-repeat="(key, score) in scores_obj"><td>{{key}}</td><td>{{score[0]}}</td><td>{{score[1]}}<td>{{score[2]}}</td><td>{{score[3]}}</td></td></tr>-->
     <tr ng-repeat="score in scores_obj | orderBy : '-total'"><td>{{score.player}}</td><td>{{score.total}}</td><td>{{score.won}}</td><td>{{score.lost}}</td><td>{{score.tied}}</td></tr>
     </tbody>
 
@@ -77,20 +76,17 @@
         <ul id="player_games_list">
             <li ng-repeat="game in player_games | orderBy : 'game_id'" >
                 <u class="game-title"><b >Game {{game.game_id}}</b></u><br /><br />
-                <b>Creation Date:</b></b> {{game.game_date}}<br /><br />
+                <b>Creation Date:</b></b> {{game.game_date}}<br />
+                <b>State:</b></b><span>{{false == game.over ? ' In progress' : ' Game Over' }}</span><br>
+                <br />
                 <span ng-repeat="player in game.game_players">
-
-                    <!--TODO: remove GP numbers from the front end-->
-
                     <span>(GP#{{player.gp_id}})</span>
                     <b> {{player.username}} </b>
                      {{player.joining_date }}
-                    <a id="player.gp_id" ng-show="player.pl_id == games_obj.player.id" ng-href="/game.html?gp={{player.gp_id}}">
-                        Join Game#{{game.game_id}} </a>
+                    <a ng-if="!game.over" id="player.gp_id" ng-show="player.pl_id == games_obj.player.id" ng-href="/game.html?gp={{player.gp_id}}">
+                        <button>Join Game</button></a>
                     <br />
                 </span>
-
-                <!--getUrl(game.game_id)-->
                 <br /><br />
             </li>
         </ul>
@@ -101,9 +97,10 @@
 <div id="all-games">
 <h2>Active Salvo Games</h2>
 <ul id="games_list">
-    <li ng-repeat="game in games" game-data="{{game.game_id}}">
+    <li ng-repeat="game in games | filter: gameOver(game.over)" game-data="{{game.game_id}}">
         <u class="game-title"><b >Game {{game.game_id}}</b></u><br /><br />
-        <b>Creation Date:</b></b> {{game.game_date}}<br /><br />
+        <b>Creation Date:</b></b> {{game.game_date}}<br />
+        <b>State:</b></b><span>{{false == game.over ? ' In progress' : ' Game Over' }}</span><br><br />
         <span ng-repeat="player in game.game_players">
             <b>Player {{player.id}}:</b> {{player.username}}
             <b>Joined:</b> {{player.joining_date }} <br />

@@ -219,7 +219,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                             if($scope.prov_salvo_array.length < 5 ){
                                     if (repeated_cells.length > 0 || repeatedSalvo(cell_data)) { alert("Choose another cell.")}
                                     else {
-                                            //TODO (1)  gameState 5 & 6
+
                                             if( $scope.gameState  > 3 &&  $scope.gameState != 6 ){
                                                 $scope.prov_salvo_array.push(cell_data);
                                                 //update game state to "shooting salvos"
@@ -361,7 +361,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
                                    case 1: alert("Game Over, you won!"); break;
                                    case 0.5: alert("Game Over, it's a tie!"); break;
-                                   case 0: alert("Game Over, you loosed, better luck next time!"); break;
+                                   case 0: alert("Game Over, you lost, better luck next time!"); break;
 
                                 }
 
@@ -552,7 +552,7 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
 
         // [C] make sure it's your turn to submit salvos and it's not game over
 
-        if(!$scope.isGameOver){  //TODO (3) gameStates 6 & 7
+        if(!$scope.isGameOver){
             if( $scope.gameState == 4 || $scope.gameState == 5 ){ // $scope.user_turns <= $scope.enemy_turns
 
                 // [D] post it to the backend
@@ -567,8 +567,8 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
                 //update Game State to "waiting for enemy salvos"
                 if($scope.game_view_obj.enemyGameState != 7){
 
-                $.post("api/game_state/"+$scope.gp, {'gameState': 6})
-                $.post("api/enemy_game_state/"+$scope.gp, {'gameState': 7})
+                $.post("api/game_state/"+$scope.gp, {'gameState': 6});
+                $.post("api/enemy_game_state/"+$scope.gp, {'gameState': 7});
 
                 } else {
 
@@ -640,7 +640,6 @@ angular.module('PlayerViewModule').controller('PlayerViewController', ['$scope',
         }
        }
 
-    //TODO (2) encapsulate as a Service
     $scope.paintPlacedShips = function(gp_placed_ships_obj, prov_ship_loc, cell_data){
             // var grid_cell_legal = placingShips.legalCell(placingShips.legalRow, placingShips.legalCol);
         var mouse_over_grid = typeof prov_ship_loc != 'undefined';

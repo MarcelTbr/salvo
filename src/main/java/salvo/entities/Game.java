@@ -21,11 +21,13 @@ public class Game {
 
     private String creationDate;
 
-    @OneToMany(mappedBy="game", fetch=FetchType.EAGER)
+    @OneToMany(mappedBy="game", fetch=FetchType.EAGER, cascade = CascadeType.ALL)
      Set<GamePlayer> gamePlayers;
 
     @OneToMany(mappedBy = "game", fetch=FetchType.EAGER)
     List<GameScore> gameScores;
+
+    private boolean isGameOver;
 
     public Game()  { }
 
@@ -33,6 +35,7 @@ public class Game {
     public Game (Date date){
         DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
         this.creationDate = df.format(date);
+        this.isGameOver = false;
     }
 
 
@@ -66,4 +69,11 @@ public class Game {
                 .collect(Collectors.toList());
     }
 
+    public boolean isGameOver() {
+        return isGameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        isGameOver = gameOver;
+    }
 }

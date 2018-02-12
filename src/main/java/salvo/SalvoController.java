@@ -226,7 +226,6 @@ public class SalvoController {
         historyTurnMap.put("sunk", sunkShips);
 
         //change Ship Sunk attribute
-        // TODO extract this as an independent method?
         singleHitShips.stream()
                 .filter(s -> s.getShipHitsNum() == s.getShipLocations().size())
                 .forEach(Ship::setSunkShip);
@@ -275,7 +274,6 @@ public class SalvoController {
                .collect(Collectors.toList()).get(0);
     }
 
-    //TODO: use or erase
     // this method is useful for a single salvo_loc, not while streaming a salvo_loc array/list
     private ArrayList<Ship> getHitShips(Set<Ship> fleet, String salvo_loc) {
 
@@ -337,7 +335,7 @@ public class SalvoController {
         } else if (number_of_players == 1){
 
             return new ResponseEntity<Map<String, Object>>(makeMap("backend", "sorry, wait until " +
-                    "an enemy player joins the game"), HttpStatus.ACCEPTED); //FORBIDDEN TODO fix this BUG
+                    "an enemy player joins the game"), HttpStatus.ACCEPTED);
         } else {
             Map<String, Object> salvos_response = makeSalvosResponse(gamePlayer);
 
@@ -530,7 +528,6 @@ public class SalvoController {
     @RequestMapping(value="games/{gameId}/players", method= RequestMethod.POST)
     public ResponseEntity <Map<String, Object>> saveGamePlayer( @PathVariable long gameId, Authentication auth){
     Game game = gameRepo.findById(gameId);
-    //TODO: check if you can post two games with the same id
         System.out.print("game with id: " + gameId);
         System.out.print(game);
         String username = auth.getName();
@@ -793,6 +790,9 @@ public class SalvoController {
                 double gameScore = defineGameScore(gamePlayer, notSunkShips, enemyNotSunkShips);
                 gameOverDTO.put("gameScore", gameScore);
                 gameOver = true;
+                Game g = gamePlayer.getGame();
+                        g.setGameOver(true);
+                        gameRepo.save(g);
             }
         }
 
@@ -1024,6 +1024,7 @@ public class SalvoController {
         /** Here we're nesting a set of objects: [gamePlayersDTO]
          *  into a map: [newGame]*/
         newGame.put("game_players", getGamePlayersDTO(g));
+        newGame.put("over", g.isGameOver());
         return newGame;
     }
 
@@ -1093,7 +1094,7 @@ public class SalvoController {
                 long enemyGameState = enemyPlayer.getStateOfGame();
                 game_viewDTO.put("enemyGameState", enemyGameState);
         game_viewDTO.put("gameHistoryDTO", makeHistoryDTO(gp_id));
-        game_viewDTO.put("salvos", makeSalvosResponse(gamePlayer)); //TODO (1) Salvos DTO
+        game_viewDTO.put("salvos", makeSalvosResponse(gamePlayer));
 
 
 //        if (enemyShipsList.isPresent()) {
@@ -1242,7 +1243,6 @@ public class SalvoController {
 
 
         fleet.stream().forEach(ship -> {ship.updateAllHitLocations(ship.getTurnHitLocations());
-            //TODO beware of loops
 
 
         });
@@ -1265,7 +1265,6 @@ public class SalvoController {
                     long size = ship.getShipLocations().size();
 
                     System.out.println("SHIP: " + ship.getShipType() + " Hits: " + ship.getAllHitLocations() + " Ship SIZE " + ship.getShipLocations().size() );
-                    //TODO beware of loops;
                     if (Objects.equals(hits, size )) {
 
                         ship.setSunkShip();
@@ -1284,20 +1283,14 @@ public class SalvoController {
         fleet.stream().forEach(ship-> {ship.setShipHitsNum( ship.getTurnHitLocations().size() );
             System.out.println(ship.getShipType() + " hit_num: " + ship.getShipHitsNum() + " " + ship.getTurnHitLocations()); }
         );
-        //fleet.stream().forEach(Ship::updateShipHitsNum);
+
     }
 
     private List<String> makeSunkShipsList(Set<Ship> fleet) {
 
         List<String> sunkenShips = new LinkedList<>();
 
-//        updateShipHitsNum(fleet);
-//
-//        /** updating all of the hits, to know when a ship is sunk */
-//        fleet.stream().forEach(ship -> ship.updateAllHitLocations(ship.getTurnHitLocations()));
-//
-//        updateShipSinkState(fleet);
-
+        /** updating all of the hits, to know when a ship is sunk */
         fleet.stream().forEach(ship -> {
 
             if(ship.isSunkShip()){

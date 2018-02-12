@@ -45,10 +45,10 @@ public class SalvoApplication {
 
     public static void main(String[] args) {
 
-        System.setProperty("javax.net.ssl.keyStore","keystore");
-        System.setProperty("javax.net.ssl.keyStorePassword","salvo87");
-        System.setProperty("javax.net.ssl.trustStore","truststore");
-        System.setProperty("javax.net.ssl.trustStorePassword","salvo87");
+//        System.setProperty("javax.net.ssl.keyStore","keystore");
+//        System.setProperty("javax.net.ssl.keyStorePassword","salvo87");
+//        System.setProperty("javax.net.ssl.trustStore","truststore");
+//        System.setProperty("javax.net.ssl.trustStorePassword","salvo87");
 
         SpringApplication.run(SalvoApplication.class, args);
     }
@@ -88,11 +88,14 @@ public class SalvoApplication {
             Game game3 = new Game(Date.from(date.toInstant().plusSeconds(7200)));
 
             games.save(game1);
-            games.save(game2);
-            games.save(game3);
-            Game game4 = new Game(Date.from(date.toInstant().plusSeconds(10800))); games.save(game4);
-            Game game5 = new Game(Date.from(date.toInstant().plusSeconds(10800))); games.save(game5);
-            Game game6 = new Game(Date.from(date.toInstant().plusSeconds(10800))); games.save(game6);
+            game2.setGameOver(true);games.save(game2);
+            game3.setGameOver(true);games.save(game3);
+            Game game4 = new Game(Date.from(date.toInstant().plusSeconds(10800)));
+            game4.setGameOver(true);games.save(game4);
+            Game game5 = new Game(Date.from(date.toInstant().plusSeconds(10800)));
+            game5.setGameOver(true);games.save(game5);
+            Game game6 = new Game(Date.from(date.toInstant().plusSeconds(10800)));
+            game6.setGameOver(true);games.save(game6);
 
             /** Create 5 more dates with 30min difference each (1800s) */
 
@@ -232,8 +235,8 @@ public class SalvoApplication {
 
             /** Create some fake GameScore Instances */
 
-            GameScore gs1_1 = new GameScore(game1, player1, 0);  gameScores.save(gs1_1);
-            GameScore gs1_2 = new GameScore(game1, player2, 1);  gameScores.save(gs1_2);
+            //GameScore gs1_1 = new GameScore(game1, player1, 0);  gameScores.save(gs1_1);
+            //GameScore gs1_2 = new GameScore(game1, player2, 1);  gameScores.save(gs1_2);
             GameScore gs2_1 = new GameScore(game2, player3, 0.5);gameScores.save(gs2_1);
             GameScore gs2_2 = new GameScore(game2, player4, 0.5);gameScores.save(gs2_2);
             GameScore gs3_1 = new GameScore(game3, player5, 0);  gameScores.save(gs3_1);
